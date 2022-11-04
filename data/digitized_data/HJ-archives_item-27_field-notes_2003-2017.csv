@@ -1,0 +1,62 @@
+﻿page,obs_type,reported_id,estimated_id,estimate_cert,accepted_name,prevalence,year,month,day ,locality,island,position,poly,lat,lon,coord_unc,original_notes,digitizer_notes
+1,survey,Groc nul ,Iris pseudacorus,m,Iris pseudacorus,abundant,2004,2,4,Mt. Sutil,Galiano,,,,,,,Lily Groc is the common name of yellow iris. Recent iNat observation on Mt. Sutil
+1,survey,Clar amo,Clarkia amoena,h,Clarkia amoena,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,"not sure if ""n"" or ""m"" in Claramo/ Clarano"
+1,survey,Clar amo + inshade,,,,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,
+1,survey,Tori jap,Torilis japonica,h,Torilis japonica,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,
+1,survey,Osmo chi,Osmorhiza chilensis,h,Osmorhiza berteroi,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,Osmorhiza berteroi was previously chilensis. Recent iNat observations on Mt. Sutil
+1,survey,Stel med,Stellaria media,h,Stellaria media,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,Recent iNat observation on Mt. Sutil
+1,survey,Nemo par,Nemophila parviflora,h,Nemophila parviflora,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,Recent iNat observation on Mt. Sutil
+1,survey,Lact mur,,,,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,
+1,survey,Clay par ,Claytonia perfoliata,h,Claytonia perfoliata,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,Recent iNat observation on Mt. Sutil
+1,survey,Meli sub,Melica subulata,l ,Melica subulata,NA,2004,2,4,Mt. Sutil,Galiano,,,,,,,Recent iNat observation on Mt. Sutil
+1,survey,Mont fon,Montia fontana,m,Montia fontana,NA,2004,2,4,Mt. Sutil,Galiano,seep,,,,,,Recent iNat observation on Mt. Sutil
+1,survey,Saxi int,Saxifraga integrifolia,m,Micranthes integrifolia,abundant,2004,2,4,Mt. Sutil,Galiano,seep,,,,,,Recent iNat observation on Mt. Sutil
+1,survey,Saxi ruf,Saxifraga rufidula,m,Micranthes rufidula,NA,2004,2,4,Mt. Sutil,Galiano,seep,15.2,,,,no usual travel off,
+2,survey,Gera mol,Geranium molle,h,Geranium molle,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Saxi int,Saxifraga integrifolia,m,Micranthes integrifolia,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Saxi ruf,Saxifraga rufidula,m,Micranthes rufidula,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Mimu gut,Mimulus guttata,h,Erythranthe guttata,NA,2004,3,12,,Galiano,seep,,,,,,Mimulus guttata was changed to Erythranthe. Recent iNat observations on Galiano
+2,survey,Litho par,Lithophragma parviflorum,h,Lithophragma parviflorum,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Tori jap,Torilis japonica,h,Torilis japonica,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Clay par ,Claytonia perfoliata,h,Claytonia perfoliata,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Mont fon,Montia fontana,m,Montia fontana,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Gera mol,Geranium molle,h,Geranium molle,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Nemo par,Nemophila parviflora,h,Nemophila parviflora,NA,2004,3,12,,Galiano,seep,,,,,,Recent iNat observations on Galiano
+2,survey,Cama lei,Camassa leichtlinii,l,,NA,2004,3,12,,Galiano,ledges,,,,,,Unsure if Leichtlin's Camas or Suksdorf's Large Camas
+2,survey,,,,,NA,2004,3,12,,Galiano,ledges,,,,,,
+2,survey,Symp alb,Symphoricarpos albus,l,,NA,2004,3,12,,Galiano,base,,,,,,Recent iNat observations on Galiano
+2,survey,,,,,NA,2004,3,12,,Galiano,,,,,,,
+2,survey,Sela wal ,Selaginella wallacei,h,Selaginella wallacei,NA,2004,3,12,,Galiano,,20,,,,plot confar cliff? 260 degrees,Recent iNat observations on Galiano
+2,survey,Raco het,Racomitrium heterostichum,m,Racomitrium heterostichum,NA,2004,3,12,,Galiano,,20,,,,plot confar cliff? 260 degrees,Recent iNat observations on Galiano
+2,survey,Bro clayt,,,,NA,2004,3,12,,Galiano,,,,,,,
+2,survey,Umbilica/ Democaroa,,,,NA,2004,3,12,,Galiano,,,,,,,
+2,survey,,,,,,,,,,,,,,,,,
+2,survey,,,,,,,,,,,,,,,,,
+2,survey,,,,,,,,,,,,,,,,,
+3,survey,Aira pra,Aira praecox,h,Aira praecox,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Mont par,Montia parvifolia,h,Montia parvifolia,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Madi gra,Madia gracilis,h,Madia gracilis,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Lith par,Lithophragma parviflorum,h,Lithophragma parviflorum,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Gali apa,Galium aparine,h,Galium aparine,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Tori jap,Torilis japonica,h,Torilis japonica,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Apha arv,Aphanes arvensis ,h,Alchemilla arvensis,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Raco can,Racomitrium canenscens,m,Racomitrium canenscens,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on other islands
+3,survey,Erod cic,Erodium cicutarium ,h,Erodium cicutarium ,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Clarkia amoe,Clarkia amoena,h,Clarkia amoena,NA,2004,3,12,,Galiano,,20,,,,,Recent iNat observations on Galiano
+3,survey,Nemo par,Nemophila parviflora,h,Nemophila parviflora,NA,2004,3,12,,Galiano,seep,20,,,,on rock with seep. mod. ,Recent iNat observations on Galiano
+3,survey,Bryum,Bryum sp. ,h,Bryum sp. ,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Coll gra,Collinsia grandiflora,m,Collinsia grandiflora,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Mimu als,Mimulus alsinoides,m,Erythranthe alsinoides,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Card oli,Cardamine oligosperma,h,Cardamine oligosperma,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Saxi int,Saxifraga integrifolia,m,Micranthes integrifolia,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Sedu lan,Sedum lanceolatum ,h,Sedum lanceolatum ,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Sedu spa,Sedum spathulifolium ,h,Sedum spathulifolium ,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Mimul gut,Mimulus guttata,l,Erythranthe guttata,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Lith par,Lithophragma parviflorum,h,Lithophragma parviflorum,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,ortar gramino,,,,,,,,,,,,,,,open seep on sandstone,
+3,survey,Raco can,Racomitrium canenscens,m,Racomitrium canenscens,NA,2004,3,12,,Galiano,seep,20,,,,open seep on sandstone,Recent iNat observations on Galiano
+3,survey,Orob uni,Orobranche uniflora,m,Aphyllon purpureum ,NA,2004,3,12,,Galiano,,20,,,,prob on lithophages?,Recent iNat observations on Galiano
+3,survey,Bra arv,Brassica arvensis,l ,Sinapis arvensis ,low,2004,3,12,,Galiano,,20,,,,very little tufts,Recent iNat observations on other islands
+3,survey ,Pert tri,,,,,2004,3,12,,Galiano,,20,,,,add + on grass slope,
+3,survey ,Delp men,Delphinium menziesii,h,Delphinium menziesii,,2004,3,12,,Galiano,,20,,,,add + on grass slope,Recent iNat observations on Galiano
+3,survey ,,,,,,,,,,,,,,,,"rock above agoseris gra, Ploc can ",

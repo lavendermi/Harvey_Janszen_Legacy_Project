@@ -1,0 +1,2 @@
+When using this dataset please use the following citation and pay attention to the rights documented in rights.txt:
+Wheeler E (2020). Royal BC Museum - Herbarium (V). Version 2.1. Royal British Columbia Museum. Occurrence dataset https://doi.org/10.5886/yxupar accessed via GBIF.org on 2022-11-02.

@@ -1,0 +1,3 @@
+
+Dataset: Royal BC Museum - Herbarium (V)
+Rights as supplied: http://creativecommons.org/licenses/by/4.0/legalcode
