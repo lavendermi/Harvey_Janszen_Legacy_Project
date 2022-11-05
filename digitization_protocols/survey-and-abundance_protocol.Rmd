@@ -1,30 +1,114 @@
 ---
-title: "survey-and-abundance_protocol"
+title: "Protocol for the Digitization of Harvey Janszen Archives Item #27 - Species Presence & Abundance"
 author: "Emma Menchions"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+### Download the Darwin Core formatted .xlsx template
 
-## R Markdown
+available in the templates folder on the GitHub repo ("Harvey-Janszen-Legacy-Project "). (also available in .csv format for reproducibility)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### For each event date: 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#### 1) Fill out all date columns in sheet
 
-```{r cars}
-summary(cars)
-```
+a. verbatimEventDate \--\> the date like how it was written (e.g. Feb. 24/04)
 
-## Including Plots
+b. year
 
-You can also embed plots, for example:
+c. month
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+d. day
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#### 2) Fill out location information in sheet (which should be beside the date in the notes)
+
+a. continent \--\> "North America"
+
+b. countryCode \--\> "CA"
+
+c. islandGroup \--\> "Gulf Islands", (blank for if on Vancouver Island)
+
+d. island \--\> e.g. "Galiano", "Vancouver Island"
+
+e. county \--\> e.g. "Saanich", "Victoria", leave blank if on island and fill out "island" field instead
+
+f. locality \--\> e.g. "Mount Sutil", or "5 km down Rocky Point Road, Rocky Point"
+
+ - try to extend abbreviations (Mt. to Mount, Rd to Road)
+
+g. verbatimLocality \--\> copy locality as written in notes
+
+#### 3) Fill out taxon information:
+
+a\. write the verbatim identification (typically a short hand species name) in "verbatimIdentificaiton" field. The first 3 letters relate to the genus and the last letters to the specific epiphet.
+
+b\. if species name abbreviation can be deciphered right away, then input in the "scientificName" field
+
+-   and denote "h" in the "identificationAttributes" field for high confidence in estimation of described taxa
+
+c\. if species name abbreviation cannot be deciphered initially..
+
+-   open [iNaturalist](https://www.inaturalist.org/)
+
+-   open the "Explore" tab
+
+-   select Draw Rectangular boundary button (square)
+
+-   click and drag to roughly select region that at least encompasses all of the Southern Gulf Islands, Southern Vancouver Island and San Juan Islands
+
+-   use the search bar and input estimated abbreviation.
+
+    -   Try different combinations of letters to find a common genus in the region that it could be, or a specific epiphet.
+
+    -   Requires detective work.
+
+    -   Tip: if it commonly occurs nearby, it is likely that species
+
+    -   Tip: might be an outdated name, but often iNaturalist will have this in brackets in search results next to the new official name
+
+    -   Tip: in this instance, it is good to look at the about page of the taxon to confirm if there have been any taxon changes
+
+-   Once species name found, input old name which the abbreviation was trying to communicate, into the "scientific name" field
+
+-   input confidence level as "l", "m" or "h" into "identificationAttributes"
+
+d\. If abbreviation cannot be deciphered, leave blank. Will need to be checked over by data owner
+
+### List of common abbreviations:
+
+ - Apha arv = Aphanes arvensis
+
+ - Card oli = Cardamine oligosperma
+
+ - Clar amo = Clarkia amoena
+
+ - Clay par = Claytonia perfoliata
+
+ - Delp men = Delphinium menziesii
+
+ - Erod cic = Erodium cicutarium
+
+ - Litho par = Lithophragma parviflorum
+
+ - Mimu gut = Erythranthe gutatta (formerly Mimulus)
+
+ - Madi gra = Madia gracilis
+
+ - Mont fon = Montia fontana
+
+ - Mont par = Montia parvifolia
+
+ - Nemo par = Nemophila parviflora
+
+ - Osmo chi = Osmorhiza berteroi (formerly chilensis)
+
+ - Sedu lan = Sedum lanceolatum
+
+ - Sedu spa = Sedum spathulifolium
+
+ - Sela wal = Selaginella wallacei
+
+ - Stel med = Stellaria media
+
+ - Tori jap = Torilis japonica
