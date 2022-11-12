@@ -7,37 +7,37 @@ output: html_document
 
 ### Download the Darwin Core formatted .xlsx template
 
-available in the templates folder on the GitHub repo ("Harvey-Janszen-Legacy-Project "). (also available in .csv format for reproducibility)
+available in the templates folder on the GitHub repo ("Harvey-Janszen-Legacy-Project"). (also available in .csv format for reproducibility)
 
-### For each event date: 
+### For each event date:
 
 #### 1) Fill out all date columns in sheet
 
-a. verbatimEventDate \--\> the date like how it was written (e.g. Feb. 24/04)
+a.  verbatimEventDate \--\> the date like how it was written (e.g. Feb. 24/04)
 
-b. year
+b.  year
 
-c. month
+c.  month
 
-d. day
+d.  day
 
 #### 2) Fill out location information in sheet (which should be beside the date in the notes)
 
-a. continent \--\> "North America"
+a.  continent \--\> "North America"
 
-b. countryCode \--\> "CA"
+b.  countryCode \--\> "CA"
 
-c. islandGroup \--\> "Gulf Islands", (blank for if on Vancouver Island)
+c.  islandGroup \--\> "Gulf Islands", (blank for if on Vancouver Island)
 
-d. island \--\> e.g. "Galiano", "Vancouver Island"
+d.  island \--\> e.g. "Galiano", "Vancouver Island"
 
-e. county \--\> e.g. "Saanich", "Victoria", leave blank if on island and fill out "island" field instead
+e.  county \--\> e.g. "Saanich", "Victoria", leave blank if on island and fill out "island" field instead
 
-f. locality \--\> e.g. "Mount Sutil", or "5 km down Rocky Point Road, Rocky Point"
+f.  locality \--\> e.g. "Mount Sutil", or "5 km down Rocky Point Road, Rocky Point"
 
- - try to extend abbreviations (Mt. to Mount, Rd to Road)
+-   try to extend abbreviations (Mt. to Mount, Rd to Road)
 
-g. verbatimLocality \--\> copy locality as written in notes
+g.  verbatimLocality \--\> copy locality as written in notes
 
 #### 3) Fill out taxon information:
 
@@ -77,38 +77,38 @@ d\. If abbreviation cannot be deciphered, leave blank. Will need to be checked o
 
 ### List of common abbreviations:
 
- - Apha arv = Aphanes arvensis
+-   Apha arv = Aphanes arvensis
 
- - Card oli = Cardamine oligosperma
+-   Card oli = Cardamine oligosperma
 
- - Clar amo = Clarkia amoena
+-   Clar amo = Clarkia amoena
 
- - Clay par = Claytonia perfoliata
+-   Clay par = Claytonia perfoliata
 
- - Delp men = Delphinium menziesii
+-   Delp men = Delphinium menziesii
 
- - Erod cic = Erodium cicutarium
+-   Erod cic = Erodium cicutarium
 
- - Litho par = Lithophragma parviflorum
+-   Litho par = Lithophragma parviflorum
 
- - Mimu gut = Erythranthe gutatta (formerly Mimulus)
+-   Mimu gut = Erythranthe gutatta (formerly Mimulus)
 
- - Madi gra = Madia gracilis
+-   Madi gra = Madia gracilis
 
- - Mont fon = Montia fontana
+-   Mont fon = Montia fontana
 
- - Mont par = Montia parvifolia
+-   Mont par = Montia parvifolia
 
- - Nemo par = Nemophila parviflora
+-   Nemo par = Nemophila parviflora
 
- - Osmo chi = Osmorhiza berteroi (formerly chilensis)
+-   Osmo chi = Osmorhiza berteroi (formerly chilensis)
 
- - Sedu lan = Sedum lanceolatum
+-   Sedu lan = Sedum lanceolatum
 
- - Sedu spa = Sedum spathulifolium
+-   Sedu spa = Sedum spathulifolium
 
- - Sela wal = Selaginella wallacei
+-   Sela wal = Selaginella wallacei
 
- - Stel med = Stellaria media
+-   Stel med = Stellaria media
 
- - Tori jap = Torilis japonica
+-   Tori jap = Torilis japonica
