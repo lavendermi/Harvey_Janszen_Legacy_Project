@@ -44,10 +44,9 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
                   day = lubridate::day(fulldate))
   
   ## renaming miscellaneous columns 
-  colnames(template)[c(1, 7,8,17,22,23,24,25)] <- c("occurrenceID","verbatimTaxonRank","occurrenceStatus", 
+  colnames(template)[c(1, 7,8,17,23,24,25,26)] <- c("occurrenceID","verbatimTaxonRank","occurrenceStatus", 
                                                              "verbatimElevation", "individualCount",
                                                              "occurrenceRemarks","recordedBy","identificationBy")
-  colnames(template)[1] <-"occurrenceID"                                                     
                                                              
   ## adding journal page number to occurrence ID
   # function from: ----
@@ -65,9 +64,13 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
   # "specific epiphet"
   # "infraspecific epiphet"
   
-  colnames(template)["vTaxonRank"] <- "verbatimTaxonRank" 
-  
+  # 1) checking to see no typos in reported names 
+  # 2) Using acceptedName? to indicate updated scienfic name
+  # 3) using acceptedName to fill out kindgom, phylum class etc. 
+  # 4) assign GBIF taxa ID 
+    
   template$verbatimIdentification <- template$vSciName
+  
   
   # updated taxonomy in accepted name 
   
@@ -82,9 +85,13 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
 # else decim
 # package to convert UTM to decimal coordinates? 
   
+  ## assinging official coordinate estimates (and precision if provided verbatim or by geoLocate)
+    
   if (!is.na(template$vLat) & !is.na(template$vLon)){
     template$decimalLatidue <- template$vLat
     tempalte$decimalLongitude <- template$vLon
+    template$coordinatePrecision <- template$vCoodUncM
+    
   } else if (!is.na(template$vUTM)){
     
     # convert UTM coordinates into decimal degrees
@@ -98,13 +105,19 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
     lonlat <- geom(z)[, c("x", "y")] # extracting lat lon from spatial points frame
     
     # assigning official lat and lon to these coordinates
-    decimalLat <- lonlat$y
-    decimalLat <- lonlat$x
+    template$decimalLat <- lonlat$y
+    template$decimalLat <- lonlat$x
+    template$coordinatePrecision <- template$vCoodUncM
   
   } else {
     template$decimalLatitude <- template$geoLocLat
     template$decimalLongitude <- template$geoLocLon
+    template$coordinatePrecision <- template$geoLocPrecision
+    template$georeferenceProtocol <- "GeoLocate batch process"
+    
   } 
+    
+    
   
 ## ASSIGNING ASSOCIATE ROWS and TAXA---
 # Associate if on the same day and in same location 
@@ -115,4 +128,4 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
   # dynamicProperties
   # some way to assign based on current gbif info with R package? 
   
-  
+
