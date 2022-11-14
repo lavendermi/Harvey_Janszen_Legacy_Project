@@ -6,7 +6,7 @@ library(groundhog)
 
 ## LOADING & INSTALLING PACKAGES ----
 date <- "2022-11-02"
-requiredPackages <-  c("readxl","dplyr","here", "lubridate","magrittr","purrr","ritis","stringi","taxize","tidyverse","tidyr")
+requiredPackages <-  c("readxl","dplyr","here", "lubridate","magrittr","purrr","ritis","stringi","taxize","terra","tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
   if (pkg %in% rownames(installed.packages()) == FALSE)
@@ -14,6 +14,7 @@ for (pkg in requiredPackages) {
   if (pkg %in% rownames(.packages()) == FALSE)
   {groundhog.library(pkg, date)}
 }
+rm(requiredPackages)
 
 ## READING IN DATA ----
 # change to read.csv after - coversion into csv should be the last step once template completed
@@ -21,11 +22,11 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
 
 ## ADDING SIMPLE DARWIN CORE COLUMNS----
 
-  ## "splitting occurrenceID into record and catalog numbers"
-  # last number corresponding to record number in a given journal
-  # the first number corresponding to the archive number assigned to the particular journal/ book 
-  template$recordNumber <- sapply(strsplit(template$occID, "-"), "[", 3)
-  template$catalogueNumber <- sapply(strsplit(template$occID, "-"), "[", 2)
+  ## obtaining journal number
+  template$catalogueNumber <- sapply(strsplit(template$archiveID, "-"), "[", 2)
+
+  ## obtaining record number
+  template$recordNumber <- seq.int(nrow(template)) 
 
   ## "datasetName"
   template$datasetName <- "Harvey Janszen Collections"
@@ -43,36 +44,26 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
                   day = lubridate::day(fulldate))
   
   ## renaming miscellaneous columns 
-  template <- template %>% rename(occurrenceID = occID, verbatimTaxonRank = vTaxonRank,
+  template <- template %>% rename(verbatimTaxonRank = vTaxonRank,
                                   occurrenceStatus = occStatus, verbatimScientificName = vSciName,
                                   scientificName = sciName, 
                                   verbatimElevation= vElevm, individualCount = numPlants, 
                                   occurrenceRemarks=occRemarks, recordedBy= collector, identificationBy = idBy, 
                                   eventDate = fulldate)
                                                              
-  ## adding journal page number to occurrence ID
-    stri_sub(template$occurrenceID, 7, 6) <- template$page
-    stri_sub(template$occurrenceID, 8, 7) <- "-"
-    
+  ## creating unique occurrence ID from archive number, page number and number on page
+  template$occurrenceID <- paste0(template$archiveID, "-", template$pageNum, "-", template$numPage)
+  
   ## selecting fields we want to keep for darwin core archive (tidying data)
-    occ_data <- template %>% select(-page, -taxonAbb, -conf, -date)  
+  occ_data <- template %>% select(-pageNum, -taxonAbb, -conf, -date)   %>% arrange(occurrenceID)
                                        
 ## TAXONOMY FIELDS ----
-  # "kingdom"
-  # "phylum
-  # "class"
-  # "order"
-  # "family"
-  # "subfamily"
-  # "genus"
-  # "specific epiphet"
-  # "infraspecific epiphet"
-  
+    
   # Using GBIF Species-Lookup tool to check taxon names
     # create and write data frame with updated species names 
     Names <- data.frame(occ_data$occurrenceID, occ_data$scientificName)
     colnames(Names) <- c("occurrenceID","scientificName")
-    write.csv(Names, "names.csv", row.names = F)
+    write.csv(Names, here::here("data", paste0("taxa-names_", Sys.Date(), ".csv")), row.names = F)
     
     # Upload csv file to https://www.gbif.org/tools/species-lookup
     # select "match to backbone" button
@@ -85,76 +76,22 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
     # add the date that this table was generated
   
   # loading in the normalization table 
-    normalized_names <- read.csv(here::here("data","digitized_data","normalized.csv"))
+    normalized_names <- read.csv(here::here("data","normalized.csv"))
     
   # linking to occurrenceID in template table 
-   # removing columns to avoid duplication of updated scientific names
-    template <- template %>%
-      select(-sciName)
-    
+   
     normalized_names <- normalized_names %>% 
-      dplyr::rename(taxonRank= rank) %>% 
+      dplyr::rename(taxonRank= rank, occurrenceID = occurrenceId) %>% 
       separate(col = species,
                into = c("GenusRepeat", "species"),
                sep = " ", remove = FALSE) %>% 
-      select(-GenusRepeat) %>% 
-      select(-verbatimScientificName) %>% 
-      dplyr::rename(specificEpiphet=species)
+      select(-GenusRepeat, -verbatimScientificName, -confidence) %>% 
+      dplyr::rename()
       
-    occ_data <- occ_data %>% select(occurrenceID, )
+    # combining with occurrence data 
+    occ_data <- occ_data %>% select(-scientificName) # removing columns to avoid duplication of updated scientific names
     
-    
-  # 2) Using acceptedName? to indicate updated scienfic name
-    
-    
-  # 3) Upstream taxonomy 
-    taxa <- classification(unlist(template$sciName), db = "gbif")
-    status="ACCEPTED"
-    ## convert this into a useable data format (from a nested list to a tibble)
-    taxaList <- taxa %>% 
-      rbind() %>% ## bind_rows() doesn't work because the output is not a typical list...
-      tibble() %>% 
-      ## drop database 'id' column
-      ## keep 'query' column for indexing while pivoting below
-      
-      select(-id) %>% 
-      ## we only want the 'traditional' taxonomic levels (i.e., KPCOFGP)
-      filter(rank %in% c("kingdom", "phylum", "class", "order", 
-                         "family", "genus", "species")) %>%
-      pivot_wider(., id_cols = "query", names_from = "rank", values_from = "name") %>% 
-      ## drop the 'query' column (same as 'species')
-      select(-query)
-    
-    template$family <- sapply(template$sciName, itis_name, get = "family", USE.NAMES = F)
-    x <- tax_name(template$sciName, get = 'family', db = 'ncbi')
-    newNamesgnr <- gnr_resolve(template$vSciName)
-  
-    x <- gbif_parse(template$vSciName)
-  # 4) assign GBIF taxa ID 
-    
-  template$verbatimIdentification <- template$vSciName
-  template$acceptedNameUsage
-  
-  library(taxize)
-  try <- taxize::iplant_tnrsmatch(retrieve = "all", taxnames = template$vSciName, output = "names")
-  newNames <- gnr_resolve( canonical = T, data_source_ids = 11, sci = template$vSciName, returndf = TRUE)
-  newNames <- gnr_resolve( canonical = T, sci = template$vSciName, returndf = TRUE)
-  
-  newNames <- plantminer(template$vSciName)
-  NewNames <- tpl_search(template$vSciName)
-  
-  install.packages("rgbif")
-  library(rgbif)
-  
-  gbifnames <- name_backbone(template$vSciName)
-  
-  classification(template$vSciName[1], db = 'gbif')
-  
-  # updated taxonomy in accepted name 
-  
-  ## taxaID Gbif 
-  
-#using taxize
+    occ_data <- merge(occ_data, normalized_names, by = "occurrenceID")
 
 # GEOREFERENCING ----
 # take the necessary fields from the occ template, place in georeferencing template 
@@ -162,53 +99,110 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
 # if vLat, vLong != NA or vUTM != na then decimalLatitude = vLat 
 # else decim
 # package to convert UTM to decimal coordinates? 
-  
+    
+  ## write a csv file to use in GEOLocate
+    
+    # creating formatted file for GEOLocate with relevant columns from data
+    occ_to_georef <- occ_data %>% select(locality, country, stateProvince, county) %>% 
+      dplyr::rename("locality string" = locality, state = stateProvince) %>% 
+      add_column(latitude=NA, longitude = NA, "correction status" = NA, precision=NA, 
+                 "error polygon" = NA, "multiple results" = NA, uncertainty=NA) %>% 
+      add_column(occurrenceID = occ_data$occurrenceID)
+    
+    # writing 
+    write.csv(occ_to_georef, here::here("data", paste0("occ-to-georef_", Sys.Date(), ".csv")), row.names = F)
+    
+  ## visit GEOLocate batch processor: https://geo-locate.org/web/WebFileGeoref.aspx
+    # upload file 
+    # select 128 entries per page option 
+    # select options, check uncertainty box 
+    # select "page georeference" 
+    # might take some time
+    # repeat for all pages
+    # select file management at bottom
+    # "export" --> delimited text csv, exclude all polygons
+    # select ok
+    # find exported file in downloads
+    # rename to georef-occ_date.csv
+    # place in data folder
+    
+  ## loading referenced occurrences 
+    GEOlocate <- read.csv(here::here("data", "georef-occ_2022-11-14.csv"))
+    # renaming columns so that they are unique when we combine them with occ_data 
+    GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = latitude, geoLocLon = longitude, geoLocPrecision = uncertainty) %>% 
+      select(geoLocLat, geoLocLon, geoLocPrecision, occurrenceID)
+    
+  ## combining with occ_data
+    occ_data <- merge(occ_data, GEOlocate, by="occurrenceID") %>% arrange(occurrenceID)
+
+  ## separating UTM into different columns 
   ## assigning official coordinate estimates (and precision if provided verbatim or by geoLocate)
-    
-  if (!is.na(template$vLat) & !is.na(template$vLon)){
-    template$decimalLatidue <- template$vLat
-    tempalte$decimalLongitude <- template$vLon
-    template$coordinatePrecision <- template$vCoodUncM
-    template$verbatimCoordinateSystem <- "degrees minutes seconds"
-    template$georeferenceSources <- "Source"
-    
-  } else if (!is.na(template$vUTM)){
-    
-    # convert UTM coordinates into decimal degrees
     projection <- "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs" # may need to change - not sure what he was using!
     
-    template <- template %>% separate(vUTM, c("zone","x","y"), " ") # seperating UTM into x, and y components
-    library(terra)
-    points <- cbind(template$x, template$y) # making dataframe with x y components
+    # initializing vectors 
+    UTM <- data.frame()
+    points <- NULL
+    v <- NULL
+    z <- NULL
+    lonlat <- NULL
+    
+ for (i in 1:dim(occ_data)[1]){   
+  if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i])){
+    occ_data$decimalLatidue[i] <- occ_data$vLat[i]
+    occ_data$decimalLongitude[i] <- occ_data$vLon[i]
+    occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
+    occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds"
+    occ_data$georeferenceSources[i] <- "Source"
+    
+  } else if (!is.na(occ_data$vUTM[i])){
+    
+    # convert UTM coordinates into decimal degrees
+    UTM <- occ_data[i,] %>% separate(vUTM, c("zone","x","y"), " ") # seperating UTM into x, and y components
+    points <- cbind(as.numeric(UTM$x), as.numeric(UTM$y)) # making dataframe with x y components
     v <- vect(points, crs=projection) # making spatial points data frame
     z <- project(v, "+proj=longlat +datum=WGS84")  # projecting points 
-    lonlat <- geom(z)[, c("x", "y")] # extracting lat lon from spatial points frame
+    lonlat <- as.data.frame(t((geom(z)[, c("x", "y")]))) # extracting lat lon from spatial points frame
     
     # assigning official lat and lon to these coordinates
-    template$decimalLat <- lonlat$y
-    template$decimalLat <- lonlat$x
-    template$coordinatePrecision <- template$vCoodUncM
-    template$verbatimCoordinateSystem <- "UTM"
-    template$georeferenceSources <- "Source"
+    occ_data[i, "decimalLatitude"] <- lonlat$y
+    occ_data[i, "decimalLongitude"] <- lonlat$x
+    occ_data[i, "coordinatePrecision"] <- occ_data[i,"vCoodUncM"]
+    occ_data[i, "verbatimCoordinateSystem"] <- "UTM"
+    occ_data[i, "georeferenceSources"] <- "Source"
     
-  } else {
-    template$decimalLatitude <- template$geoLocLat
-    template$decimalLongitude <- template$geoLocLon
-    template$coordinatePrecision <- template$geoLocPrecision
-    template$georeferenceProtocol <- "GEOLocate batch process"
-    template$georeferenceSources <- "GEOLocate"
+    # removing variables for next time through the loop
+    UTM <- NULL
+    points <- NULL
+    v <- NULL
+    z <- NULL
+    lonlat <- NULL 
+    
+  } else if (is.na(occ_data$vUTM[i]) & (is.na(occ_data$vLat[i]) &is.na(occ_data$vLon[i]))) {
+    occ_data[i, "decimalLatitude"] <- occ_data[i, "geoLocLat"]
+    occ_data[i, "decimalLongitude"]<- occ_data[i,"geoLocLon"]
+    occ_data[i,"coordinatePrecision"] <- occ_data[i,"geoLocPrecision"]
+    occ_data[i,"georeferenceProtocol"] <- "GEOLocate batch process"
+    occ_data[i, "georeferenceSources$georeferenceSource"] <- "GEOLocate"
     
   } 
+ }
     
-    
-  
 ## ASSIGNING ASSOCIATE ROWS and TAXA---
 # Associate if on the same day and in same location 
-  
+    
+# include remarks about more specific groupings? 
+    
+    for (i in 1:dim(occ_data)[1]){
+    occ_data[i,"assTaxa"]<- occ_data[(occ_data$eventDate[i] == occ_data$eventDate & occ_data$locality[i]==occ_data$locality),"canonicalName"] %>%  paste(collapse = "|") %>% 
+    str_split(., boundary("word")) 
+    }
+      # take and make into "sympatric" : " X taxa" from commas? 
+    # place "" around all
 
-  
 ## CONSERVATION STATUS ----
   # dynamicProperties
   # some way to assign based on current gbif info with R package? 
-  
+    
+## remove extraneous rows and export to upload to Canadensys IPT
+    select(-dataEntryRemarks)
  
