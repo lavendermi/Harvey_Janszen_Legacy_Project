@@ -1,31 +1,52 @@
-#######
-# this script will take occurrence data from the data entry template and place it in darwin core terms
+#######################################################
+### Data Entry Template to Darwin Core Occurrences  ###
+###               Emma Menchions                    ###
+###             Created Nov. 7/22                   ###
+#######################################################
+## OVERVIEW ----
+# this script will take occurrence data from the data entry 
+# template and place it in darwin core terms
 
-#install.packages("groundhog")
-library(groundhog)
+# OCCURRENCE DATA = data in field journals including:
+  # 1) observation only occurrences (where specimen has not been collected - 
+      # no collection number and no note of collection)
+  # 2) observations of associated taxa in notes of collected specimen 
+  # 3) checklist / surveys containing groups of species names in different sites 
+      # (each species observation is a row)
+  # 4) Survey data - where abundances have been collected
+
+# what should not be entered? 
+  # checklist data from other people's observations/ collections 
 
 ## LOADING & INSTALLING PACKAGES ----
-date <- "2022-11-02"
-requiredPackages <-  c("readxl","dplyr","here", "lubridate","magrittr","purrr","ritis","stringi","taxize","terra","tidyverse","tidyr")
-
-for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
-}
-rm(requiredPackages)
+  # using groundhog to manage package versioning 
+  #install.packages("groundhog")
+  library(groundhog)
+  
+  date <- "2022-11-02"
+  requiredPackages <-  c("readxl","dplyr","here", "lubridate","magrittr","purrr","ritis",
+                         "stringi","taxize","terra","tidyverse","tidyr")
+  
+  for (pkg in requiredPackages) {
+    if (pkg %in% rownames(installed.packages()) == FALSE)
+    {install.packages(pkg)}
+    if (pkg %in% rownames(.packages()) == FALSE)
+    {groundhog.library(pkg, date)}
+  }
+  rm(requiredPackages)
 
 ## READING IN DATA ----
-# change to read.csv after - coversion into csv should be the last step once template completed
-template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template_22-11-11.xlsx"))
+  # change to read.csv after - conversion into csv should be the last step once template completed
+  template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template_22-11-11.xlsx"))
 
 ## ADDING SIMPLE DARWIN CORE COLUMNS----
 
   ## obtaining journal number
-  template$catalogueNumber <- sapply(strsplit(template$archiveID, "-"), "[", 2)
+  # taking the second component of archiveID corresponding to archive object number
+  template$catalogueNumber <- sapply(strsplit(template$archiveID, "-"), "[", 2) 
 
   ## obtaining record number
+  # number of all records
   template$recordNumber <- seq.int(nrow(template)) 
 
   ## "datasetName"
@@ -196,7 +217,8 @@ template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template
     occ_data[i,"assTaxa"]<- occ_data[(occ_data$eventDate[i] == occ_data$eventDate & occ_data$locality[i]==occ_data$locality),"canonicalName"] %>%  paste(collapse = "|") %>% 
     str_split(., boundary("word")) 
     }
-      # take and make into "sympatric" : " X taxa" from commas? 
+    
+    # take and make into "sympatric" : " X taxa" from commas? 
     # place "" around all
 
 ## CONSERVATION STATUS ----
