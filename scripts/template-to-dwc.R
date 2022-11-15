@@ -23,7 +23,7 @@
   # 2) observations with low confidence in deciphering field notes have been 
       # removed or checked over and corrected (mostly with species names)
 
-## LOADING & INSTALLING PACKAGES ----
+## 1) LOADING & INSTALLING PACKAGES ----
   # using groundhog to manage package versioning 
   #install.packages("groundhog")
   library(groundhog)
@@ -40,11 +40,11 @@
   }
   rm(requiredPackages)
 
-## READING IN DATA ----
+## 2) READING IN DATA ----
   # change to read.csv after - conversion into csv should be the last step once template completed
   template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template_22-11-11.xlsx"))
 
-## ADDING SIMPLE DARWIN CORE COLUMNS----
+## 3) ADDING SIMPLE DARWIN CORE COLUMNS----
 
   ## obtaining journal number
   # taking the second component of archiveID corresponding to archive object number
@@ -84,8 +84,13 @@
   ## selecting fields we want to keep for darwin core archive (tidying data)
   occ_data <- template %>% select(-pageNum, -taxonAbb, -conf, -date)   %>% arrange(occurrenceID)
                                        
-## TAXONOMY FIELDS ----
+## 4) TAXONOMY FIELDS ----
     
+  ## Issues to still address: 
+    # find way to automatically update taxonomy of verbatim names? 
+    # find a way to streamline to avoid having to go into another application
+    # find way to assign taxon gbif ID? 
+  
   # Using GBIF Species-Lookup tool to check taxon names (updated input names, not verbatim)
     # create and write data frame with updated species names from template 
     Names <- data.frame(occ_data$occurrenceID, occ_data$scientificName)
@@ -119,7 +124,15 @@
     occ_data <- occ_data %>% select(-scientificName) # removing columns to avoid duplication of updated scientific names
     occ_data <- merge(occ_data, normalized_names, by = "occurrenceID")
 
-# GEOREFERENCING ----
+## 5) GEOREFERENCING ----
+    
+    ## Issues to still address: 
+      # what if lat lon not in dms? 
+      # should data entry person be converting them to dd? 
+      # what if geolocate guesses wrong locality? - should we be doing massive batch processes
+      # or smaller, more in depth ones? 
+      # find way to streamline to avoid going into another application
+    
   ## write a csv file to use in GEOLocate
     
     # creating formatted file for GEOLocate with relevant columns from data
@@ -223,22 +236,65 @@
  }
     
 ## ASSIGNING ASSOCIATE ROWS and TAXA---
-# Associate if on the same day and in same location 
+    ## Issues to still address: 
+      # include remarks about more specific groupings? - like in shade at a particular site, or base vs seep vs edge? - might be more difficult because these don't neatly fit into dwc terms...
+      # assigning quotes around list terms 
+      # "sympatric" : " X taxa" or another term? 
     
-# include remarks about more specific groupings? 
+# for loop: for each row, find other rows with matching date AND locality, assign the scientificNames names of these rows 
+    # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
     for (i in 1:dim(occ_data)[1]){
-    occ_data[i,"assTaxa"]<- occ_data[(occ_data$eventDate[i] == occ_data$eventDate & occ_data$locality[i]==occ_data$locality),"canonicalName"] %>%  paste(collapse = "|") %>% 
+    occ_data[i,"assTaxa"]<- occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
+                                        occ_data$locality[i]==occ_data$locality),"canonicalName"] %>% 
+                                        paste(collapse = "|") %>% 
     str_split(., boundary("word")) 
     }
     
-    # take and make into "sympatric" : " X taxa" from commas? 
-    # place "" around all
-
-## CONSERVATION STATUS ----
-  # dynamicProperties
+## 6) CONSERVATION STATUS ----
+  # dynamicProperties - this is what it is placed under in RBCM occurrences 
   # some way to assign based on current gbif info with R package? 
+    # IUCN
+    # COSEWIC
+    # CDC?
     
-## remove extraneous rows and export to upload to Canadensys IPT
+    # BC CDC list 
+    # {"Conservation Status: CDC: ,"Conservation status: COSEWIC: , "Conservation Status: IUCN: ",
+    
+    # BC Ecosystems Explorer 
+    # search plants
+    # export data
+    # summary table 
+    # open and export as .csv 
+    
+    CDC <- read.csv(here::here("data","CDC-resultsExport_2022-11-15.csv"))
+    CDC_cleaned <- CDC %>% 
+      separate(col = Scientific.Name, # separating species column into genus and species to obtain specific ephiphet
+               into = c("genus", "species", "abb", "intraspecificEpiphet"),
+               sep = " ", remove = FALSE) %>% 
+     unite("scientificName", genus, species, sep = " ")
+    
+    occ_data$CDCstatus <- NULL
+    
+    # what to do when subspecies not listed or how do we know subspecies - Claytonia perfoliata spp. perfoliata? 
+    
+    for (k in 1:dim(occ_data)[1]){
+      if (!is.na(occ_data[k, "intraspecificEpiphet"])){ # does the genus, species and intraspeicific epithet match one in the CDC? 
+        occ_data[k, "CDCstatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "BC.List"]
+        
+      } else { # if there is no intraspecific epiphet listed  
+        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){        # if there is match for species name in CDC
+          
+          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k]))){ 
+            
+            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"BC.List"])) == 1){ # do all of possible subspecies have same list code? 
+              # if so, then apply that list category to that row
+              occ_data[k, "CDCstatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"][1]
+            
+            } else { # if multiple subspecies with different list categories and we don't know what subspecies
+              occ_data[k, "CDCstatus"]  <- NA 
+      } 
+    
+## 7) remove extraneous rows and export to upload to Canadensys IPT
     select(-dataEntryRemarks)
  
