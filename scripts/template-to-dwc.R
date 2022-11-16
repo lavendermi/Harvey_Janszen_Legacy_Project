@@ -235,8 +235,9 @@
   } 
  }
     
-## ASSIGNING ASSOCIATE ROWS and TAXA---
+## 6) ASSIGNING ASSOCIATE ROWS and TAXA----
     ## Issues to still address: 
+      # concaternate with already entered associated species not in occurrence sheet - ones associated with specimen
       # include remarks about more specific groupings? - like in shade at a particular site, or base vs seep vs edge? - might be more difficult because these don't neatly fit into dwc terms...
       # assigning quotes around list terms 
       # "sympatric" : " X taxa" or another term? 
@@ -251,62 +252,105 @@
     str_split(., boundary("word")) 
     }
     
-## 6) CONSERVATION STATUS ----
-  # dynamicProperties - this is what it is placed under in RBCM occurrences 
-  # some way to assign based on current gbif info with R package? 
-    # IUCN
-    # COSEWIC
-    # CDC?
-    
+## 7) CONSERVATION STATUS ----
+  ## Issues to address
+    # 1) what columns should status info go in - dynamic properties (RBCM), taxonRemarks 
+    # 2) way to automate download of file into R 
+    # IUCN, COSEWIC AND CDC status?
+    # 3) format of fields
     # BC CDC list 
     # {"Conservation Status: CDC: ,"Conservation status: COSEWIC: , "Conservation Status: IUCN: ",
     
-    # BC Ecosystems Explorer 
-    # search plants
-    # export data
-    # summary table 
+    # example Symph alb - two subspecies with different ranks - one ssp. albus - can we assume it is this one or leave undefined?
+    # scripts to periodically update the statuses of these data? 
+    
+## Provincial ranks 
+    # visit BC Ecosystems Explorer: https://a100.gov.bc.ca/pub/eswp/
+    # search plants category
+    # "export results"
+    # results table
     # open and export as .csv 
     
+    ## reading downloaded BC Conservation Data centre ranks (BC CDC)
     CDC <- read.csv(here::here("data","CDC-resultsExport_2022-11-15.csv"))
+    
+    ## splitting scientific name into genus, species, var/ subspecies, and intraspecific epiphet 
     CDC_cleaned <- CDC %>% 
       separate(col = Scientific.Name, # separating species column into genus and species to obtain specific ephiphet
                into = c("genus", "species", "abb", "intraspecificEpiphet"),
                sep = " ", remove = FALSE) %>% 
-     unite("scientificName", genus, species, sep = " ")
+     unite("scientificName", genus, species, sep = " ") # uniting genus and species again for ease of searching names
     
-    occ_data$CDCstatus <- NULL
+    #creating fake intraspecific epiphet to test loop 
+    # occ_data$intraspecificEpiphet <- NULL
     
-    # what to do when subspecies not listed or how do we know subspecies - Claytonia perfoliata spp. perfoliata? 
+    # initializing vectors for for loop 
+    occ_data$provincialListStatus <- NULL
     
-    #creating fake intraspecific epiphet
-    occ_data$intraspecificEpiphet <- NULL
+      for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
+        
+        if (!is.null(occ_data[k, "intraspecificEpiphet"])){ # for observations that have species with intraspecific epiphet (subspecies)
+          # does the genus, species and intraspeicific epithet match one in the CDC? 
+          occ_data[k, "provincialListStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "BC.List"]
+        
+        } else { # if there is no intraspecific epiphet listed  
+            if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){  # if there is match for genus and species name in CDC
+            
+                  for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"])){ # for how ever many number of subspecies there are 
+                  
+                    if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"BC.List"])) == 1){ # do all of possible subspecies have same list code? 
+                    # if so, then apply that list category to that row
+                    occ_data[k, "provincialListStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"][1]
+                
+                   } else { # if multiple subspecies with different list categories and we don't know what subspecies
+                    occ_data[k, "provincialListStatus"]  <- NA 
+                  } 
+                }
+            } else if (length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) == 1){ # if only one intraspecific variety
+            occ_data[k, "provincialListStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]
+            
+          }
+      }
+    }
+
+  ## repeating loop to assing CDC status (S5 to S1)
+    # initializing vectors for for loop 
+    occ_data$provincialStatus <- NULL
     
     for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
       
       if (!is.null(occ_data[k, "intraspecificEpiphet"])){ # for observations that have species with intraspecific epiphet (subspecies)
         # does the genus, species and intraspeicific epithet match one in the CDC? 
-        occ_data[k, "CDCstatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "BC.List"]
-        
-      } else { # if there is no intraspecific epiphet listed  
-          if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){  # if there is match for genus and species name in CDC
-          
-                for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"])){ # for how ever many number of subspecies there are 
-                
-                  if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"BC.List"])) == 1){ # do all of possible subspecies have same list code? 
-                  # if so, then apply that list category to that row
-                  occ_data[k, "CDCstatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"][1]
-              
-                 } else { # if multiple subspecies with different list categories and we don't know what subspecies
-                  occ_data[k, "CDCstatus"]  <- NA 
-                } 
-              }
-          } else if (length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) == 1){ # if only one intraspecific variety
-          occ_data[k, "CDCstatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]
-        }
-    }
-  }
+        occ_data[k, "provincialStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "Provincial"]
 
+      } else { # if there is no intraspecific epiphet listed  
+        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) > 1){  # if there is match for genus and species name in CDC
+          
+          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"])){ # for how ever many number of subspecies there are 
+            
+            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"Provincial"])) == 1){ # do all of possible subspecies have same list code? 
+              # if so, then apply that list category to that row
+              occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"][1]
+              
+            } else { # if multiple subspecies with different list categories and we don't know what subspecies
+              occ_data[k, "provincialStatus"]  <- NA 
+            } 
+          }
+        } else if (length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) == 1){ # if only one intraspecific variety
+          occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]
+          
+        }
+      }
+    }
     
-## 7) remove extraneous rows and export to upload to Canadensys IPT
+## COSEWIC  - use from same table kept by BC CDC? 
+    
+## IUCN or natureserve from BC CDC global 
+    install.packages("rredlist")
+    library(rredlist)
+    rl_use_iucn()
+    
+    
+## 8) remove extraneous rows and export to upload to Canadensys IPT ----
     select(-dataEntryRemarks)
  
