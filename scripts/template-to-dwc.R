@@ -278,22 +278,34 @@
     
     # what to do when subspecies not listed or how do we know subspecies - Claytonia perfoliata spp. perfoliata? 
     
-    for (k in 1:dim(occ_data)[1]){
-      if (!is.na(occ_data[k, "intraspecificEpiphet"])){ # does the genus, species and intraspeicific epithet match one in the CDC? 
+    #creating fake intraspecific epiphet
+    occ_data$intraspecificEpiphet <- NULL
+    
+    for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
+      
+      if (!is.null(occ_data[k, "intraspecificEpiphet"])){ # for observations that have species with intraspecific epiphet (subspecies)
+        # does the genus, species and intraspeicific epithet match one in the CDC? 
         occ_data[k, "CDCstatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "BC.List"]
         
       } else { # if there is no intraspecific epiphet listed  
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){        # if there is match for species name in CDC
+          if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){  # if there is match for genus and species name in CDC
           
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k]))){ 
-            
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"BC.List"])) == 1){ # do all of possible subspecies have same list code? 
-              # if so, then apply that list category to that row
-              occ_data[k, "CDCstatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"][1]
-            
-            } else { # if multiple subspecies with different list categories and we don't know what subspecies
-              occ_data[k, "CDCstatus"]  <- NA 
-      } 
+                for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"])){ # for how ever many number of subspecies there are 
+                
+                  if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"BC.List"])) == 1){ # do all of possible subspecies have same list code? 
+                  # if so, then apply that list category to that row
+                  occ_data[k, "CDCstatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"][1]
+              
+                 } else { # if multiple subspecies with different list categories and we don't know what subspecies
+                  occ_data[k, "CDCstatus"]  <- NA 
+                } 
+              }
+          } else if (length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) == 1){ # if only one intraspecific variety
+          occ_data[k, "CDCstatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]
+        }
+    }
+  }
+
     
 ## 7) remove extraneous rows and export to upload to Canadensys IPT
     select(-dataEntryRemarks)
