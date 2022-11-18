@@ -75,9 +75,43 @@
                                   occurrenceStatus = occStatus, verbatimScientificName = vSciName,
                                   scientificName = sciName, 
                                   verbatimElevation= vElevm, individualCount = numPlants, 
-                                  occurrenceRemarks=occRemarks, recordedBy= collector, identificationBy = idBy, 
+                                  occurrenceRemarks=occRemarks, identificationBy = idBy, 
                                   eventDate = fulldate)
-                                                             
+  
+  ## Converting abundance codes into averages of their indicated range on the front cover of 
+  # HJ-7 field journal, and then assigning code to the occurrence remarks for reference of the uncertainty range
+  # which can be linked to the metadata
+  
+  for (i in 1:dim(template)[1]){
+    if (numPlantsCode == 0){
+      template[i,"invididualCount"] <- 1
+      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
+                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+    }else if (numPlantsCode == 1){
+      template[i,"invididualCount"] <- (1+5)/2
+      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
+                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+    }else if (numPlantsCode == 2){
+      template[i,"invididualCount"] <- (5+25)/2
+      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
+                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+    } else if (numPlantsCode == 3){
+      template[i,"invididualCount"] <- round((25+50)/2)
+      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code",
+                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+    }else if (numPlantsCode == 4){
+      template[i,"invididualCount"] <- round((50+75)/2)
+      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
+                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+    }else if (numPlantsCode == 5){
+      template[i,"invididualCount"] <-"75+"
+      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
+                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+    }
+  }
+      
+      
+      
   ## creating unique occurrence ID from archive number, page number and number of observation on page
   template$occurrenceID <- paste0(template$archiveID, "-", template$pageNum, "-", template$numPage)
   
@@ -242,15 +276,25 @@
       # assigning quotes around list terms 
       # "sympatric" : " X taxa" or another term? 
     
-# for loop: for each row, find other rows with matching date AND locality, assign the scientificNames names of these rows 
+# for loop: for each row, find other rows with matching date AND locality AND habitat, assign the scientificNames names of these rows 
     # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
     for (i in 1:dim(occ_data)[1]){
-    occ_data[i,"assTaxa"]<- occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
-                                        occ_data$locality[i]==occ_data$locality),"canonicalName"] %>% 
+    occ_data[i,"assTaxa"]<- occ_data[i, "assTaxa"] + occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
+                                        occ_data$locality[i]==occ_data$locality &  occ_data$habitat[i]==occ_data$habitat),"canonicalName"] %>% 
                                         paste(collapse = "|") %>% 
-    str_split(., boundary("word")) 
+                            dplyr::rename(associatedTaxa = assTaxa) # renaming field to dwc term
     }
+    
+# for loop: for each row, find other rows matching date AND locality AND habitat, assing the occurrence ID of these rows to 
+    # an "associatedOccurrences" field where names are separated by "|" preffered for dwc lists like these
+    for (i in 1:dim(occ_data)[1]){
+      occ_data[i,"assOcc"]<- occ_data[i, "assOcc"] + occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
+                                occ_data$locality[i]==occ_data$locality &  occ_data$habitat[i]==occ_data$habitat),"occurrenceID"] %>% 
+                                paste(collapse = "|") %>% 
+                                dplyr::rename(associatedOccurrences = assOcc)
+    }
+    
     
 ## 7) CONSERVATION STATUS ----
   ## Issues to address
