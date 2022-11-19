@@ -1,16 +1,60 @@
 ---
-title: "observation-only_digitization-protocol"
+title: "Occurrence Data Entry Protocol"
 author: "Emma Menchions"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Data entry template
 
-## R Markdown
+Start new template for every field journal? and then combine into one? is that easier or more complicated?
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+(meta data/ information about how info should be entered in each column, matching notes in excel file)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Entering data
+
+-   Start with first name on page...
+
+-   Number each page with pencil at top?
+
+-   tips about copying rows and counting how many entries needed for a given time and place - easier to copy a bunch of that info between rows
+
+-   iNaturalist tips
+
+    -   place of interest box around southern BC- gulf islands, vancouver, up to N coast of vancouver island
+
+    -   start entering first 3 letters of generic name and species name
+
+    -   see if it occurs in the region
+
+    -   keep trying with different letters to find best match
+
+    -   if multiple species and can't decipher, keep note in dataentry renarks column
+
+    -   start typing name into bar and finish typing and if the option still pops up then its proper spelling and you can copy it to spreadsheet
+
+    -   WHAT TO DO IF SUBSPECIES?
+
+-   don't enter ones will colleciton number of "coll no \#"
+
+-   don't enter repeated observations of same taxa at same locality , same habitat and same date
+
+-   entry everything that could be considered an occurrence except for collected specimens (indicated with collection numbers). If certain names can't be deciphered or a location/ time can't be attributed to it, still include as a row in the template, and can be removed later (this will help for re-finding things on the page)
+
+-   When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down corodinates for collected specimen for the occurrence
+
+# Metadata
+
+-   Abundance codes: from HJ-7 field journal
+
+    -   "+" = 1
+
+    -   "1" = 1-5
+
+    -   "2" = 5-25
+
+    -   "3" = 25-50"
+
+    -   "4" = 50-75
+
+    -   "5" = 75+

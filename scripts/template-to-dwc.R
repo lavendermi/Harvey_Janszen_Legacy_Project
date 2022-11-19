@@ -110,8 +110,6 @@
     }
   }
       
-      
-      
   ## creating unique occurrence ID from archive number, page number and number of observation on page
   template$occurrenceID <- paste0(template$archiveID, "-", template$pageNum, "-", template$numPage)
   
@@ -161,8 +159,7 @@
 ## 5) GEOREFERENCING ----
     
     ## Issues to still address: 
-      # what if lat lon not in dms? 
-      # should data entry person be converting them to dd? 
+      # What happens if row has both degrees and UTM? 
       # what if geolocate guesses wrong locality? - should we be doing massive batch processes
       # or smaller, more in depth ones? 
       # find way to streamline to avoid going into another application
@@ -224,12 +221,34 @@
     
  for (i in 1:dim(occ_data)[1]){   
   if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i])){
-    # when lat lon coordinates provided...
-    occ_data$decimalLatidue[i] <- occ_data$vLat[i]
-    occ_data$decimalLongitude[i] <- occ_data$vLon[i]
-    occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
-    occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds" # assigning dwc field - rarely provides lat lon, but so far only dms? 
-    occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
+    if(length(occ_data$vLat)>1){ # if the coordinates are in degrees, minutes, second 
+    
+      # convert degrees, minites, seconds to decimal
+      # function from: https://stackoverflow.com/questions/30879429/how-can-i-convert-degree-minute-sec-to-decimal-in-r
+          angle2dec <- function(angle) {
+            angle <- as.character(angle)
+            x <- do.call(rbind, strsplit(angle, split=' '))
+            x <- apply(x, 1L, function(y) {
+              y <- as.numeric(y)
+              y[1] + y[2]/60 + y[3]/3600
+            })
+            return(x)
+          }
+          
+          occ_data$decimalLatidue[i] <- angle2dec(occ_data$vLat[i])
+          occ_data$decimalLongitude[i] <- angle2dec(occ_data$vLon[i])
+          occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
+          occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds" # assigning dwc field - rarely provides lat lon, but so far only dms? 
+          occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
+          
+    } else if (length(occ_data$vLat)==1){
+      # when lat lon coordinates provided...
+      occ_data$decimalLatidue[i] <- occ_data$vLat[i]
+      occ_data$decimalLongitude[i] <- occ_data$vLon[i]
+      occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
+      occ_data$verbatimCoordinateSystem[i] <- "decimal degrees" # assigning dwc field - rarely provides lat lon, but so far only dms? 
+      occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
+    }
     
   } else if (!is.na(occ_data$vUTM[i])){
     
