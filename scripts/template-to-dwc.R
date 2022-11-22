@@ -111,7 +111,7 @@
   }
       
   ## creating unique occurrence ID from archive number, page number and number of observation on page
-  template$occurrenceID <- paste0(template$archiveID, "-", template$pageNum, "-", template$numPage)
+  template$occurrenceID <- paste0("HJ","-",template$archiveID, "-", template$pageNum, "-", template$numPage)
   
   ## selecting fields we want to keep for darwin core archive (tidying data)
   occ_data <- template %>% select(-pageNum, -taxonAbb, -conf, -date)   %>% arrange(occurrenceID)
@@ -295,6 +295,8 @@
       # assigning quotes around list terms 
       # "sympatric" : " X taxa" or another term? 
     
+    # MAKE SURE SAME UTM / COORDINATES IF PROVIDED TOO 
+    
 # for loop: for each row, find other rows with matching date AND locality AND habitat, assign the scientificNames names of these rows 
     # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
@@ -416,4 +418,7 @@
     
 ## 8) remove extraneous rows and export to upload to Canadensys IPT ----
     select(-dataEntryRemarks)
+    
+## Phenology
+    # if occurrenceRemarks(contains "flowering") lifeStage <- "flowering"
  
