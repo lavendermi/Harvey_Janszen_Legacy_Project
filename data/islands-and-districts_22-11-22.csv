@@ -18,6 +18,8 @@ Moresby Island,Southern Gulf Islands,Southern Gulf Islands
 Parker Island,Southern Gulf Islands,Southern Gulf Islands
 Kuper Island,Southern Gulf Islands,Southern Gulf Islands
 Penelakut Island,Southern Gulf Islands,Southern Gulf Islands
+South Pender Island,Southern Gulf Islands,Southern Gulf Islands
+North Pender Island,Southern Gulf Islands,Southern Gulf Islands
 Pender Island,Southern Gulf Islands,Southern Gulf Islands
 Piers Island,Southern Gulf Islands,Southern Gulf Islands
 Portland Island,Southern Gulf Islands,Southern Gulf Islands
@@ -26,6 +28,7 @@ Reid Island,Southern Gulf Islands,Southern Gulf Islands
 Russell Island,Southern Gulf Islands,Southern Gulf Islands
 Saltspring Island,Southern Gulf Islands,Southern Gulf Islands
 Samuel Island,Southern Gulf Islands,Southern Gulf Islands
+Isabella Islets,Southern Gulf Islands,Southern Gulf Islands
 Saturna Island,Southern Gulf Islands,Southern Gulf Islands
 Secret Island,Southern Gulf Islands,Southern Gulf Islands
 Secretary Islands,Southern Gulf Islands,Southern Gulf Islands
@@ -37,6 +40,8 @@ Thetis Island,Southern Gulf Islands,Southern Gulf Islands
 Valdes Island,Southern Gulf Islands,Southern Gulf Islands
 Wallace Island,Southern Gulf Islands,Southern Gulf Islands
 Whaleboat Island,Southern Gulf Islands,Southern Gulf Islands
+Georgeson Island,Southern Gulf Islands,Southern Gulf Islands
+Ballingall Islets,Southern Gulf Islands,Southern Gulf Islands
 Wise Island,Southern Gulf Islands,Southern Gulf Islands
 Ballenas Islands,Northern Gulf Islands,Northern Gulf Islands
 Denman Island,Northern Gulf Islands,Northern Gulf Islands
@@ -182,7 +187,10 @@ Vancouver Island,Central Saanich,
 Vancouver Island,North Saanich,
 Vancouver Island,West Saanich,
 Vancouver Island,Sidney,
+Vancouver Island,Qualicum Beach,
+Vancouver Island,Powell River,
 Vancouver Island,Malahat,
+Vancouver Island,North Cowichan,
 Vancouver Island,Cowichan,
 Vancouver Island,Nanaimo,
 Vancouver Island,Parksville,
@@ -190,3 +198,9 @@ Vancouver Island,Courtenay,
 Vancouver Island,Comox,
 Vancouver Island,Duncan,
 Vancouver Island,Campbell River,
+Vancouver Island,Ladysmith,
+Vancouver Island,Chemainus,
+Vancouver Island,Jordan River,
+Vancouver Island,Shirley,
+Vancouver Island,Port Renfrew,
+Vancouver Island,Strathcona Provincial Park,

@@ -1,5 +1,5 @@
 ###########################################################
-#######         Checking & cleaning entered         ####### 
+#######               Cleaning entered              ####### 
 #######     occurrence data in data entry template  #######
 #######                 Emma Menchions 22-11-20     #######                       
 ###########################################################
@@ -12,10 +12,7 @@
 # maybe have data CHECKING component then data CLEANING component? (as seperate scripts?)
 # pagenum: ADD FOR OTHER JOURNALS AS YOU GO 
 # - column 2
-# fix reading classes of columns 
 # check that occurrenceID only occurs once 
-
-#landings_data[!complete.cases(landings_data),]
 
 ## LOADING PACKAGES ----
 library(groundhog)
@@ -33,7 +30,9 @@ rm(requiredPackages)
 
 ## READING IN DATA ----
 
-data <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template_22-11-11.xlsx"))
+J <-8 # journal number (1-31)
+data <- read_excel(here::here("data","digitized_data", paste0("HJ-",J,"-","occ-entry-template_22-11-11.xlsx")))
+
 places <- read.csv(here::here("data", "islands-and-districts_22-11-22.csv"))
 
 # checking classes of columns: 
@@ -66,74 +65,205 @@ places <- read.csv(here::here("data", "islands-and-districts_22-11-22.csv"))
   # for HJ-7 = numeric between 1 and 159
   # for HJ-9 = numeric between 1 and 206
 
-  for (i in 1:dim(data)[1]){
-      if (data$archiveID[i] ==7){
-      assert(in_set(1:159),data$pageNum[i]) 
-      } else if (data$archiveID[i] == 8){
-        assert(in_set(1:208),data$pageNum[i]) 
-      } else if (data$archiveID[i] == 9){
-        assert(in_set(1:206),data$pageNum[i]) 
-      } else if (data$archiveID[i] == 27){
-        assert(in_set(1:28),data$pageNum[i]) 
-      }
+  if(J==7){
+    data %>% 
+    assert(in_set(1:159),data$pageNum[i])
+  }else if(J==8){
+    data %>% 
+    assert(in_set(1:208),data$pageNum[i])
+  }else if(J==9){
+    data %>% 
+    assert(in_set(1:206),data$pageNum[i]) 
+  }else if(J==27){
+    data %>% 
+    chain_start %>% 
+    assert(in_set(1:28),data$pageNum[i]) 
   }
 
 ## Column 3: numPage----
-## Column 4: vName ----
-## Column 5: vSciName ----
-## Column 6: conf ----
+  # constraint: between 1 and 100 (arbitrary threshold - unlikely to be more than 100 observaitons on page)
+  data %>% 
+    chain_start %>%
+    assert(in_set(1:100), numPage) %>% # checking if integer from 1 - 31
+    assert(not_na, numPage) %>%  # checking that all rows have number
+    chain_end 
   
+## Column 4: vName ----
+  # constraint - must be character and only contain letters not numbers 
+  # from https://stackoverflow.com/questions/43195519/check-if-string-contains-only-numbers-or-only-characters-r
+  letters_only <- function(x) !grepl("^[^A-Za-z]+[[:space:]]+", x)
+  
+  data %>% 
+    chain_start %>%
+    assert(letters_only, vName) %>%  # %>% # checking if integer from 1 - 31
+    assert(not_na, vName) %>%  # checking that all rows have number
+    chain_end(error_fun = error_df_return)
+  
+## Column 5: vSciName ----
+  genusCapitalized <- function(x) !grepl("^[[:upper:]]", x)
+  
+  data %>% 
+    chain_start %>%
+    assert(letters_only, vSciName) %>%  # %>% # checking if integer from 1 - 31
+    assert(not_na, vSciName) %>%  # checking that all rows have number
+    assert(genusCapitalized, vSciName) %>% 
+    chain_end(error_fun = error_df_return)
+  
+## Column 6: conf ----
   confvalues <- c("l","m","h")
   
   data %>% 
     assert(in_set(confvalues),conf)
   
 ## Column 7: sciName ---- 
-## Column 8: vTaxonRank ---- 
+  data %>% 
+    chain_start %>%
+    assert(letters_only, sciName) %>%  # %>% # checking if integer from 1 - 31
+    assert(not_na, sciName) %>%  # checking that all rows have value
+    assert(genusCapitalized, sciName) %>% 
+    chain_end(error_fun = error_df_return)
   
+## Column 8: vTaxonRank ---- 
+  ranks <- c("species", "genus", "family", "order", "class", "phylum", "kindgom")
+         
+  data %>% 
+    chain_start %>% 
+    assert(not_na,vTaxonRank) %>%  # checking that all rows have value
+    assert(in_set(ranks),vTaxonRank) %>% 
+    chain_end(error_fun = error_df_return)
+  
+  # COME BACK AND FIX THIS
+  rank_match_name <- function(name, rank) {
+  for (i in 1:length(rank)){
+  if (length(strsplit(name, " ")[[1]])==1){
+    if (rank == "genus" | rank =="family"){
+      return(TRUE)
+    } else if (rank != "genus" | rank !="family"){
+      return(FALSE)
+    }
+  } else if (length(strsplit(name, " ")[[1]])==2){
+    if (rank == "species"){
+      return(TRUE)
+    } else if (rank != "species"){
+      return(FALSE)
+    }
+  }
+  }
+  }
+  
+ 
+  data[rank_match_name(data$vSciName, data$vTaxonRank)] 
+
   
 ## Column 9: occStatus ----
   occstat <- c("present","absent")
-  
   data %>% 
-    assert(in_set(occstat),occStatus)
+    chain_start %>% 
+    assert(not_na,occStatus) %>%  # checking that all rows have value
+    assert(in_set(occstat),occStatus) %>% 
+    chain_end(error_fun = error_df_return)
   
 ## Column 10: date ---- 
-## Column 11: locality ---- 
-## Column 12: country ---- 
-  possCountries <- c("Canada", "United States")
-  
+  # must be within dates of journals 
   data %>% 
-    assert(in_set(possCountries),country)
+    chain_start %>% 
+    assert(not_na,date) %>%  # checking that all rows have value
+    assert(within_bounds(19680101, 20210510), date) %>% 
+    chain_end(error_fun = error_df_return)
+  
+## Column 11: locality ---- 
+  # constraint: is read as character vector, every observation has it 
+  data %>% 
+    assert(not_na,locality)  # checking that all rows have value
+  
+## Column 12: country ---- 
+  data %>% 
+    chain_start %>% 
+    assert(not_na,country) %>% 
+    assert(in_set("Canada", "United States"),country) %>% 
+    chain_end(error_fun = error_df_return)
   
 ## Column 13: stateProvince ----
-  possProvince <- c("British Columbia", "Washington")
   
   data %>% 
-    assert(in_set(possProvince),stateProvince)
+    chain_start %>% 
+    assert(not_na,stateProvince) %>% 
+    assert(in_set(c("British Columbia", "Washington")),stateProvince) %>% 
+    chain_end(error_fun = error_df_return)
+  
   
 ## Column 14: county ---- 
   data %>% 
-    assert(in_set(places$district),county)
+    chain_start %>% 
+    assert(not_na,county) %>% 
+    assert(in_set(places$district),county) %>% 
+    chain_end(error_fun = error_df_return)
   
 ## Column 15: islandGroup ---- 
   
   data %>% 
-    assert(in_set(places$islandGroup),islandGroup)
+    chain_start %>% 
+    assert(not_na,islandGroup) %>% 
+    assert(in_set(places$islandGroup),islandGroup) %>% 
+    chain_end(error_fun = error_df_return)
 
 ## Column 16: island ---- 
   data %>% 
-    assert(in_set(places$island),island)
+    chain_start %>% 
+    assert(not_na,island) %>% 
+    assert(in_set(places$island),island) %>% 
+    chain_end(error_fun = error_df_return)
   
 ## Column 17: habitat ---- 
+  # constraint: read as character
+  
 ## Column 18: vElevM ---- 
+  # constraint: read as numeric 
+  
 ## Column 19: vElevRef ---- 
-## Column 20: locationRemarks ---- 
-## Column 21: vLat ---- 
-## Column 22: vLon ---- 
+  # constraint: read as character
+  
+## Column 20: locationRemarks ----
+  # constraint: read as character
+  
+## Column 21, 22: vLat & vLon ---- 
+  
+  # loading function to convert to decimal degrees
+  source(here::here("scripts","functions", "angle2dec.R")) 
+  
+  # converting degrees to decimal degrees
+  for (i in 1:dim(data)[1]){
+    if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
+      data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
+      data$vLon[i] <- angle2dec(data$vLon[i])
+    }
+  }
+  
+  data$vLon <- as.numeric(data$vLon) # converting to numeric so assert function works
+  data$vLon <- as.numeric(data$vLon) 
+  
+  # check within certain range (drawn from arbitrary boundary box around 
+  # South BC, North Washignton Area)
+  
+  data %>% 
+    chain_start %>% 
+    assert(within_bounds(47,51),vLat) %>% 
+    assert(within_bounds(-129,-121),vLon) %>% 
+    chain_end(error_fun = error_df_return)
+  
 ## Column 23: vUTM ---- 
+  # constraint: must be bounded by same limits as latitude 
+  
+  
+  
 ## Column 24: vCoorUncM ---- 
+  # constraint: must be numeric 
+  
 ## Column 25: numPlantsCode ---- 
+  # constraint: must be between 0 and 5 
+  data %>% 
+    assert(in_set(0:5),numPlantsCode)
+
 ## Column 26: orgQuantity ---- 
 ## Column 27: orgQtype ---- 
 ## Column 28: occRemarks ---- 
@@ -144,19 +274,13 @@ places <- read.csv(here::here("data", "islands-and-districts_22-11-22.csv"))
 ## Column 33: assTaxa ---- 
 ## Column 34: dataEntryRemarks ---- 
   
-
+## putting it all together 
+  
 #1) identify rows with missing info for vName, vSciName, sciName, and entries in data entry remarks
-
-# check that UTM has right number of digits 
+errors <- 
 
 # check that all rows have crucial info
-  # vTaxonRank - from acceptable set of strings - and if name only 1 word then genus etc 
-  # occStatus - either present or absent
-  # date - within certain date range and numeric
-  # locality
-  # coutnry - check if spelled properly
-  # stateProvince - check if spelled properly
-  # county - check if spelled properly
+
   # recordedby 
   #velev - only numeric (meters implied)
   # v elev reference as character sting
