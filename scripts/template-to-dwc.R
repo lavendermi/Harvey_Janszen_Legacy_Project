@@ -163,6 +163,7 @@
       # what if geolocate guesses wrong locality? - should we be doing massive batch processes
       # or smaller, more in depth ones? 
       # find way to streamline to avoid going into another application
+      # if both degrees and UTM - which one should I take? which one most accurate? 
     
   ## write a csv file to use in GEOLocate
     
@@ -221,7 +222,7 @@
     
  for (i in 1:dim(occ_data)[1]){   
   if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i])){
-    if(length(occ_data$vLat)>1){ # if the coordinates are in degrees, minutes, second 
+    if((length(strsplit(occ_data$vLat[i], " ")[[1]]) > 1)){ # if the coordinates are in degrees, minutes, second 
     
       # convert degrees, minites, seconds to decimal
       # function from: https://stackoverflow.com/questions/30879429/how-can-i-convert-degree-minute-sec-to-decimal-in-r
@@ -241,7 +242,7 @@
           occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds" # assigning dwc field - rarely provides lat lon, but so far only dms? 
           occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
           
-    } else if (length(occ_data$vLat)==1){
+    } else if (length(strsplit(occ_data$vLat[i], " ")[[1]]) ==1){
       # when lat lon coordinates provided...
       occ_data$decimalLatidue[i] <- occ_data$vLat[i]
       occ_data$decimalLongitude[i] <- occ_data$vLon[i]
