@@ -7,41 +7,111 @@ output: html_document
 
 # Data entry template
 
-Start new template for every field journal? and then combine into one? is that easier or more complicated?
+*Start new template for every field journal.*
 
-(meta data/ information about how info should be entered in each column, matching notes in excel file)
+-   Copy and paste the template "HJ-occ-entry-template.xlsx"
+
+-   Rename to "HJ-[input archiveID]-occ-entry-[YY-MM-DD].xlsx"
+
+# Setting up 
+
+1.  Open the data entry excel sheet
+
+2.  Open the field journal to the first page
+
+3.  Open two internet search windows
+
+4.  In the first window --\> [https://www.inaturalist.org](https://www.inaturalist.org/home)
+
+    -   click "Explore" tab
+
+    -   zoom in on south western BC
+
+    -   click the red rectangular select button
+
+    -   Click and drag to select an area that extends from around Hope BC to the east, encompasses all of Vancouver Island, and goes down to Seattle/ Tacoma in the south
+
+    -   set this window aside and return to excel sheet
+
+5.  Second window will be used to search up localities that you are uncertain of
 
 # Entering data
 
--   Start with first name on page...
+Begin with the **first page in a journal.**
 
--   Number each page with pencil at top?
+1.  Denote the **archive ID** (number on front of journal e.g. HJ-7 --\> "7" (number only))
 
--   tips about copying rows and counting how many entries needed for a given time and place - easier to copy a bunch of that info between rows
+2.  Enter **pageNum** (page number) --\> e.g 1 . (circled ain bottom corner of pages)
 
--   iNaturalist tips
+3.  **Scan the page for observations (species names)** starting at the top of the page. All species names are acceptable, except for entries which have a collection number beside them (or say "coll" indicating a collection).
 
-    -   place of interest box around southern BC- gulf islands, vancouver, up to N coast of vancouver island
+    -   This could be in a **set of species names observed at a particular location** (with no collection numbers)
 
-    -   start entering first 3 letters of generic name and species name
+    -   **OR the name of a species in the description of a collected specimen (associated speecies occurrence)**  - in this case, just make sure that if there are multiple collected specimens from that location, that one of these associated species was not collected. If it was, do not include it as an observation in a row. The occurrence of this species would be documented in the herbarium and uploaded to GBIF.
 
-    -   see if it occurs in the region
+4.  Enter **numPage** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
 
-    -   keep trying with different letters to find best match
+5.  **vName** = the verbatim name written in the notes
 
-    -   if multiple species and can't decipher, keep note in dataentry renarks column
+    -   this may be an abbreviation (e.g. Stel med)
 
-    -   start typing name into bar and finish typing and if the option still pops up then its proper spelling and you can copy it to spreadsheet
+    -   or full species name (could be misspelt, include spelling mistakes)
 
-    -   WHAT TO DO IF SUBSPECIES?
+    -   or a full species name which is outdated
 
--   don't enter ones will colleciton number of "coll no \#"
+6.  **vSciName** = your esitmation of what the full species name is
 
--   don't enter repeated observations of same taxa at same locality , same habitat and same date
+    -   This is where iNaturalist is helpful. Often the taxonomy might be outdated (indicated by a bracketed name in the search results on iNat). Click on the top result. Does it occur in the region?
 
--   entry everything that could be considered an occurrence except for collected specimens (indicated with collection numbers). If certain names can't be deciphered or a location/ time can't be attributed to it, still include as a row in the template, and can be removed later (this will help for re-finding things on the page)
+        -   start entering first 3 letters of generic name and species name
 
--   When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down corodinates for collected specimen for the occurrence
+        -   see if it occurs in the region
+
+        -   keep trying with different letters to find best match
+
+        -   if multiple species and can't decipher, keep note in dataEntryRemarks column (e.g. "could not decipher taxon name")
+
+        -   Once you are reasonably certain of a full name, start typing it into search bar and finish typing by looking at the result. If the result still pops up then its proper spelling and you can copy it to spreadsheet
+
+    -   Enter your best guess of what the full verbatim name was meant to be
+
+    -   there should be no spelling mistakes, but outdated taxon names should still be used here
+
+7.  **Conf** = enter your confidence level in the taxon name estimate (low = l, medium = m, high = h)
+
+    -   the entries with low confidence will be returned to once all of the occurrences have been entered
+
+    -   entries with medium confidence may be returned to if there is time
+
+8.  **sciName =** full, properly spelt, updated taxon names.
+
+    -   refer to iNaturalist for updates taxon names
+
+    -   If subspecies or variety, just include this epiphet, and do not include the "ssp." or "var." abbreviations. (e.g. Instead of Lupinus latifolius ssp. subalpinus, put "Lupinus latifolius subalpinus")
+
+9.  **vTaxonRank** = The most specific level of taxonomy provided verbatim
+
+    -   e.g. if "Stellaria media" --\> put "species"
+
+    -   e.g. if "Stellaria" --\> put "genus"
+
+    -   e.g. if "Brassicaceae" --\> put "family"
+
+10. occStatus = occurrence status (either present of absent)
+
+    -   to save time, only enter if there is a note clearly saying "absent"
+
+    -   otherwise, assume the species was observed (present) and you do not need to fill this in
+
+11. tips about copying rows and counting how many entries needed for a given time and place - easier to copy a bunch of that info between rows
+
+12. don't enter ones will colleciton number of "coll no \#"
+
+13. don't enter repeated observations of same taxa at same locality , same habitat and same date
+
+14. entry everything that could be considered an occurrence except for collected specimens (indicated with collection numbers). If certain names can't be deciphered or a location/ time can't be attributed to it, still include as a row in the template, and can be removed later (this will help for re-finding things on the page)
+
+15. When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down corodinates for collected specimen for the occurrence
 
 # Metadata
 
