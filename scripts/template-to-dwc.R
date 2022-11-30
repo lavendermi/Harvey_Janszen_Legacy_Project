@@ -3,6 +3,15 @@
 ###               Emma Menchions                    ###
 ###             Created Nov. 7/22                   ###
 #######################################################
+# to do: 
+# 1) add recorded by Harvey if NA
+# 2) add vTaxonRank based on number of words in vSciName
+# 3) add present if NA 
+# adding assigning island name to island group
+
+str_replace_all(c, ",", " |")
+
+
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
 # template and place it in darwin core terms
@@ -42,17 +51,9 @@
 
 ## 2) READING IN DATA ----
   # change to read.csv after - conversion into csv should be the last step once template completed
-  template <- read_excel(here::here("data","digitized_data","HJ-occ-entry-template_22-11-11.xlsx"))
+  template <- read_excel(here::here("data","digitized_data","HJ-8-occ-entry-template_22-11-11.xlsx"))
 
-## 3) ADDING SIMPLE DARWIN CORE COLUMNS----
-
-  ## obtaining journal number
-  # taking the second component of archiveID corresponding to archive object number
-  template$catalogueNumber <- sapply(strsplit(template$archiveID, "-"), "[", 2) 
-
-  ## obtaining record number
-  # number of all records
-  template$recordNumber <- seq.int(nrow(template)) 
+## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
   ## "datasetName"
   template$datasetName <- "Harvey Janszen Collections"
@@ -63,50 +64,70 @@
   template$basisOfRecord <- "HumanObservation"
 
   ## "year", "month", "day" 
-  # splitting YYYYMMDD date entered into seperate year, month, day columns
+  # splitting YYYYMMDD date entered into separate year, month, day columns
   template <- template %>%
     dplyr::mutate(.data = template, fulldate = lubridate::ymd(date),
                   year = lubridate::year(fulldate), 
                   month = lubridate::month(fulldate), 
                   day = lubridate::day(fulldate))
   
-  ## renaming miscellaneous columns to darwin core terms 
-  template <- template %>% rename(verbatimTaxonRank = vTaxonRank,
-                                  occurrenceStatus = occStatus, verbatimScientificName = vSciName,
-                                  scientificName = sciName, 
-                                  verbatimElevation= vElevm, individualCount = numPlants, 
-                                  occurrenceRemarks=occRemarks, identificationBy = idBy, 
-                                  eventDate = fulldate)
-  
   ## Converting abundance codes into averages of their indicated range on the front cover of 
   # HJ-7 field journal, and then assigning code to the occurrence remarks for reference of the uncertainty range
   # which can be linked to the metadata
+  template$numPlantsCode <- as.numeric(template$numPlantsCode)
   
-  for (i in 1:dim(template)[1]){
-    if (numPlantsCode == 0){
-      template[i,"invididualCount"] <- 1
-      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
-                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
-    }else if (numPlantsCode == 1){
-      template[i,"invididualCount"] <- (1+5)/2
-      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
-                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
-    }else if (numPlantsCode == 2){
-      template[i,"invididualCount"] <- (5+25)/2
-      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
-                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
-    } else if (numPlantsCode == 3){
-      template[i,"invididualCount"] <- round((25+50)/2)
-      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code",
-                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
-    }else if (numPlantsCode == 4){
-      template[i,"invididualCount"] <- round((50+75)/2)
-      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
-                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
-    }else if (numPlantsCode == 5){
-      template[i,"invididualCount"] <-"75+"
-      template[i,"occRemarks"] <- paste(template[i, "occRemarks"], "abundance code", 
-                                        paste0("'",template[i,"numPlantsCode"],"'"),collapse = "|")
+  for (i in 1:dim(template)[1]){ # for all rows
+    if(!is.na(template$numPlantsCode[i])){ # if there is a number of plants code
+      if (template$numPlantsCode[i] == 0){ # if the num plants code is =0 ...
+        template[i,"invididualCount"] <- "1" # assign it to an individual count of 1
+        if(!is.na(template$occRemarks[i])){ # if there are already other occurrence remarks...
+          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", # add this to the end
+                                          paste0("'",template[i,"numPlantsCode"],"'"))
+        } else { # if there are no occurrence remarks already...
+          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
+        }
+          
+      }else if (template$numPlantsCode[i] == 1){
+        template[i,"invididualCount"] <- "1-5"
+        if(!is.na(template$occRemarks[i])){
+          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
+                                            paste0("'",template[i,"numPlantsCode"],"'"))
+        } else {
+          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
+        }
+      }else if (template$numPlantsCode[i] == 2){
+        template[i,"invididualCount"] <- "5-25"
+        if(!is.na(template$occRemarks[i])){
+          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
+                                            paste0("'",template[i,"numPlantsCode"],"'"))
+        } else {
+          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
+        }
+      } else if (template$numPlantsCode[i] == 3){
+        template[i,"invididualCount"] <- "25-50"
+        if(!is.na(template$occRemarks[i])){
+          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
+                                            paste0("'",template[i,"numPlantsCode"],"'"))
+        } else {
+          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
+        }
+      }else if (template$numPlantsCode[i] == 4){
+        template[i,"invididualCount"] <- "50-75"
+        if(!is.na(template$occRemarks[i])){
+          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
+                                            paste0("'",template[i,"numPlantsCode"],"'"))
+        } else {
+          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
+        }
+      }else if (template$numPlantsCode[i] == 5){
+        template[i,"invididualCount"] <- "75+"
+        if(!is.na(template$occRemarks[i])){
+          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
+                                            paste0("'",template[i,"numPlantsCode"],"'"))
+        } else {
+          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
+        }
+      }
     }
   }
       
@@ -422,4 +443,11 @@
     
 ## Phenology
     # if occurrenceRemarks(contains "flowering") lifeStage <- "flowering"
- 
+    
+## renaming miscellaneous columns to darwin core terms ----
+    template <- template %>% rename(verbatimTaxonRank = vTaxonRank,
+                                    occurrenceStatus = occStatus, verbatimScientificName = vSciName,
+                                    scientificName = sciName, 
+                                    verbatimElevation= vElevM,
+                                    occurrenceRemarks=occRemarks, identificationBy = idBy, 
+                                    eventDate = fulldate)

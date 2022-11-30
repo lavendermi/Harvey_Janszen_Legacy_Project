@@ -49,6 +49,8 @@ Begin with the **first page in a journal.**
 
     -   **OR the name of a species in the description of a collected specimen (associated speecies occurrence)**  - in this case, just make sure that if there are multiple collected specimens from that location, that one of these associated species was not collected. If it was, do not include it as an observation in a row. The occurrence of this species would be documented in the herbarium and uploaded to GBIF.
 
+    -   Normally, he would put a location and a date and then species associated with it BELOW or BESIDE
+
 4.  Enter **numPage** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
 
 5.  **vName** = the verbatim name written in the notes
@@ -89,29 +91,65 @@ Begin with the **first page in a journal.**
 
     -   If subspecies or variety, just include this epiphet, and do not include the "ssp." or "var." abbreviations. (e.g. Instead of Lupinus latifolius ssp. subalpinus, put "Lupinus latifolius subalpinus")
 
-9.  **vTaxonRank** = The most specific level of taxonomy provided verbatim
-
-    -   e.g. if "Stellaria media" --\> put "species"
-
-    -   e.g. if "Stellaria" --\> put "genus"
+9.  **vTaxonRank** = The most specific level of taxonomy provided verbatim. Only use if the verbatim taxon name is a family name or higher. If genus, species or subspecies, then this information will be filled in later automatically
 
     -   e.g. if "Brassicaceae" --\> put "family"
 
-10. occStatus = occurrence status (either present of absent)
+10. **occStatus =** occurrence status (either present of absent)
 
     -   to save time, only enter if there is a note clearly saying "absent"
 
     -   otherwise, assume the species was observed (present) and you do not need to fill this in
 
-11. tips about copying rows and counting how many entries needed for a given time and place - easier to copy a bunch of that info between rows
+11. **date =** fill in YYYYMMDD
 
-12. don't enter ones will colleciton number of "coll no \#"
+12. **locality =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island
 
-13. don't enter repeated observations of same taxa at same locality , same habitat and same date
+    -   e.g. Mount Sutil, Galiano Island
 
-14. entry everything that could be considered an occurrence except for collected specimens (indicated with collection numbers). If certain names can't be deciphered or a location/ time can't be attributed to it, still include as a row in the template, and can be removed later (this will help for re-finding things on the page)
+    -   try to separate terms with commas, and spell out abbreviations
 
-15. When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down corodinates for collected specimen for the occurrence
+        -   e.g. Mt --\> Mount, Rd --\> Rd
+
+13. **Country =** full name of country of collection (either USA or Canada)
+
+14. **stateProvince =** Full name of province/ state of collection (either British Columbia or Washington)
+
+15. **island =** full name of island (if collected on island)
+
+    -   e.g. Galiano Island, Saltspring Island
+
+    -   must contain the word "Island capitalized"
+
+16. **habitat =** string describing the habitat conditions
+
+    -   you can use commas when listing things
+
+    -   to start a new sentence use a semicolon ";" rather than a period
+
+17. assTaxa = associated taxa (names of associated species), growing at same locality at same time
+
+    -   ONLY denote associated taxa names in this field, if there is a record of a specimen collection (either a collection number or a note about "coll" next to a species name) since these won't be included later but are stored in a separate database (herbarium)
+
+    -   e.g. Stellaria media 2678 --\> "Stellaria media"
+
+    -   use updated and full names of these taxa
+
+    -   use iNaturalist to decipher names/ abbreviations of associated taxa and for updated names
+
+18. **assOcc** = associated occurrences
+
+    -   the collection numbers associated with
+
+19. tips about copying rows and counting how many entries needed for a given time and place - easier to copy a bunch of that info between rows
+
+20. don't enter ones will collection number of "coll no \#"
+
+21. don't enter repeated observations of same taxa at same locality , same habitat and same date
+
+22. entry everything that could be considered an occurrence except for collected specimens (indicated with collection numbers). If certain names can't be deciphered or a location/ time can't be attributed to it, still include as a row in the template, and can be removed later (this will help for re-finding things on the page)
+
+23. When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down corodinates for collected specimen for the occurrence
 
 # Metadata
 
