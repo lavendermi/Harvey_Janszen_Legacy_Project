@@ -166,3 +166,35 @@ Begin with the **first page in a journal.**
     -   "4" = 50-75
 
     -   "5" = 75+
+
+# Processing step I: data entry checking
+
+1.  Open script " "
+
+2.  Input name of excel sheet for journal that was completed
+
+3.  Run the script
+
+4.  Take the csv file with the errors, get Andrew & Emma to check these over
+
+Take back into the same script to replace updated rows???? - some sort of API/ github feature we could use?
+
+Save as both .xlsx and .csv files !
+
+# Processing step II: data cleaning
+
+1.  Open script "part2-data-cleaning.R"
+2.  Input name of completed data sheet
+3.  Run the script
+4.  Take the csv output file and correct errors (Emma)
+5.  Take back to the same script to combine and make clean??
+
+# Processing step III: conversion to Darwin Core fields 
+
+1.  Open script "part3_template-to-dwc.R"
+
+2.  Input name of the completed and cleaned file
+
+3.  Run the script to Part 4.
+
+4.  Follow the instructions in Part 4 to clean taxa names

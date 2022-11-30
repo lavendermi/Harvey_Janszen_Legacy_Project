@@ -4,12 +4,23 @@
 ###             Created Nov. 7/22                   ###
 #######################################################
 # to do: 
-# 1) add recorded by Harvey if NA
-# 2) add vTaxonRank based on number of words in vSciName
-# 3) add present if NA 
-# adding assigning island name to island group
 
-str_replace_all(c, ",", " |")
+# shoudl taxon name checking go in step ii of processing? 
+# ass taxa names separation 
+
+# decide on separating character
+
+# event date
+# field notes linking 
+
+## Issues to still address: 
+# What happens if row has both degrees and UTM? Which one is more reliable
+# what if geolocate guesses wrong locality? - should we be doing massive batch processes
+# or smaller, more in depth ones? 
+# find way to streamline to avoid going into another application
+# if both degrees and UTM - which one should I take? which one most accurate? 
+
+# length of time it takes to go through and edit taxon names to gbif backbone? 1-2 min for 237 obs. 
 
 
 ## OVERVIEW ----
@@ -50,23 +61,31 @@ str_replace_all(c, ",", " |")
   rm(requiredPackages)
 
 ## 2) READING IN DATA ----
-  # change to read.csv after - conversion into csv should be the last step once template completed
-  template <- read_excel(here::here("data","digitized_data","HJ-8-occ-entry-template_22-11-11.xlsx"))
-
+  index <- c(7,8,9,27)
+  for (i in index){
+    if (i == index[1]){
+      data <- read_excel(here::here("data","digitized_data",
+                                    paste0("HJ-",index[1], "-occ-entry-template.xlsx")))
+    } else{ 
+      data <- rbind(data, read_excel(here::here("data","digitized_data",
+                                                paste0("HJ-",i,"-occ-entry-template.xlsx"))))
+    }
+  }
+  
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
-  ## "datasetName"
-  template$datasetName <- "Harvey Janszen Collections"
+  ## dwc:datasetName
+  data$datasetName <- "Harvey Janszen Collections"
 
-  ## "basisOfRecord"
+  ## dwc:basisOfRecord
   # Human observation = (report by a known observer that an organism was present at the place and time)
   # all records should be this type 
-  template$basisOfRecord <- "HumanObservation"
+  data$basisOfRecord <- "HumanObservation"
 
-  ## "year", "month", "day" 
+  ## dwc: "year", "month", "day" 
   # splitting YYYYMMDD date entered into separate year, month, day columns
-  template <- template %>%
-    dplyr::mutate(.data = template, fulldate = lubridate::ymd(date),
+  data <- data %>%
+    dplyr::mutate(.data = data, fulldate = lubridate::ymd(date),
                   year = lubridate::year(fulldate), 
                   month = lubridate::month(fulldate), 
                   day = lubridate::day(fulldate))
@@ -74,68 +93,122 @@ str_replace_all(c, ",", " |")
   ## Converting abundance codes into averages of their indicated range on the front cover of 
   # HJ-7 field journal, and then assigning code to the occurrence remarks for reference of the uncertainty range
   # which can be linked to the metadata
-  template$numPlantsCode <- as.numeric(template$numPlantsCode)
+  data$numPlantsCode <- as.numeric(data$numPlantsCode)
   
-  for (i in 1:dim(template)[1]){ # for all rows
-    if(!is.na(template$numPlantsCode[i])){ # if there is a number of plants code
-      if (template$numPlantsCode[i] == 0){ # if the num plants code is =0 ...
-        template[i,"invididualCount"] <- "1" # assign it to an individual count of 1
-        if(!is.na(template$occRemarks[i])){ # if there are already other occurrence remarks...
-          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", # add this to the end
-                                          paste0("'",template[i,"numPlantsCode"],"'"))
-        } else { # if there are no occurrence remarks already...
-          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
-        }
+  for (i in 1:dim(data)[1]){ # for all rows
+    if(!is.na(data$numPlantsCode[i])){ # if there is a number of plants code
+      if (data$numPlantsCode[i] == 0){ # if the num plants code is =0 ...
+        data[i,"invididualCount"] <- "1" # assign it to an individual count of 1
           
-      }else if (template$numPlantsCode[i] == 1){
-        template[i,"invididualCount"] <- "1-5"
-        if(!is.na(template$occRemarks[i])){
-          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
-                                            paste0("'",template[i,"numPlantsCode"],"'"))
-        } else {
-          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
-        }
-      }else if (template$numPlantsCode[i] == 2){
-        template[i,"invididualCount"] <- "5-25"
-        if(!is.na(template$occRemarks[i])){
-          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
-                                            paste0("'",template[i,"numPlantsCode"],"'"))
-        } else {
-          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
-        }
-      } else if (template$numPlantsCode[i] == 3){
-        template[i,"invididualCount"] <- "25-50"
-        if(!is.na(template$occRemarks[i])){
-          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
-                                            paste0("'",template[i,"numPlantsCode"],"'"))
-        } else {
-          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
-        }
-      }else if (template$numPlantsCode[i] == 4){
-        template[i,"invididualCount"] <- "50-75"
-        if(!is.na(template$occRemarks[i])){
-          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
-                                            paste0("'",template[i,"numPlantsCode"],"'"))
-        } else {
-          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
-        }
-      }else if (template$numPlantsCode[i] == 5){
-        template[i,"invididualCount"] <- "75+"
-        if(!is.na(template$occRemarks[i])){
-          template[i,"occRemarks"] <- paste(template[i, "occRemarks"],";","abundance code", 
-                                            paste0("'",template[i,"numPlantsCode"],"'"))
-        } else {
-          template[i,"occRemarks"] <- paste0("abundance code:", " '",template[i,"numPlantsCode"],"'")
-        }
+      }else if (data$numPlantsCode[i] == 1){ 
+        data[i,"invididualCount"] <- "1-5"
+      
+      }else if (data$numPlantsCode[i] == 2){
+        data[i,"invididualCount"] <- "5-25"
+      
+      } else if (data$numPlantsCode[i] == 3){
+        data[i,"invididualCount"] <- "25-50"
+       
+      }else if (data$numPlantsCode[i] == 4){
+        data[i,"invididualCount"] <- "50-75"
+       
+      }else if (data$numPlantsCode[i] == 5){
+        data[i,"invididualCount"] <- "75+"
+      }
+      if(!is.na(data$occRemarks[i])){ # if there are already other occurrence remarks...
+        data[i,"occRemarks"] <- paste(data[i, "occRemarks"],";","abundance code", # add this to the end
+                                          paste0("'",data[i,"numPlantsCode"],"'"))
+      } else { # if there are no occurrence remarks already...
+        data[i,"occRemarks"] <- paste0("abundance code:", " '",data[i,"numPlantsCode"],"'") # assing it as the occurrence remark
       }
     }
   }
       
-  ## creating unique occurrence ID from archive number, page number and number of observation on page
-  template$occurrenceID <- paste0("HJ","-",template$archiveID, "-", template$pageNum, "-", template$numPage)
+  ## dwc: recordedBy
+  # automatically assigning Harvey Janszen as collector if no other notes
   
-  ## selecting fields we want to keep for darwin core archive (tidying data)
-  occ_data <- template %>% select(-pageNum, -taxonAbb, -conf, -date)   %>% arrange(occurrenceID)
+  for(i in 1:dim(data)[1]){ # for each observation
+    if(is.na(data$recordedBy[i])){ # if there were not other collectors mentioned
+      data$recordedBy[i] <- "Harvey Janszen" # fill field with name
+    }else{ # if other collector names noted 
+      data$recordedBy[i] <- paste0("Harvey Jaszen, ", data$recordedBy[i]) # add his name as first
+      # collector 
+    }
+  } 
+  
+  ## dwc: verbatimTaxonRank 
+  # automatically adding "genus" if length(sciName) ==1, otherwise "species"
+  
+  for(i in 1:dim(data)[1]){  # for each row
+    if(is.na(data$vTaxonRank[i])){ # if there is no taxon rank already...
+      if (length(strsplit(data$sciName[i], " ")[[1]])==1){ # if the length of the sciName string ==1,,,
+        data$vTaxonRank[i] <- "genus" # assign genus
+      }else if (length(strsplit(data$sciName[i], " ")[[1]])==2){ # if 2...
+        data$vTaxonRank[i] <- "species" # assign species
+      }else if (length(strsplit(data$sciName[i], " ")[[1]])==3) # if 3...
+        data$vTaxonRank[i] <- "subspecies" # assing subspecies
+    }
+  }
+  
+  ## dwc: occurrenceStatus
+  # automatically assigning occurrence status as present if it was not filled in
+  for(i in 1:dim(data)[1]){ # for each observation
+    if(is.na(data$occStatus[i])){ # if there was no remark
+      data$occStatus[i] <- "present" # assign as present
+    }
+  } 
+  
+  ## dwc: islandGroup
+  ## automatically assigning island group, if the island field was filled in 
+  places <- read.csv(here::here("data", "reference_data","islands-and-districts_22-11-29.csv"))
+  
+  for(i in 1:dim(data)[1]){ # for each observation
+    if(!is.na(data$island[i])){ # if there was no remark
+      data$islandGroup[i] <- places[places$island==data$island[i], "islandGroup"]
+    }
+  } 
+  
+  ## dwc: associatedOccurrences 
+  # adding "HJC-" to the beginning of colelction numbers entered here to indicate
+  # that it is a collected specimen 
+  # if string split > 1 " " 
+  
+  taxa <- NULL #initializing vectors
+  taxa_coll <- NULL
+  
+  for (i in 1:dim(data)[1]){ # for each obs
+    if (!is.na(data$assOcc[i])){ # if there is an associated species already listed (collected specimens)
+      if (length(str_split(data$assOcc[i], ", ")[[1]])>1){ # if there is more than one ...
+        taxa <- str_split(data$assOcc[i], ", ")[[1]]
+        
+        for (j in 1:length(taxa)){ # for each occurrence number 
+          taxa_coll[j] <- paste0("HJC-",taxa[j]) # input "HJC-" before the number to indicate collected specimen number
+        }
+        # and assign this to the associated species column for that row
+        
+        data$assOcc[i] <- paste(taxa_coll, collapse= "; ")
+        
+      } else if (length(str_split(data$assOcc[i], ", "))==1) { # if there is only one associated occurrence already...
+        # paste "HJC-" infront and assign to the associated species column for that row
+        data$assOcc[i] <- paste0("HJC-",data$assOcc[i])
+      }
+    }
+  }
+  
+  ## dwc: recordNumber
+  # assigning record number as a combined number of the archiveID, pageNumber and number on page
+  data$recordNumber <- paste0("HJ",data$archiveID, "-", data$pageNum, "-", data$numPage)
+  
+  # dwc:fieldNotes
+  # stating where the field notes are stored and where the images are 
+  data$fieldNotes <- "Imaged notes: X,  Original notes housed at UBC herbarium"
+  
+  ## dwc: occurrenceId: creating globally unique identifier in chronological order and sequence in journals
+  # starting at 1 
+  data$occurrenceID <- 1:dim(data)[1]
+  
+  ## removing fields we don't need anymore for darwin core archive (tidying data)
+  occ_data <- data %>% select(-pageNum,-numPage, -vName, -conf, -date)   %>% arrange(occurrenceID)
                                        
 ## 4) TAXONOMY FIELDS ----
     
@@ -146,7 +219,7 @@ str_replace_all(c, ",", " |")
   
   # Using GBIF Species-Lookup tool to check taxon names (updated input names, not verbatim)
     # create and write data frame with updated species names from template 
-    Names <- data.frame(occ_data$occurrenceID, occ_data$scientificName)
+    Names <- data.frame(occ_data$occurrenceID, occ_data$sciName)
     colnames(Names) <- c("occurrenceID","scientificName")
     write.csv(Names, here::here("data", paste0("taxa-names_", Sys.Date(), ".csv")), row.names = F)
     
@@ -174,17 +247,10 @@ str_replace_all(c, ",", " |")
       dplyr::rename(specificEpiphet = species)  # renaming to match darwin core terms 
       
     # combining gbif taxon match data with occurrence data 
-    occ_data <- occ_data %>% select(-scientificName) # removing columns to avoid duplication of updated scientific names
+    occ_data <- occ_data %>% select(-sciName) # removing columns to avoid duplication of updated scientific names
     occ_data <- merge(occ_data, normalized_names, by = "occurrenceID")
 
 ## 5) GEOREFERENCING ----
-    
-    ## Issues to still address: 
-      # What happens if row has both degrees and UTM? 
-      # what if geolocate guesses wrong locality? - should we be doing massive batch processes
-      # or smaller, more in depth ones? 
-      # find way to streamline to avoid going into another application
-      # if both degrees and UTM - which one should I take? which one most accurate? 
     
   ## write a csv file to use in GEOLocate
     
@@ -451,3 +517,5 @@ str_replace_all(c, ",", " |")
                                     verbatimElevation= vElevM,
                                     occurrenceRemarks=occRemarks, identificationBy = idBy, 
                                     eventDate = fulldate)
+    
+## Saving as .csv file ----

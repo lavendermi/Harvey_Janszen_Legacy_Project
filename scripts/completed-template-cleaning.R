@@ -33,7 +33,7 @@ rm(requiredPackages)
 J <-8 # journal number (1-31)
 data <- read_excel(here::here("data","digitized_data", paste0("HJ-",J,"-","occ-entry-template_22-11-11.xlsx")))
 
-places <- read.csv(here::here("data", "islands-and-districts_22-11-22.csv"))
+places <- read.csv(here::here("data", "reference_data","islands-and-districts_22-11-22.csv"))
 
 # checking classes of columns: 
   data %>% 
@@ -233,7 +233,7 @@ places <- read.csv(here::here("data", "islands-and-districts_22-11-22.csv"))
   
   # converting degrees to decimal degrees
   for (i in 1:dim(data)[1]){
-    if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
+    if(length(tstrspli(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
       data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
       data$vLon[i] <- angle2dec(data$vLon[i])
     }
