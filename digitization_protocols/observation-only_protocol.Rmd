@@ -198,3 +198,7 @@ Save as both .xlsx and .csv files !
 3.  Run the script to Part 4.
 
 4.  Follow the instructions in Part 4 to clean taxa names
+
+    1.  open GBIF species-lookup
+
+5.  Run part 5 following the instructions
