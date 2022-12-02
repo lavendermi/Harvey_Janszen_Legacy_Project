@@ -30,12 +30,19 @@ rm(requiredPackages)
 
 ## READING IN DATA ----
 
-J <-8 # journal number (1-31)
-data <- read_excel(here::here("data","digitized_data", paste0("HJ-",J,"-","occ-entry-template_22-11-11.xlsx")))
+  # loading raw data
+  J <-7 # journal number 
+  data <- read_excel(here::here("data","digitized_data",
+                                "occurrence_data",
+                                "raw_data", 
+                                paste0("HJ-",J,"-","occ-entry.xlsx")))
+  
+  # loading places metadata
+  places <- read.csv(here::here("data", 
+                                "reference_data",
+                                "islands-and-districts_22-11-29.csv"))
 
-places <- read.csv(here::here("data", "reference_data","islands-and-districts_22-11-22.csv"))
-
-# checking classes of columns: 
+  # checking classes of columns: 
   data %>% 
     chain_start %>%
     verify(., has_class("archiveID","pageNum", "numPage", "date", "vElevM","vLat", "vLon",

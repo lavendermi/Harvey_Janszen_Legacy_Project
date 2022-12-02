@@ -1,8 +1,9 @@
-#######################################################
-### Data Entry Template to Darwin Core Occurrences  ###
-###               Emma Menchions                    ###
-###             Created Nov. 7/22                   ###
-#######################################################
+#######################################################################
+###       Processing Step 3: conversion from Data Entry Template    ###
+###                      to Darwin Core Occurrences                 ###
+###                         Emma Menchions                          ###
+###                         Created Nov. 7/22                       ###
+#######################################################################
 # to do: 
 
 # shoudl taxon name checking go in step ii of processing? 
@@ -61,14 +62,22 @@
   rm(requiredPackages)
 
 ## 2) READING IN DATA ----
-  index <- c(7,8,9,27)
+  
+  index <- c(7,8,9,27) # USER INPUT 
+  
   for (i in index){
     if (i == index[1]){
-      data <- read_excel(here::here("data","digitized_data",
-                                    paste0("HJ-",index[1], "-occ-entry-template.xlsx")))
+      data <- read_excel(
+        here::here("data","digitized_data",
+                   "occurrence_data", 
+                    "data_cleaning", 
+                    paste0("HJ-",index[1], "-occ-entry.xlsx")))
     } else{ 
-      data <- rbind(data, read_excel(here::here("data","digitized_data",
-                                                paste0("HJ-",i,"-occ-entry-template.xlsx"))))
+      data <- rbind(data, read_excel(
+        here::here("data","digitized_data",
+                   "occurrence_data",
+                    "data_cleaning", 
+                    paste0("HJ-",i,"-occ-entry.xlsx"))))
     }
   }
   
