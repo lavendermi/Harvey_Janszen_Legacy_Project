@@ -5,6 +5,16 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+**To do:**
+
+-   what to do with data entry remarks when checking
+
+-   finish filling out column-specific instructions
+
+-   qualifier column
+
+-   in what order should books be digitized and processed? should everything from cleaning onwards be done with aggregated set?
+
 # Data entry template
 
 *Start new template for every field journal.*
@@ -13,7 +23,7 @@ output: html_document
 
 -   Rename to "HJ-[input archiveID]-occ-entry-[YY-MM-DD].xlsx"
 
-# Setting up 
+# Setting up
 
 1.  Open the data entry excel sheet
 
@@ -47,13 +57,13 @@ Begin with the **first page in a journal.**
 
     -   This could be in a **set of species names observed at a particular location** (with no collection numbers)
 
-    -   **OR the name of a species in the description of a collected specimen (associated speecies occurrence)**  - in this case, just make sure that if there are multiple collected specimens from that location, that one of these associated species was not collected. If it was, do not include it as an observation in a row. The occurrence of this species would be documented in the herbarium and uploaded to GBIF.
+    -   **OR the name of a species in the description of a collected specimen (associated speecies occurrence)** - in this case, just make sure that if there are multiple collected specimens from that location, that one of these associated species was not collected. If it was, do not include it as an observation in a row. The occurrence of this species would be documented in the herbarium and uploaded to GBIF.
 
     -   Normally, he would put a location and a date and then species associated with it BELOW or BESIDE
 
-4.  Enter **numPage** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
+4.  Enter **numPage** **[REQUIRED]** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
 
-5.  **vName** = the verbatim name written in the notes
+5.  **vName** **[REQUIRED]** = the verbatim name written in the notes
 
     -   this may be an abbreviation (e.g. Stel med)
 
@@ -61,7 +71,7 @@ Begin with the **first page in a journal.**
 
     -   or a full species name which is outdated
 
-6.  **vSciName** = your esitmation of what the full species name is
+6.  **vSciName [REQUIRED]** = your esitmation of what the full species name is
 
     -   This is where iNaturalist is helpful. Often the taxonomy might be outdated (indicated by a bracketed name in the search results on iNat). Click on the top result. Does it occur in the region?
 
@@ -79,31 +89,31 @@ Begin with the **first page in a journal.**
 
     -   there should be no spelling mistakes, but outdated taxon names should still be used here
 
-7.  **Conf** = enter your confidence level in the taxon name estimate (low = l, medium = m, high = h)
+7.  **Conf** **[REQUIRED]** = enter your confidence level in the taxon name estimate (low = l, medium = m, high = h)
 
     -   the entries with low confidence will be returned to once all of the occurrences have been entered
 
     -   entries with medium confidence may be returned to if there is time
 
-8.  **sciName =** full, properly spelt, updated taxon names.
+8.  **sciName [REQUIRED] =** full, properly spelt, updated taxon names.
 
     -   refer to iNaturalist for updates taxon names
 
     -   If subspecies or variety, just include this epiphet, and do not include the "ssp." or "var." abbreviations. (e.g. Instead of Lupinus latifolius ssp. subalpinus, put "Lupinus latifolius subalpinus")
 
-9.  **vTaxonRank** = The most specific level of taxonomy provided verbatim. Only use if the verbatim taxon name is a family name or higher. If genus, species or subspecies, then this information will be filled in later automatically
+9.  **vTaxonRank** **[REQUIRED]** = The most specific level of taxonomy provided verbatim. Only use if the verbatim taxon name is a family name or higher. If genus, species or subspecies, then this information will be filled in later automatically
 
     -   e.g. if "Brassicaceae" --\> put "family"
 
-10. **occStatus =** occurrence status (either present of absent)
+10. **occStatus [REQUIRED] =** occurrence status (either present of absent)
 
     -   to save time, only enter if there is a note clearly saying "absent"
 
     -   otherwise, assume the species was observed (present) and you do not need to fill this in
 
-11. **date =** fill in YYYYMMDD
+11. **date [REQUIRED] =** fill in YYYYMMDD
 
-12. **locality =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island
+12. **locality [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island
 
     -   e.g. Mount Sutil, Galiano Island
 
@@ -111,23 +121,25 @@ Begin with the **first page in a journal.**
 
         -   e.g. Mt --\> Mount, Rd --\> Rd
 
-13. **Country =** full name of country of collection (either USA or Canada)
+13. **Country [REQUIRED] =** full name of country of collection (either USA or Canada)
 
-14. **stateProvince =** Full name of province/ state of collection (either British Columbia or Washington)
+14. **stateProvince [REQUIRED] =** Full name of province/ state of collection (either British Columbia or Washington)
 
-15. **island =** full name of island (if collected on island)
+15. **island [REQUIRED] =** full name of island (if collected on island)
 
     -   e.g. Galiano Island, Saltspring Island
 
-    -   must contain the word "Island capitalized"
+    -   must contain the word "Island" capitalized
 
-16. **habitat =** string describing the habitat conditions
+16. county = only fill out if on Vancouver Island or Mainland (otherwise it will be assigned depending on the island that it is on)
+
+17. **habitat =** string describing the habitat conditions
 
     -   you can use commas when listing things
 
     -   to start a new sentence use a semicolon ";" rather than a period
 
-17. assTaxa = associated taxa (names of associated species), growing at same locality at same time
+18. **assCollTaxa** = associated collected taxa (names of associated species), growing at same locality at same time
 
     -   ONLY denote associated taxa names in this field, if there is a record of a specimen collection (either a collection number or a note about "coll" next to a species name) since these won't be included later but are stored in a separate database (herbarium)
 
@@ -137,19 +149,41 @@ Begin with the **first page in a journal.**
 
     -   use iNaturalist to decipher names/ abbreviations of associated taxa and for updated names
 
-18. **assOcc** = associated occurrences
+19. **assCollOcc** = associated collected occurrences
 
-    -   the collection numbers associated with
+    -   the collection numbers associated with associated collected occurrences
 
-19. tips about copying rows and counting how many entries needed for a given time and place - easier to copy a bunch of that info between rows
+... add more rows and redundancies (qualifiers, etc.)
 
-20. don't enter ones will collection number of "coll no \#"
+## When finished entering all data for book:
 
-21. don't enter repeated observations of same taxa at same locality , same habitat and same date
+-    ***Save the final raw data book as both .xlsx and .csv files***
 
-22. entry everything that could be considered an occurrence except for collected specimens (indicated with collection numbers). If certain names can't be deciphered or a location/ time can't be attributed to it, still include as a row in the template, and can be removed later (this will help for re-finding things on the page)
+## Important Notes:
 
-23. When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down corodinates for collected specimen for the occurrence
+1.   **SAVE FREQUENTLY** (by pushing to github or backing up on OSF or Google Drive)
+
+2.  If certain names can't be deciphered or a location/ time can't be attributed to it, **still include as a row in the template,** with a valid **archiveID**, **pageNum** an **numPage** entry. It can be removed later (this will help for re-finding things on the page)
+
+3.  **DON'T enter any taxon observations with either a collection number or the note "coll no \#" or "coll"** (this indicates a specimen was collected and therefore, we don't want to duplicate data already in herbarium databases)
+
+4.  **AVOID entering repeated observations of same taxa** at same locality, habitat/ sub location and same date
+
+    -   there will be checks to make sure this doesn't happen during data processing, but best to avoid to save time now
+
+## **Tips for efficiency**
+
+1.  When you first start a new page or new event (location and date), **count the** number of observations you think you will have. Enter the date and locality info for the first observation and then **copy for the amount of rows you think you will need. The same applies for associated collected occurrences**
+
+2.  When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down coordinates for collected specimen for the occurrence.
+
+    -   Additionally, you can copy and paste large lists of associated occurrence numbers and taxa names to multiple rows to save time
+
+3.  Using iNaturalist for efficient species type and spelling check
+
+    -   Starting to write a name in the search bar on the explore page and then filling the rest of the name out by looking at the result that pops up
+
+    -   copy and paste this to sheet
 
 # Metadata
 
@@ -169,27 +203,51 @@ Begin with the **first page in a journal.**
 
 # Processing step I: data entry checking
 
-1.  Open script " "
+1.  Open script **"part1-a_checking.R"**
 
-2.  Input name of excel sheet for journal that was completed
+2.  **Input the journal number** for the data that was entered
 
-3.  Run the script
+3.  Input whether you want to only check high-priority cases (Q \<- "hp") or include "medium" confidence taxon name deciphering flags (Q \<- "all") **(in section 2)**
 
-4.  Take the csv file with the errors, get Andrew & Emma to check these over
+4.  **Run the script**
 
-Take back into the same script to replace updated rows???? - some sort of API/ github feature we could use?
+5.  To get both options stated in #3, change Q to the other option, and re-run the script
 
-Save as both .xlsx and .csv files !
+6.  **Find the .csv file** in data \> digitized_data \> occurrence_data \> data_checking
+
+7.  Take the csv file and have it **reviewed by Andrew & Emma to check these flagged observations**
+
+    -   In checking these observations:
+
+        -   1) find each occurrence in journal as indicated by archiveID and page numbers
+
+        -   2) Fill in uncertain information with best guess
+
+        -   3) If still can not decipher or are uncertain, make a judgement call as to whether or not to include. If too uncertain or poor data quality, mark the toDelete column with "Y" for that observation
+
+        -   4) fill the "checkStaus" column with "C" (completed) or "R" (return to) to check progress
+
+        -   **5) *WHAT SHOULD WE DO WITH DATAENTRY REMARKS (remove?) (replace?) (update?)***
+
+    -   once all rows have "C" in the checkStatus column, continue on
+
+8.  Open script **"part1-b_checking.R"**
+
+9.  Under the "LOADING DATA" tab, input the name of the checked file **(filename \<- ..) and the journal number (J \<- ...)**
+
+10. Run the script section by section
+
+11. If there is an error generated from section 2, then a row has been missed in the review and should be returned to. Once this is fixed, the data be saved and the script should be re-started.
 
 # Processing step II: data cleaning
 
 1.  Open script "part2-data-cleaning.R"
-2.  Input name of completed data sheet
+2.  Input name of completed data sheet **(filename \<- ...)** and the **journal number (J\<- ...)**
 3.  Run the script
 4.  Take the csv output file and correct errors (Emma)
 5.  Take back to the same script to combine and make clean??
 
-# Processing step III: conversion to Darwin Core fields 
+# Processing step III: conversion to Darwin Core fields
 
 1.  Open script "part3_template-to-dwc.R"
 

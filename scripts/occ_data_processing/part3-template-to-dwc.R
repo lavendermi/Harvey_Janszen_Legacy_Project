@@ -15,6 +15,7 @@
 # field notes linking 
 
 ## Issues to still address: 
+# distinct localities to georeference!
 # What happens if row has both degrees and UTM? Which one is more reliable
 # what if geolocate guesses wrong locality? - should we be doing massive batch processes
 # or smaller, more in depth ones? 
@@ -176,6 +177,28 @@
       data$islandGroup[i] <- places[places$island==data$island[i], "islandGroup"]
     }
   } 
+  
+  # checking that all were assigned an island group and that it is spelt corrently
+  data %>% 
+    chain_start %>% 
+    assert(not_na,islandGroup) %>% 
+    assert(in_set(places$islandGroup),islandGroup) %>% 
+    chain_end
+  
+  ## dwc: county
+  ## automatically assign as the island if there is an island which is not Vancouver island 
+  for(i in 1:dim(data)[1]){ # for each observation
+    if(!is.na(data$county[i]) & 
+       data$island != "Vancouver Island" | 
+       data$island != "Vancouver"){ # if there was no remark of county
+      # and the island was not vancouver island 
+      data$county[i] <- places[places$island==data$island[i], "islandGroup"]
+    }
+  } 
+  
+    # checking that all were assinged a county
+    data %>% 
+    assert(not_na,county) 
   
   ## dwc: associatedOccurrences 
   # adding "HJC-" to the beginning of colelction numbers entered here to indicate

@@ -30,7 +30,7 @@ for (pkg in requiredPackages) {
 }
 rm(requiredPackages)
 
-## READING IN DATA ----
+## 1. LOADING IN DATA ----
  
   # loading raw data 
   J <-7 # USER INPUT
@@ -52,7 +52,7 @@ rm(requiredPackages)
                                 stateProvince = "[stateProvince]", 
                                 island ="[island]")
   
-## 1. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
+## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
   
 # Extract rows where... 
 # a) vName, vSciName, or sciName are empty
@@ -80,7 +80,10 @@ rm(requiredPackages)
       # adding new column to which can be used to keep track of 
       # data checking progress
         mutate("checkStatus"= "", 
-               .before=archiveID)
+               .before=archiveID) %>% 
+        mutate("toDelete"= "", # adding column to indicate which entries
+           # too poor or uncertain to include
+           .before=archiveID)
     
       ## saving file 
       write.csv(to_check, 
@@ -104,7 +107,10 @@ rm(requiredPackages)
         # adding new column to which can be used to keep 
         # track of data checking progress
         mutate("checkStatus"= "",
-               .before=archiveID)
+               .before=archiveID) %>% 
+        mutate("toDelete"= "", # adding column to indicate which entries
+               # too poor or uncertain to include
+             .before=archiveID)
       
       ## saving file 
       write.csv(to_check, 
@@ -114,10 +120,12 @@ rm(requiredPackages)
                            Sys.Date(),".csv")), row.names = F)
     } 
   
-## 2. ADDRESS THE ISSUES IN THESE ROWS ----
+## 3. ADDRESS THE ISSUES IN THESE ROWS in CSV FILE ----
   # add data or change that data in these rows within the new
   # .csv file created
-  # once they are all addressed... use part 3 of the script to consolidate
+  # once they are all addressed... use script part1-b_checking 
+  # to consolidate and remove rows that can't be filled 
+  # in with all of the minimum required data
   
 
   
