@@ -1,4 +1,4 @@
-archiveID,pageNum,numPage,vName,vSciName,conf,sciName,date,locality,country,stateProvince,island,county,occStatus,habitat,locationRemarks,vTaxonRank,vElevM,vLat,vLon,vUTM,vCoodUncM,assCollTaxa,assColl,numPlantsCode,orgQuantity,orgQtype,occRemarks,phenology,recordedBy,idBy,dataEntryRemarks
+archiveID,pageNum,numPage,vName,vSciName,conf,sciName,date,locality,country,stateProvince,island,county,occStatus,habitat,locationRemarks,vTaxonRank,vElevM,vLat,vLon,vUTM,vCoordUncM,assCollTaxa,assColl,numPlantsCode,orgQuantity,orgQtype,occRemarks,phenology,recordedBy,idBy,dataEntryRemarks
 7,1,1,Artemisia suksdorfii,Artemisia suksdorfii,h,Artemisia suksdorfii,19810528,"log dump beach with navy channel, North Pender Island",Canada,British Columbia,North Pender Island,Southern Gulf Islands,NA,beach,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 7,1,2,Poa annua,Poa annua,h,Poa annua,19810528,"Prevost Island, at dock",Canada,British Columbia,Prevost Island,NA,NA,NA,at dock,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 7,1,3,Lolium perenne,Lolium perenne,h,Lolium perenne,19810528,"Prevost Island, at dock",Canada,British Columbia,Prevost Island,NA,NA,NA,at dock,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -60,3 +60,5 @@ archiveID,pageNum,numPage,vName,vSciName,conf,sciName,date,locality,country,stat
 7,2,38,Festuca rubra lit,Festuca rubra litoralis,l,Festuca rubra litoralis,19810528,Prevost Island,Canada,British Columbia,Prevost Island,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 7,2,39,Bromus vulgaris,Bromus vulgaris,h,Bromus vulgaris,19810528,Prevost Island,Canada,British Columbia,Prevost Island,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,asterisk
 7,2,40,Barbarea orthoceras,Barbarea orthoceras,h,Barbarea orthoceras,19810528,Prevost Island,Canada,British Columbia,Prevost Island,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,asterisk
+7,1,4,Plantago lanceolata,Plantago lanceolata,h,Plantago lanceolata,19810528,"Prevost Island, at dock",Canada,British Columbia,Prevost Island,NA,NA,NA,at dock,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+7,1,7,Vicia sativa,Vicia sativa,h,Vicia sativa,19810528,"Prevost Island, at dock",Canada,British Columbia,Prevost Island,NA,NA,NA,at dock,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

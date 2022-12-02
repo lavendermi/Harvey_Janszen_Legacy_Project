@@ -157,11 +157,11 @@ Begin with the **first page in a journal.**
 
 ## When finished entering all data for book:
 
--    ***Save the final raw data book as both .xlsx and .csv files***
+-   ***Save the final raw data book as both .xlsx and .csv files***
 
 ## Important Notes:
 
-1.   **SAVE FREQUENTLY** (by pushing to github or backing up on OSF or Google Drive)
+1.  **SAVE FREQUENTLY** (by pushing to github or backing up on OSF or Google Drive)
 
 2.  If certain names can't be deciphered or a location/ time can't be attributed to it, **still include as a row in the template,** with a valid **archiveID**, **pageNum** an **numPage** entry. It can be removed later (this will help for re-finding things on the page)
 
@@ -219,13 +219,21 @@ Begin with the **first page in a journal.**
 
     -   In checking these observations:
 
-        -   1) find each occurrence in journal as indicated by archiveID and page numbers
+        -   
 
-        -   2) Fill in uncertain information with best guess
+            1)  find each occurrence in journal as indicated by archiveID and page numbers
 
-        -   3) If still can not decipher or are uncertain, make a judgement call as to whether or not to include. If too uncertain or poor data quality, mark the toDelete column with "Y" for that observation
+        -   
 
-        -   4) fill the "checkStaus" column with "C" (completed) or "R" (return to) to check progress
+            2)  Fill in uncertain information with best guess
+
+        -   
+
+            3)  If still can not decipher or are uncertain, make a judgement call as to whether or not to include. If too uncertain or poor data quality, mark the toDelete column with "Y" for that observation
+
+        -   
+
+            4)  fill the "checkStaus" column with "C" (completed) or "R" (return to) to check progress
 
         -   **5) *WHAT SHOULD WE DO WITH DATAENTRY REMARKS (remove?) (replace?) (update?)***
 
