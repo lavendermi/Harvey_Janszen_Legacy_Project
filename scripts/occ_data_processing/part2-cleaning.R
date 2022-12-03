@@ -402,7 +402,7 @@ rm(requiredPackages)
    
     # check within certain range (drawn from arbitrary
     # boundary box around 
-    # South BC, North Washignton Area)
+    # South BC, North Washington Area)
     
     data %>% 
       chain_start %>% 
@@ -428,15 +428,31 @@ rm(requiredPackages)
 ## assColl
   # constraints: 1) if assCollTaxa is non-Na, this column should be non-NA
   # 2) read as character
-  not.empty.p <- function(x) if(x=="") return(FALSE)
+  paired_col_not_empty <- function(x) if(x==" ") return(FALSE)
   
   # if there are non-Na elements...
-  if(length(data$assColl[is.na(data$assColl)])
-     <length(data$assColl)){
-    data %>% 
-      verify(., has_class("assColl", class="character")) %>% 
-      assert( )
-  }
+  if(length(data$assColl[is.na(data$assColl)]
+     <length(data$assColl))){
+    
+      # checking class 
+      data %>% 
+        verify(., has_class("assColl", class="character"))
+    
+      # checking that all rows with data entered in assCollTaxa have 
+      # something enetered in the assCollTaxa column
+    for (i in 1:dim(data)[1]){
+        if (is.na(data$assCollTaxa[i]) & is.na(data$assColl[i])){
+          match <- T 
+        } else if (!is.na(data$assCollTaxa[i]) & !is.na(data$assColl[i])){
+          match <- T
+        } else if (!is.na(data$assCollTaxa[i]) & is.na(data$assColl[i])){
+          match <- F 
+        } else if (is.na(data$assCollTaxa[i]) & !is.na(data$assColl[i])){
+          match <- F 
+        }
+    }
+  } 
+      
   
 ## assCollTaxa 
   # constraints: 1) if assCollOcc is non-Na, this column should be non-NA
@@ -448,11 +464,10 @@ rm(requiredPackages)
   if(length(data$assCollTaxa[is.na(data$assCollTaxa)])
        <length(data$assCollTaxa)){
   data %>% 
-    dplyr::select(assCollTaxa) %>% 
-    na.omit() %>% 
     chain_start %>%
     assert(letters_only, assCollTaxa) 
-    assert(genusCapitalized, assCollTaxa)
+    assert(genusCapitalized, assCollTaxa) # this function NEEDS TO BE UPDATED FOR THE MUTLIPOLE ELEMENTS NORMALLY 
+    
     chain_end
   }
   
