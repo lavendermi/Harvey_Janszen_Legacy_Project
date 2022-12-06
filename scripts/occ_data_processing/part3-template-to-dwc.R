@@ -21,9 +21,13 @@
 # or smaller, more in depth ones? 
 # find way to streamline to avoid going into another application
 # if both degrees and UTM - which one should I take? which one most accurate? 
-
+# change file path to checked data
 # length of time it takes to go through and edit taxon names to gbif backbone? 1-2 min for 237 obs. 
 
+
+# find way to automatically update taxonomy of verbatim names? 
+# find a way to streamline to avoid having to go into another application
+# find way to assign taxon gbif ID? 
 
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
@@ -51,7 +55,7 @@
   library(groundhog)
   
   date <- "2022-11-02"
-  requiredPackages <-  c("readxl","dplyr","here", "lubridate","magrittr","purrr","ritis",
+  requiredPackages <-  c("assertr","dplyr","here", "lubridate","magrittr","purrr","ritis",
                          "stringi","taxize","terra","tidyverse","tidyr")
   
   for (pkg in requiredPackages) {
@@ -71,16 +75,29 @@
       data <- read_excel(
         here::here("data","digitized_data",
                    "occurrence_data", 
-                    "data_cleaning", 
-                    paste0("HJ-",index[1], "-occ-entry.xlsx")))
+                    "raw_data", 
+                    paste0("HJ-",index[1], "-occ-entry.xlsx"))) 
     } else{ 
       data <- rbind(data, read_excel(
         here::here("data","digitized_data",
                    "occurrence_data",
-                    "data_cleaning", 
+                    "raw_data", 
                     paste0("HJ-",i,"-occ-entry.xlsx"))))
     }
   }
+  
+  ## RENA<ING COLUMNS (TEMPORARY, remove in the end!!!!!!!!!!!!!!!!!)
+  data <- data %>%dplyr::rename(archiveID="[archiveID]", 
+                                pageNum = "[pageNum]", 
+                                numPage = "[numPage]", 
+                                vName = "[vName]",
+                                vSciName= "[vSciName]", 
+                                sciName = "[sciName]",
+                                conf="[conf]",date="[date]",
+                                locality="[locality]", 
+                                country = "[country]",
+                                stateProvince = "[stateProvince]", 
+                                island ="[island]")
   
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
@@ -88,7 +105,8 @@
   data$datasetName <- "Harvey Janszen Collections"
 
   ## dwc:basisOfRecord
-  # Human observation = (report by a known observer that an organism was present at the place and time)
+  # Human observation = (report by a known observer that an organism was 
+  # present at the place and time)
   # all records should be this type 
   data$basisOfRecord <- "HumanObservation"
 
@@ -100,8 +118,9 @@
                   month = lubridate::month(fulldate), 
                   day = lubridate::day(fulldate))
   
-  ## Converting abundance codes into averages of their indicated range on the front cover of 
-  # HJ-7 field journal, and then assigning code to the occurrence remarks for reference of the uncertainty range
+  ## Converting abundance codes into averages of their indicated range 
+  # on the front cover of HJ-7 field journal, and then assigning code to the 
+  # occurrence remarks for reference of the uncertainty range
   # which can be linked to the metadata
   data$numPlantsCode <- as.numeric(data$numPlantsCode)
   
@@ -126,10 +145,12 @@
         data[i,"invididualCount"] <- "75+"
       }
       if(!is.na(data$occRemarks[i])){ # if there are already other occurrence remarks...
-        data[i,"occRemarks"] <- paste(data[i, "occRemarks"],";","abundance code", # add this to the end
-                                          paste0("'",data[i,"numPlantsCode"],"'"))
+        data[i,"occRemarks"] <- paste(data[i, "occRemarks"],
+                                      ";","abundance code", # add this to the end
+                                paste0("'",data[i,"numPlantsCode"],"'"))
       } else { # if there are no occurrence remarks already...
-        data[i,"occRemarks"] <- paste0("abundance code:", " '",data[i,"numPlantsCode"],"'") # assing it as the occurrence remark
+        data[i,"occRemarks"] <- paste0("abundance code:", " '",
+                                data[i,"numPlantsCode"],"'") # assign it as the occurrence remark
       }
     }
   }
@@ -147,7 +168,7 @@
   } 
   
   ## dwc: verbatimTaxonRank 
-  # automatically adding "genus" if length(sciName) ==1, otherwise "species"
+  # automatically adding "genus" if length(sciName) == 1, otherwise "species"
   
   for(i in 1:dim(data)[1]){  # for each row
     if(is.na(data$vTaxonRank[i])){ # if there is no taxon rank already...
@@ -161,7 +182,8 @@
   }
   
   ## dwc: occurrenceStatus
-  # automatically assigning occurrence status as present if it was not filled in
+  # automatically assigning occurrence status as present if it 
+  # was not filled in
   for(i in 1:dim(data)[1]){ # for each observation
     if(is.na(data$occStatus[i])){ # if there was no remark
       data$occStatus[i] <- "present" # assign as present
@@ -170,15 +192,18 @@
   
   ## dwc: islandGroup
   ## automatically assigning island group, if the island field was filled in 
-  places <- read.csv(here::here("data", "reference_data","islands-and-districts_22-11-29.csv"))
+  places <- read.csv(here::here("data", "reference_data",
+                                "islands-and-districts_22-11-29.csv"))
   
   for(i in 1:dim(data)[1]){ # for each observation
     if(!is.na(data$island[i])){ # if there was no remark
-      data$islandGroup[i] <- places[places$island==data$island[i], "islandGroup"]
+      data$islandGroup[i] <- places[places$island==data$island[i], 
+                                    "islandGroup"]
     }
   } 
   
-  # checking that all were assigned an island group and that it is spelt corrently
+  # checking that all were assigned an island group and that it is 
+  # spelled correctly
   data %>% 
     chain_start %>% 
     assert(not_na,islandGroup) %>% 
@@ -186,22 +211,31 @@
     chain_end
   
   ## dwc: county
-  ## automatically assign as the island if there is an island which is not Vancouver island 
+  ## automatically assign as the island if there is an island which 
+  # is not Vancouver island 
+  
   for(i in 1:dim(data)[1]){ # for each observation
-    if(!is.na(data$county[i]) & 
-       data$island != "Vancouver Island" | 
-       data$island != "Vancouver"){ # if there was no remark of county
-      # and the island was not vancouver island 
-      data$county[i] <- places[places$island==data$island[i], "islandGroup"]
+    
+    if(is.na(data$county[i])){ # if the county is not stated
+      if(data$island[i] != "Vancouver Island" | # and it is not on Vancouver island 
+       data$island[i] != "Vancouver"){ 
+        
+      # assing the county to the island group of that island 
+      data$county[i] <- places[places$island==data$island[i],
+                               "islandGroup"]
+      }
     }
-  } 
+  }
+  
+  ## NEED TO HAVE SOME CHECKS IN PLACE TO SEE IF ASSIGNED PROPERLY
+    
   
     # checking that all were assinged a county
     data %>% 
     assert(not_na,county) 
   
-  ## dwc: associatedOccurrences 
-  # adding "HJC-" to the beginning of colelction numbers entered here to indicate
+  ## assColl (associated collections)
+  # adding "HJC-" to the beginning of collection numbers entered here to indicate
   # that it is a collected specimen 
   # if string split > 1 " " 
   
@@ -209,77 +243,102 @@
   taxa_coll <- NULL
   
   for (i in 1:dim(data)[1]){ # for each obs
-    if (!is.na(data$assOcc[i])){ # if there is an associated species already listed (collected specimens)
-      if (length(str_split(data$assOcc[i], ", ")[[1]])>1){ # if there is more than one ...
-        taxa <- str_split(data$assOcc[i], ", ")[[1]]
+    if (!is.na(data$assColl[i])){ # if there is an associated species 
+                                  # already listed (collected specimens)
+      if (length(str_split(data$assColl[i], ", ")[[1]])>1){ 
+        # if there is more than one ...
+        taxa <- str_split(data$assColl[i], ", ")[[1]]
         
         for (j in 1:length(taxa)){ # for each occurrence number 
-          taxa_coll[j] <- paste0("HJC-",taxa[j]) # input "HJC-" before the number to indicate collected specimen number
+          # input "HJC-" before the number to indicate collected specimen number
+          taxa_coll[j] <- paste0("HJC-",taxa[j]) 
         }
         # and assign this to the associated species column for that row
         
-        data$assOcc[i] <- paste(taxa_coll, collapse= "; ")
+        data$assColl[i] <- paste(taxa_coll, collapse= "; ")
         
-      } else if (length(str_split(data$assOcc[i], ", "))==1) { # if there is only one associated occurrence already...
+      } else if (length(str_split(data$assColl[i], ", "))==1) { # if there is only one 
+                                                    # associated occurrence already...
         # paste "HJC-" infront and assign to the associated species column for that row
-        data$assOcc[i] <- paste0("HJC-",data$assOcc[i])
+        data$assColl[i] <- paste0("HJC-",data$assColl[i])
       }
     }
   }
   
   ## dwc: recordNumber
-  # assigning record number as a combined number of the archiveID, pageNumber and number on page
-  data$recordNumber <- paste0("HJ",data$archiveID, "-", data$pageNum, "-", data$numPage)
+  # assigning record number as a combined number of the archiveID, 
+  # pageNumber and number on page
+  data$recordNumber <- paste0("HJ",data$archiveID, "-", 
+                              data$pageNum, "-", data$numPage)
   
   # dwc:fieldNotes
   # stating where the field notes are stored and where the images are 
   data$fieldNotes <- "Imaged notes: X,  Original notes housed at UBC herbarium"
   
-  ## dwc: occurrenceId: creating globally unique identifier in chronological order and sequence in journals
+  ## dwc: occurrenceId: creating globally unique identifier in 
+  # chronological order and sequence in journals
   # starting at 1 
   data$occurrenceID <- 1:dim(data)[1]
   
-  ## removing fields we don't need anymore for darwin core archive (tidying data)
-  occ_data <- data %>% select(-pageNum,-numPage, -vName, -conf, -date)   %>% arrange(occurrenceID)
+  ## removing fields we don't need anymore for darwin core archive
+  # (tidying data)
+  occ_data <- data %>% 
+    select(-pageNum,-numPage, -vName, -conf, -date) %>%
+    arrange(occurrenceID)
                                        
 ## 4) TAXONOMY FIELDS ----
-    
-  ## Issues to still address: 
-    # find way to automatically update taxonomy of verbatim names? 
-    # find a way to streamline to avoid having to go into another application
-    # find way to assign taxon gbif ID? 
   
-  # Using GBIF Species-Lookup tool to check taxon names (updated input names, not verbatim)
+  
+  # Using GBIF Species-Lookup tool to check taxon names (updated 
+  # input names, not verbatim)
     # create and write data frame with updated species names from template 
-    Names <- data.frame(occ_data$occurrenceID, occ_data$sciName)
+    Names <- data %>% 
+    dplyr::select(occurrenceID, sciName) %>% 
+    distinct(occurrenceID, sciName)
+  
+    data.frame(occ_data$occurrenceID, occ_data$sciName)
     colnames(Names) <- c("occurrenceID","scientificName")
-    write.csv(Names, here::here("data", paste0("taxa-names_", Sys.Date(), ".csv")), row.names = F)
+    write.csv(Names, here::here("data", "reference_data", "taxonomy", 
+                                paste0("taxa-names_",
+                                Sys.Date(), ".csv")), row.names = F)
     
     # Upload csv file to https://www.gbif.org/tools/species-lookup
     # select "match to backbone" button
     # Review the outputs - paying attention to the "matchType" column
     # if yellow or red, click edit field in the scienfificName column
-    # select the desired accepted taxon - often the first one, often with authority L. 
+    # select the desired accepted taxon - often the first one, 
+    # often with authority L. 
     # repeat for all other entries with yellow or red match types
-    # once all are exact or "edited" click "generate.csv" in the bottom corner
+    # once all are exact or "edited" click "generate.csv" in the 
+    # bottom corner
     # place in working directory
     # add the date that this table was generated
   
-  # loading in the normalization table 
-    normalized_names <- read.csv(here::here("data","normalized.csv"))
+  # loading in the names normalization table 
+    normalized_names <- read.csv(here::here("data","reference_data",
+                                            "taxonomy","normalized.csv"))
     
   # linking to occurrenceID in template table 
-   
-    normalized_names <- normalized_names %>% 
-      dplyr::rename(taxonRank= rank, occurrenceID = occurrenceId) %>% # renaming columns to darwin core terms
-      separate(col = species, # separating species column into genus and species to obtain specific ephiphet
+    
+      normalized_names <- normalized_names %>% 
+      # renaming columns to darwin core terms
+      dplyr::rename(taxonRank= rank, occurrenceID = occurrenceId) %>% 
+      separate(col = species, # separating species column into genus and 
+                              # species to obtain specific ephiphet
                into = c("GenusRepeat", "species"),
                sep = " ", remove = FALSE) %>% 
-      select(-GenusRepeat, -verbatimScientificName, -confidence) %>% # removing duplicated genus name
-      dplyr::rename(specificEpiphet = species)  # renaming to match darwin core terms 
+      # removing duplicated genus name
+      select(-GenusRepeat, -verbatimScientificName, -confidence) %>% 
+      # renaming to match darwin core terms 
+      dplyr::rename(specificEpiphet = species)  
       
     # combining gbif taxon match data with occurrence data 
-    occ_data <- occ_data %>% select(-sciName) # removing columns to avoid duplication of updated scientific names
+    occ_data <- occ_data %>% 
+      # ************ FIND A WAY TO MATCH DISCTINT NAMES TO ROWS THEY CAME FROM.....
+      
+      
+      select(-sciName) # removing columns to avoid duplication 
+                        # of updated scientific names
     occ_data <- merge(occ_data, normalized_names, by = "occurrenceID")
 
 ## 5) GEOREFERENCING ----
@@ -287,14 +346,21 @@
   ## write a csv file to use in GEOLocate
     
     # creating formatted file for GEOLocate with relevant columns from data
-    occ_to_georef <- occ_data %>% select(locality, country, stateProvince, county) %>% 
-      dplyr::rename("locality string" = locality, state = stateProvince) %>% # renaming to match GEOlocate column format
-      add_column(latitude=NA, longitude = NA, "correction status" = NA, precision=NA, # adding columns for extra information
+    occ_to_georef <- occ_data %>% select(locality, country, 
+                                         stateProvince, county) %>% 
+      dplyr::rename("locality string" = locality, state = 
+                      stateProvince) %>% # renaming to match GEOlocate column format
+      add_column(latitude=NA, longitude = NA, "correction 
+                 status" = NA, precision=NA, # adding columns for extra information
                  "error polygon" = NA, "multiple results" = NA, uncertainty=NA) %>% 
-      add_column(occurrenceID = occ_data$occurrenceID) # attaching occurrence ID to improve matching up later
+      # attaching occurrence ID to improve matching up later
+      add_column(occurrenceID = occ_data$occurrenceID) 
     
     # writing to data folder
-    write.csv(occ_to_georef, here::here("data", paste0("occ-to-georef_", Sys.Date(), ".csv")), row.names = F)
+    write.csv(occ_to_georef, here::here("data", 
+                                        paste0("occ-to-georef_", 
+                                        Sys.Date(), ".csv")), 
+                                        row.names = F)
     
   ## visit GEOLocate batch processor: https://geo-locate.org/web/WebFileGeoref.aspx
     # upload file 
@@ -313,23 +379,33 @@
   ## loading referenced occurrences 
     GEOlocate <- read.csv(here::here("data", "georef-occ_2022-11-14.csv"))
     # renaming columns so that they are unique when we combine them with occ_data 
-    GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = latitude, geoLocLon = longitude, geoLocPrecision = uncertainty) %>% 
+    GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
+                                               latitude, geoLocLon = longitude, 
+                                             geoLocPrecision = uncertainty) %>% 
       select(geoLocLat, geoLocLon, geoLocPrecision, occurrenceID)
     
   ## combining with occ_data
-    occ_data <- merge(occ_data, GEOlocate, by="occurrenceID") %>% arrange(occurrenceID)
+    occ_data <- merge(occ_data, GEOlocate, by="occurrenceID") %>% 
+                arrange(occurrenceID)
 
-  ## assigning official coordinate estimates (and precision if provided verbatim or by GEOLocate)
+  ## assigning official coordinate estimates 
+    # (and precision if provided verbatim or by GEOLocate)
     
     # for loop that checks for verbatim coordinates ( in decimal degrees in vLat, 
     # vLon columns or UTM in vUTM column). if UTM coordinates present for given observation, 
-    # takes these and converts to decimal degrees based on this projection
-    projection <- "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs" # may need to change - not sure what he was using!
+    # takes these and converts to decimal degrees based on this projection: 
+    
+    # may need to change - not sure what he was using!
+    projection <- "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs" 
+    
+    # if both UTM and lat long coordinates give, lat long coordinates will be used
+    # to avoid unnecessary conversion errors. 
+    
     # if either type of verbatim coordinates are present, assings them to 
     # "decimalLatitude" and "decimalLongitude" darwin core terms
     # if no verbatim coordinates exists, assigns the GEOLocate estimate for 
     # latitude and longitude to these terms instead. 
-    # Additinally assigns verbatim coordinate uncertainty from verbatim
+    # Additionally assigns verbatim coordinate uncertainty from verbatim
     # coordinates if present or assigns GEOLocate estimated uncertainty in METERS
     
     # initializing vectors 
@@ -339,47 +415,49 @@
     z <- NULL
     lonlat <- NULL
     
- for (i in 1:dim(occ_data)[1]){   
-  if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i])){
-    if((length(strsplit(occ_data$vLat[i], " ")[[1]]) > 1)){ # if the coordinates are in degrees, minutes, second 
+ for (i in 1:dim(occ_data)[1]){  # for each row 
+  if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i])){ 
+    # if there are verbatim lat and lon coordinates...
     
-      # convert degrees, minites, seconds to decimal
-      # function from: https://stackoverflow.com/questions/30879429/how-can-i-convert-degree-minute-sec-to-decimal-in-r
-          angle2dec <- function(angle) {
-            angle <- as.character(angle)
-            x <- do.call(rbind, strsplit(angle, split=' '))
-            x <- apply(x, 1L, function(y) {
-              y <- as.numeric(y)
-              y[1] + y[2]/60 + y[3]/3600
-            })
-            return(x)
-          }
-          
+    if((length(strsplit(occ_data$vLat[i], " ")[[1]]) > 1)){ 
+      # if the coordinates are in degrees, minutes, second ...
+      
+          # convert degrees, minutes, seconds to decimal
+          source(here::here("scripts", "functions", "angle2dec.R"))
+      
           occ_data$decimalLatidue[i] <- angle2dec(occ_data$vLat[i])
           occ_data$decimalLongitude[i] <- angle2dec(occ_data$vLon[i])
           occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
-          occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds" # assigning dwc field - rarely provides lat lon, but so far only dms? 
+          
+          # assigning dwc field regarding coordinate system 
+          occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds" 
           occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
           
     } else if (length(strsplit(occ_data$vLat[i], " ")[[1]]) ==1){
-      # when lat lon coordinates provided...
+      # if lat lon are in decimal degrees...
+      
       occ_data$decimalLatidue[i] <- occ_data$vLat[i]
       occ_data$decimalLongitude[i] <- occ_data$vLon[i]
       occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
-      occ_data$verbatimCoordinateSystem[i] <- "decimal degrees" # assigning dwc field - rarely provides lat lon, but so far only dms? 
+      occ_data$verbatimCoordinateSystem[i] <- "decimal degrees"
       occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
     }
     
   } else if (!is.na(occ_data$vUTM[i])){
+    # if UTM coordinates provided...
     
-    # when UTM coordinates provided...
+    ## convert UTM coordinates into decimal degrees
     
-    # convert UTM coordinates into decimal degrees
-    UTM <- occ_data[i,] %>% separate(vUTM, c("zone","x","y"), " ") # seperating UTM into x, and y components
-    points <- cbind(as.numeric(UTM$x), as.numeric(UTM$y)) # making dataframe with x y components
-    v <- vect(points, crs=projection) # making spatial points data frame
-    z <- project(v, projection)  # projecting points using assinged crs  
-    lonlat <- as.data.frame(t((geom(z)[, c("x", "y")]))) # extracting lat lon from spatial points frame
+      # seperating UTM into x, and y components
+      UTM <- occ_data[i,] %>% separate(vUTM, c("zone","x","y"), " ") 
+      # making dataframe with x y components
+      points <- cbind(as.numeric(UTM$x), as.numeric(UTM$y)) 
+      # making spatial points data frame
+      v <- vect(points, crs=projection) 
+      # projecting points using assinged crs  
+      z <- project(v, projection)  
+      # extracting lat lon from spatial points frame
+      lonlat <- as.data.frame(t((geom(z)[, c("x", "y")]))) 
     
     # assigning official lat and lon to these coordinates
     occ_data[i, "decimalLatitude"] <- lonlat$y
@@ -395,14 +473,19 @@
     z <- NULL
     lonlat <- NULL 
     
-  } else if (is.na(occ_data$vUTM[i]) & (is.na(occ_data$vLat[i]) &is.na(occ_data$vLon[i]))) {
+  } else if (is.na(occ_data$vUTM[i]) & (is.na(occ_data$vLat[i]) 
+                                        & is.na(occ_data$vLon[i]))) {
     
-    # when no verbatim coordinates provided...
+    # if no verbatim coordinates provided in either format...
     
-    occ_data[i, "decimalLatitude"] <- occ_data[i, "geoLocLat"] # assigning GEOLocate lat
-    occ_data[i, "decimalLongitude"]<- occ_data[i,"geoLocLon"] # assigning GEOLocate lon
-    occ_data[i,"coordinatePrecision"] <- occ_data[i,"geoLocPrecision"] # assigning GEOLocate uncertainty
-    occ_data[i,"georeferenceProtocol"] <- "GEOLocate batch process"
+    occ_data[i, "decimalLatitude"] <- 
+      occ_data[i, "geoLocLat"] # assigning GEOLocate lat
+    occ_data[i, "decimalLongitude"]<- 
+      occ_data[i,"geoLocLon"] # assigning GEOLocate lon
+    occ_data[i,"coordinatePrecision"] <- 
+      occ_data[i,"geoLocPrecision"] # assigning GEOLocate uncertainty
+    occ_data[i,"georeferenceProtocol"] <-
+      "GEOLocate batch process"
     occ_data[i, "georeferenceSources$georeferenceSource"] <- "GEOLocate"
     
   } 
@@ -421,9 +504,11 @@
     # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
     for (i in 1:dim(occ_data)[1]){
-    occ_data[i,"assTaxa"]<- occ_data[i, "assTaxa"] + occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
-                                        occ_data$locality[i]==occ_data$locality &  occ_data$habitat[i]==occ_data$habitat),"canonicalName"] %>% 
-                                        paste(collapse = "|") %>% 
+    occ_data[i,"assTaxa"]<- occ_data[i, "assTaxa"] + 
+                            occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
+                            occ_data$locality[i]==occ_data$locality &  
+                            occ_data$habitat[i]==occ_data$habitat),"canonicalName"] %>% 
+                            paste(collapse = "|") %>% 
                             dplyr::rename(associatedTaxa = assTaxa) # renaming field to dwc term
     }
     
