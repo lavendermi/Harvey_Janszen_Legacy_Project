@@ -1,0 +1,27 @@
+locality string,country,state,county,latitude,longitude,"correction 
+                 status",precision,error polygon,multiple results,uncertainty
+"North Pender Island, log dump beach with navy channel",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Prevost Island, at dock",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+Prevost Island,Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Metchosin, south shore of Matheson Lake",Canada,British Columbia,Metchosin,NA,NA,NA,NA,NA,NA,NA
+"Metchosin, Matheson Lake, penninsula middle of south site",Canada,British Columbia,Metchosin,NA,NA,NA,NA,NA,NA,NA
+"Metchosin, west end of Matheson Lake",Canada,British Columbia,Metchosin,NA,NA,NA,NA,NA,NA,NA
+"Metchosin, north side of Matheson Lake",Canada,British Columbia,Metchosin,NA,NA,NA,NA,NA,NA,NA
+"Metchosin, Blinkhorn Lake",Canada,British Columbia,Metchosin,NA,NA,NA,NA,NA,NA,NA
+"Saltspring Island, 6 km lake",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Saltspring Island, 5.6 km fen",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Saltspring Island, Cusheon Lake",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"east end of Cusheon Lake, Saltspring Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"north end of Cusheon Lake, Saltspring Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Bullocks Pond, Saltspring Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Maxwell Lake, Saltspring Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"lower end of Maxwell Lake, Saltspring Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Blackburn Lake, Saltspring Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"east end of Dick Island, Harwood Point, Texada Island",Canada,British Columbia,Northern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Dick Island, Texada Island",Canada,British Columbia,Northern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"west end of islet, Dick Island, Texada Island",Canada,British Columbia,Northern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"interior of islet, Dick Island, Texada Island",Canada,British Columbia,Northern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Harwood Point, Texada Island",Canada,British Columbia,Northern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+Texada Island,Canada,British Columbia,Northern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+"Mount Sutil, Galiano Island",Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA
+Galiano,Canada,British Columbia,Southern Gulf Islands,NA,NA,NA,NA,NA,NA,NA

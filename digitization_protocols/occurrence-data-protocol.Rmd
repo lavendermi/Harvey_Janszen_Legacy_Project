@@ -155,6 +155,10 @@ Begin with the **first page in a journal.**
 
 ... add more rows and redundancies (qualifiers, etc.)
 
+-   corodinate unceratinty in meters!
+
+-   
+
 ## When finished entering all data for book:
 
 -   ***Save the final raw data book as both .xlsx and .csv files***

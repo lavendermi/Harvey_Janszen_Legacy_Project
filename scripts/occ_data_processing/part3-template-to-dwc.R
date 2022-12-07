@@ -6,7 +6,7 @@
 #######################################################################
 # to do: 
 
-# shoudl taxon name checking go in step ii of processing? 
+# should taxon name checking go in step ii of processing? 
 # ass taxa names separation 
 
 # decide on separating character
@@ -24,6 +24,12 @@
 # change file path to checked data
 # length of time it takes to go through and edit taxon names to gbif backbone? 1-2 min for 237 obs. 
 
+# only georeferencing issues left are:
+  # how to process so many locations in geolocate
+  # that to save time we wont be doing for those with 
+  # verbatim coordinates, but should we be assinging those with coordinate uncertainty 
+  # when not provided verbatim? from GeoLocate precision? 
+  # what direction to enter locality string in (doesn't matter but need to keep consistent when entered? )
 
 # find way to automatically update taxonomy of verbatim names? 
 # find a way to streamline to avoid having to go into another application
@@ -227,9 +233,6 @@
     }
   }
   
-  ## NEED TO HAVE SOME CHECKS IN PLACE TO SEE IF ASSIGNED PROPERLY
-    
-  
     # checking that all were assinged a county
     data %>% 
     assert(not_na,county) 
@@ -288,16 +291,15 @@
                                        
 ## 4) TAXONOMY FIELDS ----
   
-  
   # Using GBIF Species-Lookup tool to check taxon names (updated 
   # input names, not verbatim)
     # create and write data frame with updated species names from template 
-    Names <- data %>% 
+    Names <- occ_data %>% 
     dplyr::select(occurrenceID, sciName) %>% 
-    distinct(occurrenceID, sciName)
+    distinct(sciName, .keep_all =T) %>% 
+    filter(!is.na(sciName)) %>% 
+    dplyr::rename(scientificName = sciName)
   
-    data.frame(occ_data$occurrenceID, occ_data$sciName)
-    colnames(Names) <- c("occurrenceID","scientificName")
     write.csv(Names, here::here("data", "reference_data", "taxonomy", 
                                 paste0("taxa-names_",
                                 Sys.Date(), ".csv")), row.names = F)
@@ -318,95 +320,127 @@
     normalized_names <- read.csv(here::here("data","reference_data",
                                             "taxonomy","normalized.csv"))
     
-  # linking to occurrenceID in template table 
-    
-      normalized_names <- normalized_names %>% 
-      # renaming columns to darwin core terms
-      dplyr::rename(taxonRank= rank, occurrenceID = occurrenceId) %>% 
-      separate(col = species, # separating species column into genus and 
-                              # species to obtain specific ephiphet
-               into = c("GenusRepeat", "species"),
-               sep = " ", remove = FALSE) %>% 
-      # removing duplicated genus name
-      select(-GenusRepeat, -verbatimScientificName, -confidence) %>% 
-      # renaming to match darwin core terms 
-      dplyr::rename(specificEpiphet = species)  
+  # linking to occurrenceID in template table
       
     # combining gbif taxon match data with occurrence data 
-    occ_data <- occ_data %>% 
-      # ************ FIND A WAY TO MATCH DISCTINT NAMES TO ROWS THEY CAME FROM.....
+      cols <- names(normalized_names)[3:length(names(normalized_names))]
       
+      # initializing empty columns to fill 
+      for (i in 1:length(cols)){
+        occ_data[,cols[i]] <-NA
+      }
       
-      select(-sciName) # removing columns to avoid duplication 
-                        # of updated scientific names
-    occ_data <- merge(occ_data, normalized_names, by = "occurrenceID")
+     occ_data <- occ_data %>% # temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       filter(!is.na(sciName))
+     
+      for (i in 1:dim(occ_data)[1]){
+        for (k in cols){
+          occ_data[i, k] <- normalized_names[which(occ_data$sciName[i] ==
+                                  normalized_names$verbatimScientificName), k]
+        }
+        
+      }
+      
+      occ_data <- occ_data %>% 
+        separate(col = species, # separating species column into genus and 
+                   # species to obtain specific ephiphet
+                   into = c("GenusRepeat", "species"),
+                   sep = " ", remove = FALSE) %>% 
+        # removing columns to avoid duplication 
+        select(-GenusRepeat, -sciName) %>% 
+        # renaming to match darwin core terms 
+        dplyr::rename(specificEpithet = species)  
 
 ## 5) GEOREFERENCING ----
     
   ## write a csv file to use in GEOLocate
     
     # creating formatted file for GEOLocate with relevant columns from data
-    occ_to_georef <- occ_data %>% select(locality, country, 
-                                         stateProvince, county) %>% 
+    # maybe remove ones with coordinates already? 
+    
+    # selecting 
+    localities_to_georef <- occ_data %>% 
+                      # filtering for rows without verbatim coordinate info
+                      dplyr::filter(is.na(vLat)) %>% 
+                      dplyr::filter(is.na(vLon)) %>% 
+                      dplyr::filter(is.na(vUTM)) %>% 
+                      # selecting columns with relevant location info
+                      select(locality, country, 
+                              stateProvince, county) %>% 
+      # only selecting rows with distinct locality strings
+      distinct(locality,country,stateProvince, county) %>% 
+      # renaming columns to match GEOLocate column formatting conventions
       dplyr::rename("locality string" = locality, state = 
-                      stateProvince) %>% # renaming to match GEOlocate column format
+                                        stateProvince) %>% 
+      # adding columns for extra information collection in GEOLocate
       add_column(latitude=NA, longitude = NA, "correction 
-                 status" = NA, precision=NA, # adding columns for extra information
-                 "error polygon" = NA, "multiple results" = NA, uncertainty=NA) %>% 
-      # attaching occurrence ID to improve matching up later
-      add_column(occurrenceID = occ_data$occurrenceID) 
+                 status" = NA, precision=NA, 
+                 "error polygon" = NA, "multiple results" = NA, uncertainty=NA)
     
     # writing to data folder
-    write.csv(occ_to_georef, here::here("data", 
-                                        paste0("occ-to-georef_", 
+    write.csv(localities_to_georef, here::here("data", "reference_data", "georeferencing",
+                                        paste0("localities-to-georef_", 
                                         Sys.Date(), ".csv")), 
                                         row.names = F)
     
   ## visit GEOLocate batch processor: https://geo-locate.org/web/WebFileGeoref.aspx
     # upload file 
-    # select 128 entries per page option 
     # select options, check uncertainty box 
-    # select "page georeference" 
+    # select "page georeference" or georeferencing one at a time
+    # click on first row in table
+    # assess the options it provides (green as highest probability, red as other options)
+    # ... add protocol 
+    # edit uncertainty
+    # press correct button
+    # move onto next observation
     # might take some time
     # repeat for all pages
+    
+    # once finished
     # select file management at bottom
     # "export" --> delimited text csv, exclude all polygons
     # select ok
     # find exported file in downloads
-    # rename to georef-occ_YYYY-MM-DD.csv
+    # rename to geoLocate_YYYY-MM-DD.csv
     # place in data folder
     
   ## loading referenced occurrences 
-    GEOlocate <- read.csv(here::here("data", "georef-occ_2022-11-14.csv"))
+    GEOlocate <- read.csv(here::here("data", "reference_data",
+                                     "georeferencing", "geoLocate.csv")) 
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
                                                latitude, geoLocLon = longitude, 
-                                             geoLocPrecision = uncertainty) %>% 
-      select(geoLocLat, geoLocLon, geoLocPrecision, occurrenceID)
-    
-  ## combining with occ_data
-    occ_data <- merge(occ_data, GEOlocate, by="occurrenceID") %>% 
-                arrange(occurrenceID)
+                                             geoLocPrecision = uncertainty, 
+                                             locality = locality.string) %>% 
+      # selecting relevant columns 
+      select(locality, geoLocLat, geoLocLon, geoLocPrecision, county) %>% 
+      # removing the notation "m" from some rows for coordinate uncertainty
+      separate(geoLocPrecision, into = c("geoLocPrecision", "m"), sep = " ") %>% 
+      select(-m) 
+
 
   ## assigning official coordinate estimates 
     # (and precision if provided verbatim or by GEOLocate)
     
-    # for loop that checks for verbatim coordinates ( in decimal degrees in vLat, 
-    # vLon columns or UTM in vUTM column). if UTM coordinates present for given observation, 
-    # takes these and converts to decimal degrees based on this projection: 
+    # for loop that checks for verbatim coordinates 
+    # (in decimal degrees in vLat, vLon columns or UTM in vUTM column). 
+    # if verbatim degrees provided and in degrees, minutes, seconds format
+    # it converts these to decimal degrees and assigns them as official coordinates. 
+    # if verbatim degrees provided in decimal degrees
+    # automatically assigns these as official coordinates.
+    # if verbatim coordinates provided in UTM, 
+    # converts these to decimal degrees and assigns them as official
+    # if NO verbatim coordinates provided, 
+    # coordinate estimates from GEOlocate table used
+    # and assigned as official coordinates.
     
+    # converts UTM coordinates based on this projection: 
     # may need to change - not sure what he was using!
     projection <- "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs" 
     
-    # if both UTM and lat long coordinates give, lat long coordinates will be used
-    # to avoid unnecessary conversion errors. 
-    
-    # if either type of verbatim coordinates are present, assings them to 
-    # "decimalLatitude" and "decimalLongitude" darwin core terms
-    # if no verbatim coordinates exists, assigns the GEOLocate estimate for 
-    # latitude and longitude to these terms instead. 
     # Additionally assigns verbatim coordinate uncertainty from verbatim
     # coordinates if present or assigns GEOLocate estimated uncertainty in METERS
+    # official coordinate fields = "decimalLatitude" and "decimalLongitude" 
     
     # initializing vectors 
     UTM <- data.frame()
@@ -414,10 +448,17 @@
     v <- NULL
     z <- NULL
     lonlat <- NULL
+    occ_data$decimalLatitude <- NA
+    occ_data$decimalLongitude <- NA
+    occ_data$coordinateUncertaintyInMeters <- NA
+    occ_data$verbatimCoordinateSystem <- NA
+    occ_data$georeferenceSources <- NA
     
  for (i in 1:dim(occ_data)[1]){  # for each row 
-  if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i])){ 
+  if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i]) & is.na(occ_data$vUTM)[i] | 
+      !is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i]) & !is.na(occ_data$vUTM)[i]){ 
     # if there are verbatim lat and lon coordinates...
+    # of if there are verbatim lat, lon and UTM coordinates... (use lat lon)
     
     if((length(strsplit(occ_data$vLat[i], " ")[[1]]) > 1)){ 
       # if the coordinates are in degrees, minutes, second ...
@@ -425,9 +466,9 @@
           # convert degrees, minutes, seconds to decimal
           source(here::here("scripts", "functions", "angle2dec.R"))
       
-          occ_data$decimalLatidue[i] <- angle2dec(occ_data$vLat[i])
+          occ_data$decimalLatitude[i] <- angle2dec(occ_data$vLat[i])
           occ_data$decimalLongitude[i] <- angle2dec(occ_data$vLon[i])
-          occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
+          occ_data$coordinateUncertaintyInMeters[i] <- occ_data$vCoordUncM[i]
           
           # assigning dwc field regarding coordinate system 
           occ_data$verbatimCoordinateSystem[i] <- "degrees minutes seconds" 
@@ -438,13 +479,13 @@
       
       occ_data$decimalLatidue[i] <- occ_data$vLat[i]
       occ_data$decimalLongitude[i] <- occ_data$vLon[i]
-      occ_data$coordinatePrecision[i] <- occ_data$vCoodUncM[i]
+      occ_data$coordinateUncertaintyInMeters[i] <- occ_data$vCoodUncM[i]
       occ_data$verbatimCoordinateSystem[i] <- "decimal degrees"
       occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
     }
     
-  } else if (!is.na(occ_data$vUTM[i])){
-    # if UTM coordinates provided...
+  } else if (!is.na(occ_data$vUTM[i]) & is.na(occ_data$vLat[i]) & is.na(occ_data$vLon[i])){
+    # if only UTM coordinates provided...
     
     ## convert UTM coordinates into decimal degrees
     
@@ -462,7 +503,7 @@
     # assigning official lat and lon to these coordinates
     occ_data[i, "decimalLatitude"] <- lonlat$y
     occ_data[i, "decimalLongitude"] <- lonlat$x
-    occ_data[i, "coordinatePrecision"] <- occ_data[i,"vCoodUncM"]
+    occ_data[i, "coordinateUncertaintyInMeters"] <- occ_data[i,"vCoodUncM"]
     occ_data[i, "verbatimCoordinateSystem"] <- "UTM" # assigning dwc field 
     occ_data[i, "georeferenceSources"] <- "Source" # indicates coordinates verbatim 
     
@@ -477,16 +518,13 @@
                                         & is.na(occ_data$vLon[i]))) {
     
     # if no verbatim coordinates provided in either format...
-    
-    occ_data[i, "decimalLatitude"] <- 
-      occ_data[i, "geoLocLat"] # assigning GEOLocate lat
-    occ_data[i, "decimalLongitude"]<- 
-      occ_data[i,"geoLocLon"] # assigning GEOLocate lon
-    occ_data[i,"coordinatePrecision"] <- 
-      occ_data[i,"geoLocPrecision"] # assigning GEOLocate uncertainty
-    occ_data[i,"georeferenceProtocol"] <-
-      "GEOLocate batch process"
-    occ_data[i, "georeferenceSources$georeferenceSource"] <- "GEOLocate"
+      
+      occ_data[i, c("decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters")] <-  
+        GEOlocate[which(occ_data$locality[i] == GEOlocate$locality &
+                        occ_data$county[i] == GEOlocate$county),
+                         c("geoLocLat", "geoLocLon", "geoLocPrecision")] 
+      occ_data[i,"georeferenceProtocol"] <- "GEOLocate batch process"
+      occ_data[i, "georeferenceSources$georeferenceSource"] <- "GEOLocate"
     
   } 
  }
@@ -498,13 +536,15 @@
       # assigning quotes around list terms 
       # "sympatric" : " X taxa" or another term? 
     
+    # at this point is should be taking occurrences from same time place, locality,
+    # habitat and writing species name and occurrence in field, pasted onto those already there
     # MAKE SURE SAME UTM / COORDINATES IF PROVIDED TOO 
     
 # for loop: for each row, find other rows with matching date AND locality AND habitat, assign the scientificNames names of these rows 
     # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
     for (i in 1:dim(occ_data)[1]){
-    occ_data[i,"assTaxa"]<- occ_data[i, "assTaxa"] + 
+    occ_data[i,"assCollTaxa"]<- occ_data[i, "assCollTaxa"] + 
                             occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
                             occ_data$locality[i]==occ_data$locality &  
                             occ_data$habitat[i]==occ_data$habitat),"canonicalName"] %>% 
@@ -621,8 +661,13 @@
     rl_use_iucn()
     
     
-## 8) remove extraneous rows and export to upload to Canadensys IPT ----
-    select(-dataEntryRemarks)
+## 8) remove extraneous columns and export to upload to Canadensys IPT ----
+    select(-dataEntryRemarks, -canonicalName, -confidence, 
+           -matchType, -key) %>% 
+      # renaming to match darwin core terms 
+      dplyr::rename(scientificNameauthorship = authorship, 
+                    taxonRank = rank, 
+                    taxonomicStatus = status)  
     
 ## Phenology
     # if occurrenceRemarks(contains "flowering") lifeStage <- "flowering"

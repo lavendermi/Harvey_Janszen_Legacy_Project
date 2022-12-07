@@ -18,6 +18,7 @@
 #assTaxa
 # go through fpr consistent labelling and terminology
 # function for UTM conversion that works for both part 2 and 3? 
+# only limit islands to "Galiano Island" must have the term island for georeferencing 
 
 #pagenum: ADD FOR OTHER JOURNALS AS YOU GO 
 # should it go through one book at a time or all? 
