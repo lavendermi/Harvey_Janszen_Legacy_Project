@@ -341,15 +341,17 @@
         
       }
       
+     speciesSep <- as.data.frame(str_split_fixed(occ_data$canonicalName, " ", 3)) %>% 
+       dplyr::rename(genus = V1, specificEpithet = V2, intraspecificEpithet = V3) %>% 
+       select(-genus)
+       
+     occ_data$specificEpithet <- speciesSep[,1]
+     occ_data$intraspecificEpithet <- speciesSep[,2]
       occ_data <- occ_data %>% 
-        separate(col = species, # separating species column into genus and 
-                   # species to obtain specific ephiphet
-                   into = c("GenusRepeat", "species"),
-                   sep = " ", remove = FALSE) %>% 
+        # making sure that empty cells are NA
+        mutate_all(na_if, "") %>% 
         # removing columns to avoid duplication 
-        select(-GenusRepeat, -sciName) %>% 
-        # renaming to match darwin core terms 
-        dplyr::rename(specificEpithet = species)  
+        select(-sciName) 
 
 ## 5) GEOREFERENCING ----
     
@@ -543,25 +545,109 @@
 # for loop: for each row, find other rows with matching date AND locality AND habitat, assign the scientificNames names of these rows 
     # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
-    for (i in 1:dim(occ_data)[1]){
-    occ_data[i,"assCollTaxa"]<- occ_data[i, "assCollTaxa"] + 
-                            occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
-                            occ_data$locality[i]==occ_data$locality &  
-                            occ_data$habitat[i]==occ_data$habitat),"canonicalName"] %>% 
-                            paste(collapse = "|") %>% 
-                            dplyr::rename(associatedTaxa = assTaxa) # renaming field to dwc term
-    }
+# temporarily make missing values in habitat column "missing"
+    occ_data[is.na(occ_data$habitat), "habitat"] <- "missing" 
     
-# for loop: for each row, find other rows matching date AND locality AND habitat, assing the occurrence ID of these rows to 
-    # an "associatedOccurrences" field where names are separated by "|" preffered for dwc lists like these
-    for (i in 1:dim(occ_data)[1]){
-      occ_data[i,"assOcc"]<- occ_data[i, "assOcc"] + occ_data[(occ_data$eventDate[i] == occ_data$eventDate & 
-                                occ_data$locality[i]==occ_data$locality &  occ_data$habitat[i]==occ_data$habitat),"occurrenceID"] %>% 
-                                paste(collapse = "|") %>% 
-                                dplyr::rename(associatedOccurrences = assOcc)
-    }
+for (i in 1:dim(occ_data)[1]){ # for every row
+  
+  # if there is another row that matches date, and place...
+  if (length(which((occ_data$fulldate[i] == occ_data$fulldate & 
+                    occ_data$locality[i]==occ_data$locality &  
+                    occ_data$habitat[i]==occ_data$habitat &
+                    occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+                    occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+    
+    nameVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
+                                     occ_data$locality[i]==occ_data$locality &  
+                                     occ_data$habitat[i]==occ_data$habitat &
+                                     occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+                                     occ_data$decimalLongitude[i]==occ_data$decimalLongitude
+                                   ,"canonicalName"])[["canonicalName"]]
+        
+        # if there is no collected associated taxa recorded...
+        if (is.na(occ_data$assCollTaxa[i])){
+            
+          # for every match 
+          for (j in 1:length(nameVec)){
+            # for the first match, just input this name
+            if (j == 1){
+              
+              occ_data[i,"assCollTaxa"] <- nameVec[j]
+            
+            # for the subsequent matches, paste it to the other name
+            # separated by a special character
+            } else if (j > 1) {
+              
+              occ_data[i,"assCollTaxa"]<- paste(occ_data[i, "assCollTaxa"],nameVec[j],sep = " ; ")
+              
+            }
+          }
+          
+        # or if there is already a collected associated taxa listed...
+        } else if (!is.na(occ_data$assCollTaxa[i])){   
+          # for every match...
+          for (j in 1:length(nameVec)){
+              
+              occ_data[i,"assCollTaxa"] <- paste(occ_data[i,"assCollTaxa"],nameVec[j], sep = " ; ")
+                            
+          }
+       }
+  }
+}
+    
+# for loop: repeating the loop above but for record and collection numbers
+    
+for (i in 1:dim(occ_data)[1]){ # for every row
+      
+      # if there is another row that matches date, and place...
+      if (length(which((occ_data$fulldate[i] == occ_data$fulldate & 
+                        occ_data$locality[i]==occ_data$locality &  
+                        occ_data$habitat[i]==occ_data$habitat &
+                        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+                        occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+        
+        numVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
+                                        occ_data$locality[i]==occ_data$locality &  
+                                        occ_data$habitat[i]==occ_data$habitat &
+                                        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+                                        occ_data$decimalLongitude[i]==occ_data$decimalLongitude
+                                      ,"recordNumber"])[["recordNumber"]]
+        
+        # if there is no collected associated taxa recorded...
+        if (is.na(occ_data$assColl[i])){
+          
+          # for every match 
+          for (j in 1:length(numVec)){
+            # for the first match, just input this name
+            if (j == 1){
+              
+              occ_data[i,"assColl"] <- numVec[j]
+              
+              # for the subsequent matches, paste it to the other number
+              # separated by a special character
+            } else if (j > 1) {
+              
+              occ_data[i,"assColl"]<- paste(occ_data[i, "assColl"],numVec[j],sep = " ; ")
+              
+            }
+          }
+          
+          # or if there is already a collected associated record num listed...
+        } else if (!is.na(occ_data$assColl[i])){   
+          # for every match...
+          for (j in 1:length(numVec)){
+            
+            occ_data[i,"assColl"] <- paste(occ_data[i,"assColl"],numVec[j], sep = " ; ")
+            
+          }
+        }
+      }
+    } 
     
     
+# converting "missing" habitat data back into NA
+  occ_data[occ_data$habitat=="missing", "habitat"] <- NA
+  
 ## 7) CONSERVATION STATUS ----
   ## Issues to address
     # 1) what columns should status info go in - dynamic properties (RBCM), taxonRemarks 
@@ -582,28 +668,25 @@
     # open and export as .csv 
     
     ## reading downloaded BC Conservation Data centre ranks (BC CDC)
-    CDC <- read.csv(here::here("data","CDC-resultsExport_2022-11-15.csv"))
+    CDC <- read.csv(here::here("data","reference_data","CDC-resultsExport_2022-11-15.csv"))
     
-    ## splitting scientific name into genus, species, var/ subspecies, and intraspecific epiphet 
+    ## splitting scientific name into genus, species, var/ subspecies, and intraspecific epithet 
     CDC_cleaned <- CDC %>% 
-      separate(col = Scientific.Name, # separating species column into genus and species to obtain specific ephiphet
-               into = c("genus", "species", "abb", "intraspecificEpiphet"),
+      separate(col = Scientific.Name, # separating species column into genus and species to obtain specific ephithet
+               into = c("genus", "species", "abb", "intraspecificEpithet"),
                sep = " ", remove = FALSE) %>% 
      unite("scientificName", genus, species, sep = " ") # uniting genus and species again for ease of searching names
-    
-    #creating fake intraspecific epiphet to test loop 
-    # occ_data$intraspecificEpiphet <- NULL
     
     # initializing vectors for for loop 
     occ_data$provincialListStatus <- NULL
     
       for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
         
-        if (!is.null(occ_data[k, "intraspecificEpiphet"])){ # for observations that have species with intraspecific epiphet (subspecies)
-          # does the genus, species and intraspeicific epithet match one in the CDC? 
-          occ_data[k, "provincialListStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "BC.List"]
+        if (!is.null(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
+          # does the genus, species and intraspecific epithet match one in the CDC? 
+          occ_data[k, "provincialListStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpithet == occ_data$intraspecificEpithet[k]), "BC.List"]
         
-        } else { # if there is no intraspecific epiphet listed  
+        } else { # if there is no intraspecific epithet listed  
             if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){  # if there is match for genus and species name in CDC
             
                   for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"])){ # for how ever many number of subspecies there are 
@@ -623,17 +706,17 @@
       }
     }
 
-  ## repeating loop to assing CDC status (S5 to S1)
+  ## repeating loop to assign CDC status (S5 to S1)
     # initializing vectors for for loop 
     occ_data$provincialStatus <- NULL
     
     for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
       
-      if (!is.null(occ_data[k, "intraspecificEpiphet"])){ # for observations that have species with intraspecific epiphet (subspecies)
+      if (!is.null(occ_data[k, "intraspecificEpithet"])){ # for observations that have species with intraspecific epithet (subspecies)
         # does the genus, species and intraspeicific epithet match one in the CDC? 
-        occ_data[k, "provincialStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpiphet == occ_data$intraspecificEpiphet[k]), "Provincial"]
+        occ_data[k, "provincialStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpithet == occ_data$intraspecificEpithet[k]), "Provincial"]
 
-      } else { # if there is no intraspecific epiphet listed  
+      } else { # if there is no intraspecific epithet listed  
         if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) > 1){  # if there is match for genus and species name in CDC
           
           for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"])){ # for how ever many number of subspecies there are 
@@ -667,7 +750,8 @@
       # renaming to match darwin core terms 
       dplyr::rename(scientificNameauthorship = authorship, 
                     taxonRank = rank, 
-                    taxonomicStatus = status)  
+                    taxonomicStatus = status, eventDate = fulldate, 
+                    associatedTaxa = assCollTaxa, associatedOccurrences = assColl)  
     
 ## Phenology
     # if occurrenceRemarks(contains "flowering") lifeStage <- "flowering"
