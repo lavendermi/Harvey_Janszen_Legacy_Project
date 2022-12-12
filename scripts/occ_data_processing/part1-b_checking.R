@@ -26,7 +26,7 @@ rm(requiredPackages)
 
   # USER INPUT: 
   # input file name for checked data & journal number
-  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-01.csv"
+  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-09.csv"
   J <-7 
   
   # loading data
@@ -55,11 +55,11 @@ rm(requiredPackages)
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
   missed_rows <- checked_data %>% 
-  assert(in_set("C"), checkStatus) 
+  assert(in_set("Y"), checkStatus) 
   
 ## 3. CONSOLIDATNG & REMOVING ROWS ----
   
-  for (i in 1:dim(checked_data[i])){  # for each row in the checked frame
+  for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
       if (checked_data$toDelete[i] == "Y"){
         raw_data[ # if its archiveID, pageNum and numPage match that in raw data
           which(checked_data$archiveID[i] == raw_data$archiveID &

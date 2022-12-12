@@ -9,10 +9,9 @@
 # template and perform a series of checks for data entry errors 
 # or will it go one book at a time? 
 
-
 ## Things to do: 
 # change ordering of qualifiers
-# add check to see specific epiphet lower case in  assCollTaxa 
+# add check to see specific epihet lower case in assCollTaxa 
 # UTM
 # assColl
 #assTaxa
@@ -22,7 +21,6 @@
 
 #pagenum: ADD FOR OTHER JOURNALS AS YOU GO 
 # should it go through one book at a time or all? 
-
 
 ## LOADING PACKAGES ----
 library(groundhog)
@@ -46,7 +44,7 @@ rm(requiredPackages)
   J <-7 # journal number (USER INPUT)
 
   # ENTER FILE NAME (USER INPUT)
-  filename <- "HJ7-processed-step-1_2022-12-01.csv" 
+  filename <- "HJ7-processed-step-1_2022-12-09.csv" 
   
   data <- read.csv(here::here("data","digitized_data",
                                 "occurrence_data",
@@ -63,7 +61,7 @@ rm(requiredPackages)
   data <- data %>% 
     group_by(sciName, date, locality, habitat, 
              locationRemarks) %>% 
-      distinct(keep_all =T)
+      distinct(.keep_all =T)
   
 ## TASK 2: checking individual columns for constraints ----
   
@@ -73,12 +71,12 @@ rm(requiredPackages)
   # 2) read as integer
   # 3) all rows must have entry
   
-  data %>% 
+  errors <- data %>% 
     chain_start %>%
     verify(., has_class("archiveID", class="integer")) %>% 
-    assert(in_set(1:31), archiveID) %>% # checking if integer from 1 - 31
+    assert(in_set(c(1:31)), archiveID) %>% # checking if integer from 1 - 31
     assert(not_na, archiveID) %>%  # checking that all rows have archiveID
-    chain_end 
+    chain_end(error_fun = error_df_return) 
 
 ## pageNum
   # constraints: 1) for HJ-8 journal = numeric between 1 and 208

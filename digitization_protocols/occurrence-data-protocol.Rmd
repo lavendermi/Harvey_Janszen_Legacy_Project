@@ -7,6 +7,10 @@ output: html_document
 
 **To do:**
 
+-   make archive ID column in cleaning stage - remove from template and other entry books
+
+-   add idqualifier columns and info of what to put
+
 -   what to do with data entry remarks when checking
 
 -   finish filling out column-specific instructions

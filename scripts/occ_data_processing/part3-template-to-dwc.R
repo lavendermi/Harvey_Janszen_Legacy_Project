@@ -4,36 +4,19 @@
 ###                         Emma Menchions                          ###
 ###                         Created Nov. 7/22                       ###
 #######################################################################
+
 # to do: 
 
-# should taxon name checking go in step ii of processing? 
-# ass taxa names separation 
-
 # decide on separating character
-
-# event date
 # field notes linking 
 
 ## Issues to still address: 
-# distinct localities to georeference!
-# What happens if row has both degrees and UTM? Which one is more reliable
 # what if geolocate guesses wrong locality? - should we be doing massive batch processes
-# or smaller, more in depth ones? 
+# or smaller, more in depth ones? + # how to process so many locations in Geolocate
+# verbatim coordinates, but should we be assinging those with coordinate uncertainty 
+# what direction to enter locality string in (doesn't matter but need to keep consistent when entered? )
 # find way to streamline to avoid going into another application
-# if both degrees and UTM - which one should I take? which one most accurate? 
 # change file path to checked data
-# length of time it takes to go through and edit taxon names to gbif backbone? 1-2 min for 237 obs. 
-
-# only georeferencing issues left are:
-  # how to process so many locations in geolocate
-  # that to save time we wont be doing for those with 
-  # verbatim coordinates, but should we be assinging those with coordinate uncertainty 
-  # when not provided verbatim? from GeoLocate precision? 
-  # what direction to enter locality string in (doesn't matter but need to keep consistent when entered? )
-
-# find way to automatically update taxonomy of verbatim names? 
-# find a way to streamline to avoid having to go into another application
-# find way to assign taxon gbif ID? 
 
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
@@ -678,11 +661,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
      unite("scientificName", genus, species, sep = " ") # uniting genus and species again for ease of searching names
     
     # initializing vectors for for loop 
-    occ_data$provincialListStatus <- NULL
+    occ_data$provincialListStatus <- NA
     
       for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
         
-        if (!is.null(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
+        if (!is.na(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
           # does the genus, species and intraspecific epithet match one in the CDC? 
           occ_data[k, "provincialListStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpithet == occ_data$intraspecificEpithet[k]), "BC.List"]
         
