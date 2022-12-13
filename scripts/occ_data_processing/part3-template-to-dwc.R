@@ -170,6 +170,27 @@
     }
   }
   
+  # checking to make sure all rows now have vTaxonRank
+  # constraints: 1) in set of ranks
+  # 2) read as character
+  
+  ranks <- c("species", "genus", "family", "order", 
+             "class", "phylum", "kindgom")
+  
+  # if there are non-Na elements...
+  if(length(data$vTaxonRank[is.na(data$vTaxonRank)])
+     <length(data$vTaxonRank)){
+    # check that... 
+    data %>% 
+      group_by(vTaxonRank) %>% 
+      chain_start %>% 
+      #column is read as character 
+      verify(., has_class("vTaxonRank", class="character")) %>% 
+      # characters are within set 
+      assert(in_set(ranks),vTaxonRank)  %>% 
+      chain_end
+  }
+  
   ## dwc: occurrenceStatus
   # automatically assigning occurrence status as present if it 
   # was not filled in

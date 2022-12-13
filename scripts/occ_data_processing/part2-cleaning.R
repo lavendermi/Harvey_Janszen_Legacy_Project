@@ -44,7 +44,7 @@ rm(requiredPackages)
   J <-7 # journal number (USER INPUT)
 
   # ENTER FILE NAME (USER INPUT)
-  filename <- "HJ7-processed-step-1_2022-12-09.csv" 
+  filename <- "HJ7-processed-step-1_2022-12-12.csv" 
   
   data <- read.csv(here::here("data","digitized_data",
                                 "occurrence_data",
@@ -56,7 +56,7 @@ rm(requiredPackages)
                                 "reference_data",
                                 "islands-and-districts_22-11-29.csv"))
   
-# TASK 1: checking for repeated taxon observations for givensampling location and time ----
+# TASK 1: checking for repeated taxon observations for given sampling location and time ----
   
   data <- data %>% 
     group_by(sciName, date, locality, habitat, 
@@ -65,19 +65,6 @@ rm(requiredPackages)
   
 ## TASK 2: checking individual columns for constraints ----
   
-## archiveID 
-  # constraints: 1) a number between 1 and 31 (corresponding 
-  # to range of archives from HJ)
-  # 2) read as integer
-  # 3) all rows must have entry
-  
-  errors <- data %>% 
-    chain_start %>%
-    verify(., has_class("archiveID", class="integer")) %>% 
-    assert(in_set(c(1:31)), archiveID) %>% # checking if integer from 1 - 31
-    assert(not_na, archiveID) %>%  # checking that all rows have archiveID
-    chain_end(error_fun = error_df_return) 
-
 ## pageNum
   # constraints: 1) for HJ-8 journal = numeric between 1 and 208
   # for HJ-27 = numeric between 1 and 28 
@@ -88,30 +75,34 @@ rm(requiredPackages)
 
   if(J==7){
     data %>% 
+    group_by(pageNum) %>% 
     chain_start %>% 
     verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:159),data$pageNum[i]) %>% 
+    assert(., in_set(1:159), pageNum) %>% 
     chain_end 
     
   }else if(J==8){
     data %>% 
+    group_by(pageNum) %>% 
     chain_start %>% 
     verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:208),data$pageNum[i]) %>% 
+    assert(in_set(1:208),pageNum) %>% 
     chain_end 
     
   }else if(J==9){
     data %>% 
+    group_by(pageNum) %>% 
     chain_start %>%
     verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:206),data$pageNum[i])  %>% 
+    assert(in_set(1:206),pageNum)  %>% 
     chain_end 
     
   }else if(J==27){
     data %>% 
+    group_by(pageNum) %>% 
     chain_start %>% 
     verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:28),data$pageNum[i]) %>% 
+    assert(in_set(1:28),pageNum) %>% 
     chain_end 
   }
 
@@ -123,6 +114,7 @@ rm(requiredPackages)
   
   data %>% 
     chain_start %>%
+    group_by(numPage) %>% 
     verify(., has_class("numPage", class="integer")) %>% 
     assert(in_set(1:100), numPage) %>% # checking if integer from 1 - 31
     assert(not_na, numPage) %>%  # checking that all rows have number
@@ -136,6 +128,7 @@ rm(requiredPackages)
   letters_only <- function(x) !grepl("^[^A-Za-z]+[[:space:]]+", x)
   
   data %>% 
+    group_by(vName) %>% 
     chain_start %>%
     assert(letters_only, vName) %>%  # checking only letters from A to Z
     assert(not_na, vName) %>%  # checking that all rows have number
@@ -155,6 +148,7 @@ rm(requiredPackages)
   
   data %>% 
     chain_start %>%
+    group_by(vSciName) %>% 
     verify(., has_class("vSciName", class="character")) %>% 
     assert(letters_only, vSciName) %>% # checking only letters from A to Z
     assert(not_na, vSciName) %>%  # checking that all rows have number
@@ -170,6 +164,7 @@ rm(requiredPackages)
   confvalues <- c("l","m","h")
   
   data %>% 
+    group_by(conf) %>% 
     chain_start %>% 
     verify(., has_class("vSciName", class="character")) %>% 
     assert(in_set(confvalues),conf) %>%  # checking that in set
@@ -184,6 +179,7 @@ rm(requiredPackages)
   # 5) read as character 
   
   data %>% 
+    group_by(sciName) %>% 
     chain_start %>%
     verify(., has_class("sciName", class="character")) %>% 
     assert(letters_only, sciName) %>%  # checking all letters 
@@ -197,6 +193,7 @@ rm(requiredPackages)
   # 2) read as integer 
   # 3) every row must have one 
   data %>% 
+    group_by(date) %>% 
     chain_start %>% 
     verify(., has_class("date", class="integer")) %>% 
     assert(not_na,date) %>%  # checking that all rows have value
@@ -209,6 +206,7 @@ rm(requiredPackages)
   # 3) every row has one 
   
   data %>% 
+    group_by(locality) %>% 
     chain_start %>% 
     verify(., has_class("locality", class="character")) %>% 
     assert(not_na,locality) %>%  # checking that all rows have value
@@ -220,6 +218,7 @@ rm(requiredPackages)
   # 3) every row has one 
 
   data %>% 
+    group_by(country) %>% 
     chain_start %>% 
     verify(., has_class("country", class="character")) %>% 
     assert(not_na,country) %>% # every obs has one
@@ -231,6 +230,7 @@ rm(requiredPackages)
   # 2) every row has one 
   # 3) read as character
   data %>% 
+    group_by(stateProvince) %>% 
     chain_start %>% 
     verify(., has_class("stateProvince", class="character")) %>% 
     assert(not_na,stateProvince) %>% # every obs has one
@@ -249,6 +249,7 @@ rm(requiredPackages)
   if(length(data$island[is.na(data$island)])
      <length(data$island)){
     data %>% 
+      group_by(island) %>% 
       chain_start %>% 
       #column is read as character 
       verify(., has_class("island", class="character")) %>% 
@@ -269,6 +270,7 @@ rm(requiredPackages)
   if(length(data$county[is.na(data$county)])
      <length(data$county)){
     data %>% 
+      group_by(county) %>% 
       chain_start %>% 
       #column is read as character 
       verify(., has_class("county", class="character")) %>% 
@@ -287,7 +289,8 @@ rm(requiredPackages)
   if(length(data$occStatus[is.na(data$occStatus)])
      <length(data$occStatus)){
     # check that... 
-    data %>% 
+    data %>%
+      group_by(occStatus) %>% 
       chain_start %>% 
       #column is read as character 
       verify(., has_class("occStatus", class="character")) %>% 
@@ -303,6 +306,7 @@ rm(requiredPackages)
   if(length(data$habitat[is.na(data$habitat)])
      <length(data$habitat)){
       data %>% 
+      group_by(habitat) %>% 
       verify(., has_class("habitat", class="character"))
     }
   
@@ -313,6 +317,7 @@ rm(requiredPackages)
   if(length(data$locationRemarks[is.na(data$locationRemarks)])
      <length(data$locationRemarks)){
     data %>% 
+      group_by(locationRemarks) %>% 
       # is column is read as character 
       verify(., has_class("locationRemarks", class="character"))
   }
@@ -325,10 +330,11 @@ rm(requiredPackages)
              "class", "phylum", "kindgom")
   
   # if there are non-Na elements...
-  if(length(data$vTaxonRank[is.na(data$vTaxonRank)])
-     <length(data$vTaxonRank)){
+  if(length(data$vTaxonRank[is.na(data$vTaxonRank)]) < 
+     length(data$vTaxonRank)){
     # check that... 
     data %>% 
+      group_by(vTaxonRank) %>% 
       chain_start %>% 
       #column is read as character 
       verify(., has_class("vTaxonRank", class="character")) %>% 
@@ -430,8 +436,8 @@ rm(requiredPackages)
   paired_col_not_empty <- function(x) if(x==" ") return(FALSE)
   
   # if there are non-Na elements...
-  if(length(data$assColl[is.na(data$assColl)]
-     <length(data$assColl))){
+  if(length(data$assColl[is.na(data$assColl)])
+     <length(data$assColl)){
     
       # checking class 
       data %>% 
@@ -485,6 +491,7 @@ rm(requiredPackages)
   }
 
 ## orgQuantity 
+  
 ## orgQtype
 ## occRemarks 
 ## phenology
@@ -507,4 +514,8 @@ errors <-
   # vUTM - the right number of elements and with 10U and starting with 3 or 4 and 4 5 or 6 --> look at map to check this 
   # coord uncertainty - only numeric (meters implied)
   
-  
+# Writing cleaned sheet
+# adding archiveID row
+data_cleaned <- data %>% 
+mutate("archiveID"= J,
+       .before=pageNum)

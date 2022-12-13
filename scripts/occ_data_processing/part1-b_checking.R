@@ -26,7 +26,7 @@ rm(requiredPackages)
 
   # USER INPUT: 
   # input file name for checked data & journal number
-  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-09.csv"
+  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-12.csv"
   J <-7 
   
   # loading data
@@ -41,7 +41,7 @@ rm(requiredPackages)
                                       "-","occ-entry.xlsx"))) 
   
   # renaming columns of raw data to match
-  raw_data <- raw_data %>%dplyr::rename(archiveID="[archiveID]", 
+  raw_data <- raw_data %>%dplyr::rename(
                                 pageNum = "[pageNum]", 
                                 numPage = "[numPage]", 
                                 vName = "[vName]",
@@ -61,14 +61,12 @@ rm(requiredPackages)
   
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
       if (checked_data$toDelete[i] == "Y"){
-        raw_data[ # if its archiveID, pageNum and numPage match that in raw data
-          which(checked_data$archiveID[i] == raw_data$archiveID &
-                  checked_data$pageNum[i] == raw_data$pageNum &
+        raw_data[ #pageNum and numPage match that in raw data
+          which(checked_data$pageNum[i] == raw_data$pageNum &
                   checked_data$numPage[i] == raw_data$numPage),] <- NA
       } else {
       raw_data[ # if its archiveID, pageNum and numPage match that in raw data
-      which(checked_data$archiveID[i] == raw_data$archiveID &
-      checked_data$pageNum[i] == raw_data$pageNum &
+      which(checked_data$pageNum[i] == raw_data$pageNum &
       checked_data$numPage[i] == raw_data$numPage),] <- 
         # assign raw data column to that row of checked data
         checked_data[i,3:dim(checked_data)[2]]

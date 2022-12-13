@@ -40,8 +40,7 @@ rm(requiredPackages)
           paste0("HJ-",J,"-","occ-entry.xlsx")))
 
   # renaming column names for easier recognition 
-  data <- data %>% dplyr::rename(archiveID="[archiveID]", 
-                                pageNum = "[pageNum]", 
+  data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
                                 numPage = "[numPage]", 
                                 vName = "[vName]",
                                 vSciName= "[vSciName]", 
@@ -80,10 +79,10 @@ rm(requiredPackages)
       # adding new column to which can be used to keep track of 
       # data checking progress
         mutate("checkStatus"= "", 
-               .before=archiveID) %>% 
+               .before=pageNum) %>% 
         mutate("toDelete"= "", # adding column to indicate which entries
            # too poor or uncertain to include
-           .before=archiveID)
+           .before=pageNum)
     
       ## saving file 
       write.csv(to_check, 
@@ -107,10 +106,10 @@ rm(requiredPackages)
         # adding new column to which can be used to keep 
         # track of data checking progress
         mutate("checkStatus"= "",
-               .before=archiveID) %>% 
+               .before=pageNum) %>% 
         mutate("toDelete"= "", # adding column to indicate which entries
                # too poor or uncertain to include
-             .before=archiveID)
+             .before=pageNum)
       
       ## saving file 
       write.csv(to_check, 
