@@ -7,6 +7,8 @@ output: html_document
 
 **To do:**
 
+-   if two found at same location increase individual count??
+
 -   make archive ID column in cleaning stage - remove from template and other entry books
 
 -   add idqualifier columns and info of what to put
