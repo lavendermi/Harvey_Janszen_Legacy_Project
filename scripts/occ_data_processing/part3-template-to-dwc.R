@@ -18,6 +18,8 @@
 # find way to streamline to avoid going into another application
 # change file path to checked data
 
+
+
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
 # template and place it in darwin core terms
@@ -44,7 +46,8 @@
   library(groundhog)
   
   date <- "2022-11-02"
-  requiredPackages <-  c("assertr","dplyr","here", "lubridate","magrittr","purrr","ritis",
+  requiredPackages <-  c("assertr","dplyr","here", "lubridate",
+                         "magrittr","purrr","ritis",
                          "stringi","taxize","terra","tidyverse","tidyr")
   
   for (pkg in requiredPackages) {
@@ -61,37 +64,24 @@
   
   for (i in index){
     if (i == index[1]){
-      data <- read_excel(
+      data <- read.csv(
         here::here("data","digitized_data",
                    "occurrence_data", 
-                    "raw_data", 
-                    paste0("HJ-",index[1], "-occ-entry.xlsx"))) 
+                    "clean_data", 
+                    paste0("HJ-",index[1], "_clean-occurrences.csv"))) 
     } else{ 
-      data <- rbind(data, read_excel(
+      data <- rbind(data, read.csv(
         here::here("data","digitized_data",
                    "occurrence_data",
-                    "raw_data", 
-                    paste0("HJ-",i,"-occ-entry.xlsx"))))
+                    "clean_data", 
+                    paste0("HJ-",i,"_clean-occurrences.csv"))))
     }
   }
-  
-  ## RENA<ING COLUMNS (TEMPORARY, remove in the end!!!!!!!!!!!!!!!!!)
-  data <- data %>%dplyr::rename(archiveID="[archiveID]", 
-                                pageNum = "[pageNum]", 
-                                numPage = "[numPage]", 
-                                vName = "[vName]",
-                                vSciName= "[vSciName]", 
-                                sciName = "[sciName]",
-                                conf="[conf]",date="[date]",
-                                locality="[locality]", 
-                                country = "[country]",
-                                stateProvince = "[stateProvince]", 
-                                island ="[island]")
   
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
   ## dwc:datasetName
-  data$datasetName <- "Harvey Janszen Collections"
+  data$datasetName <- "Harvey Janszen Observations"
 
   ## dwc:basisOfRecord
   # Human observation = (report by a known observer that an organism was 
@@ -116,22 +106,28 @@
   for (i in 1:dim(data)[1]){ # for all rows
     if(!is.na(data$numPlantsCode[i])){ # if there is a number of plants code
       if (data$numPlantsCode[i] == 0){ # if the num plants code is =0 ...
-        data[i,"invididualCount"] <- "1" # assign it to an individual count of 1
-          
+        data[i,"orgQuantity"] <- "1" # assign it to an individual count of 1
+        data[i,"orgQtype"] <- "individuals"
+        
       }else if (data$numPlantsCode[i] == 1){ 
-        data[i,"invididualCount"] <- "1-5"
+        data[i,"orgQuantity"] <- "1-5"
+        data[i,"orgQtype"] <- "individuals"
       
       }else if (data$numPlantsCode[i] == 2){
-        data[i,"invididualCount"] <- "5-25"
+        data[i,"orgQuantity"] <- "5-25"
+        data[i,"orgQtype"] <- "individuals"
       
       } else if (data$numPlantsCode[i] == 3){
-        data[i,"invididualCount"] <- "25-50"
-       
+        data[i,"orgQuantity"] <- "25-50"
+        data[i,"orgQtype"] <- "individuals"
+        
       }else if (data$numPlantsCode[i] == 4){
-        data[i,"invididualCount"] <- "50-75"
-       
+        data[i,"orgQuantity"] <- "50-75"
+        data[i,"orgQtype"] <- "individuals"
+        
       }else if (data$numPlantsCode[i] == 5){
-        data[i,"invididualCount"] <- "75+"
+        data[i,"orgQuantity"] <- "75+"
+        data[i,"orgQtype"] <- "individuals"
       }
       if(!is.na(data$occRemarks[i])){ # if there are already other occurrence remarks...
         data[i,"occRemarks"] <- paste(data[i, "occRemarks"],
@@ -174,7 +170,7 @@
   # constraints: 1) in set of ranks
   # 2) read as character
   
-  ranks <- c("species", "genus", "family", "order", 
+  ranks <- c("subspecies","species", "genus", "family", "order", 
              "class", "phylum", "kindgom")
   
   # if there are non-Na elements...
@@ -285,7 +281,7 @@
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals
   # starting at 1 
-  data$occurrenceID <- 1:dim(data)[1]
+  data$occurrenceID <- paste0("HJO",1:dim(data)[1])
   
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
@@ -566,7 +562,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                      occ_data$habitat[i]==occ_data$habitat &
                                      occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                                      occ_data$decimalLongitude[i]==occ_data$decimalLongitude
-                                   ,"canonicalName"])[["canonicalName"]]
+                                   ,"canonicalName"])
         
         # if there is no collected associated taxa recorded...
         if (is.na(occ_data$assCollTaxa[i])){
@@ -615,7 +611,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                         occ_data$habitat[i]==occ_data$habitat &
                                         occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                                         occ_data$decimalLongitude[i]==occ_data$decimalLongitude
-                                      ,"recordNumber"])[["recordNumber"]]
+                                      ,"recordNumber"])
         
         # if there is no collected associated taxa recorded...
         if (is.na(occ_data$assColl[i])){
@@ -679,53 +675,31 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       separate(col = Scientific.Name, # separating species column into genus and species to obtain specific ephithet
                into = c("genus", "species", "abb", "intraspecificEpithet"),
                sep = " ", remove = FALSE) %>% 
-     unite("scientificName", genus, species, sep = " ") # uniting genus and species again for ease of searching names
+     unite("fullName", genus, species, intraspecificEpithet,sep = " ", na.rm=T, remove=F) %>% 
+     unite("scientificName", genus, species, sep=" ", na.rm=T) # uniting genus and species again for ease of searching names
     
+  ## assigning CDC status (S5 to S1)
     # initializing vectors for for loop 
-    occ_data$provincialListStatus <- NA
-    
-      for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
-        
-        if (!is.na(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
-          # does the genus, species and intraspecific epithet match one in the CDC? 
-          occ_data[k, "provincialListStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpithet == occ_data$intraspecificEpithet[k]), "BC.List"]
-        
-        } else { # if there is no intraspecific epithet listed  
-            if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) > 1){  # if there is match for genus and species name in CDC
-            
-                  for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"])){ # for how ever many number of subspecies there are 
-                  
-                    if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"BC.List"])) == 1){ # do all of possible subspecies have same list code? 
-                    # if so, then apply that list category to that row
-                    occ_data[k, "provincialListStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"][1]
-                
-                   } else { # if multiple subspecies with different list categories and we don't know what subspecies
-                    occ_data[k, "provincialListStatus"]  <- NA 
-                  } 
-                }
-            } else if (length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]) == 1){ # if only one intraspecific variety
-            occ_data[k, "provincialListStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "BC.List"]
-            
-          }
-      }
-    }
-
-  ## repeating loop to assign CDC status (S5 to S1)
-    # initializing vectors for for loop 
-    occ_data$provincialStatus <- NULL
+    occ_data$provincialStatus <- NA
     
     for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
       
-      if (!is.null(occ_data[k, "intraspecificEpithet"])){ # for observations that have species with intraspecific epithet (subspecies)
+      if (!is.na(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
         # does the genus, species and intraspeicific epithet match one in the CDC? 
-        occ_data[k, "provincialStatus"]<- CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k] & CDC_cleaned$intraspecificEpithet == occ_data$intraspecificEpithet[k]), "Provincial"]
-
-      } else { # if there is no intraspecific epithet listed  
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) > 1){  # if there is match for genus and species name in CDC
+        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"])==1){
+        occ_data$provincialStatus[k]<- CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"]
+        }
+        
+      } else { # if there is no intraspecific epithet listed... 
+        
+        # if there is match for genus and species name in CDC...
+        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) > 1){ 
           
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"])){ # for how ever many number of subspecies there are 
+          # for how ever many number of subspecies there are ...
+          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"])){ 
             
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"Provincial"])) == 1){ # do all of possible subspecies have same list code? 
+            # do all of possible subspecies have same list code? 
+            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"Provincial"])) == 1){ 
               # if so, then apply that list category to that row
               occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"][1]
               
@@ -733,39 +707,88 @@ for (i in 1:dim(occ_data)[1]){ # for every row
               occ_data[k, "provincialStatus"]  <- NA 
             } 
           }
-        } else if (length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) == 1){ # if only one intraspecific variety
-          occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]
+          
+        # if only one name that matches
+        } else if (length(CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Provincial"]) == 1){ 
+          occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Provincial"]
           
         }
       }
     }
     
-## COSEWIC  - use from same table kept by BC CDC? 
+  ## assigning global status (G5 to G1)
+    # initializing vectors for for loop 
+    occ_data$globalStatus <- NA
     
-## IUCN or natureserve from BC CDC global 
-    install.packages("rredlist")
-    library(rredlist)
-    rl_use_iucn()
+    for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
+      
+      if (!is.na(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
+        # does the genus, species and intraspeicific epithet match one in the CDC? 
+        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Global"])==1){
+          occ_data$globalStatus[k]<- CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Global"]
+        }
+        
+      } else { # if there is no intraspecific epithet listed... 
+        
+        # if there is match for genus and species name in CDC...
+        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Global"]) > 1){ 
+          
+          # for how ever many number of subspecies there are ...
+          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Global"])){ 
+            
+            # do all of possible subspecies have same list code? 
+            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"Global"])) == 1){ 
+              # if so, then apply that list category to that row
+              occ_data[k, "globalStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Global"][1]
+              
+            } else { # if multiple subspecies with different list categories and we don't know what subspecies
+              occ_data[k, "globalStatus"]  <- NA 
+            } 
+          }
+          
+          # if only one name that matches
+        } else if (length(CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Global"]) == 1){ 
+          occ_data[k, "globalStatus"] <- CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Global"]
+          
+        }
+      }
+    }
     
+
     
-## 8) remove extraneous columns and export to upload to Canadensys IPT ----
-    select(-dataEntryRemarks, -canonicalName, -confidence, 
-           -matchType, -key) %>% 
-      # renaming to match darwin core terms 
-      dplyr::rename(scientificNameauthorship = authorship, 
+## saving as .csv file  ----
+## remove extraneous columns  
+    
+    dwc_data <- occ_data %>% 
+      ## assigning statuses as dwc::dyamic properties
+      #unite("dynamicProperties", provincialStatus, globalStatus, sep="; ") %>% 
+      
+      # add new column for min and max elevs
+      
+      # renaming columns to dwc terms 
+      dplyr::rename(verbatimScientificName = vSciName, 
+                    verbatimElevtion = vElevM,
+                    identificationQualifier = idQualifier,
+                    occurrenceStatus = occStatus, 
+                    associatedTaxa = assCollTaxa, 
+                    associatedOccurrences = assColl, 
+                    verbatimTaxonRank=vTaxonRank, 
+                    verbatimLatitude = vLat, 
+                    verbatimLongitude = vLon, 
+                    verbatimCoordinates = vUTM, 
+                    organismQuanity = orgQuantity, 
+                    organismQuantityType = orgQtype, 
+                    occurrenceRemarks = occRemarks, 
+                    lifeStage = phenology, 
+                    identificationBy= idBy, 
+                    scientificNameauthorship = authorship, 
                     taxonRank = rank, 
-                    taxonomicStatus = status, eventDate = fulldate, 
-                    associatedTaxa = assCollTaxa, associatedOccurrences = assColl)  
+                    taxonomicStatus = status, eventDate = fulldate) %>% 
+      
+      # removing columns 
+      select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
+             -numPlantsCode)
     
-## Phenology
-    # if occurrenceRemarks(contains "flowering") lifeStage <- "flowering"
+## saving csv file
+   write.csv(dwc_data, here::here("data", "digitized_data", "occurrence_data",paste0("darwin-core-occurrences_", Sys.Date(), ".csv")), row.names = F)
     
-## renaming miscellaneous columns to darwin core terms ----
-    template <- template %>% rename(verbatimTaxonRank = vTaxonRank,
-                                    occurrenceStatus = occStatus, verbatimScientificName = vSciName,
-                                    scientificName = sciName, 
-                                    verbatimElevation= vElevM,
-                                    occurrenceRemarks=occRemarks, identificationBy = idBy, 
-                                    eventDate = fulldate)
-    
-## Saving as .csv file ----

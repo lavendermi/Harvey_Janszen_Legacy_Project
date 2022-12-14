@@ -4,18 +4,13 @@
 #######                 Emma Menchions 22-11-20     #######                       
 ###########################################################
 
-# this script will go through each column in order that it 
-# appears on the HJ occurrence collection digitization 
-# template and perform a series of checks for data entry errors 
-# or will it go one book at a time? 
+# this script will go through each column and perform a 
+# series of checks for data entry errors for one journal 
+# at a time 
 
 ## Things to do: 
-# change ordering of qualifiers
+
 # add check to see specific epihet lower case in assCollTaxa 
-# UTM
-# assColl
-#assTaxa
-# go through fpr consistent labelling and terminology
 # function for UTM conversion that works for both part 2 and 3? 
 # only limit islands to "Galiano Island" must have the term island for georeferencing 
 
@@ -44,7 +39,7 @@ rm(requiredPackages)
   J <-7 # journal number (USER INPUT)
 
   # ENTER FILE NAME (USER INPUT)
-  filename <- "HJ7-processed-step-1_2022-12-12.csv" 
+  filename <- "HJ7-processed-step-1_2022-12-13.csv" 
   
   data <- read.csv(here::here("data","digitized_data",
                                 "occurrence_data",
@@ -256,6 +251,15 @@ rm(requiredPackages)
       assert(in_set(places$island),island) %>% 
       chain_end
     
+  }
+  
+## idQualifier
+  # if has non-NA elements...
+  if(length(data$idQualifier[is.na(data$idQualifier)])
+     <length(data$idQualifier)){
+    data %>% 
+      #column is read as character 
+      verify(., has_class("idQualifier", class="character"))
   }
   
 ## county 
@@ -490,32 +494,57 @@ rm(requiredPackages)
     chain_end
   }
 
-## orgQuantity 
+## orgQuantity
+  # if has non-NA elements...
+  if(length(data$orgQuantity[is.na(data$orgQuantity)])
+     <length(data$orgQuantity)){
+    data %>% 
+      #column is read as character 
+      verify(., has_class("orgQuantity", class="character"))
+  }
   
-## orgQtype
-## occRemarks 
+## orgQuantityType
+  # if has non-NA elements...
+  if(length(data$orgQtype[is.na(data$orgQtype)])
+     <length(data$orgQtype)){
+    data %>% 
+      #column is read as character 
+      verify(., has_class("orgQtype", class="character"))
+  }
+  
 ## phenology
-## recordedBy 
-## idBy 
-## dataEntryRemarks 
+  # if has non-NA elements...
+  if(length(data$phenology[is.na(data$phenology)])
+     <length(data$phenology)){
+    data %>% 
+      #column is read as character 
+      verify(., has_class("phenology", class="character"))
+  }
   
-## TASK 3? putting it all together 
+## recordedBy
+  # if has non-NA elements...
+  if(length(data$recordedBy[is.na(data$recordedBy)])
+     <length(data$recordedBy)){
+    data %>% 
+      #column is read as character 
+      verify(., has_class("recordedBy", class="character"))
+  }
   
-#1) identify rows with missing info for vName, vSciName, sciName, 
-  # and entries in data entry remarks
-errors <- 
-
-# check that all rows have crucial info
-
-  # recordedby 
-  #velev - only numeric (meters implied)
-  # v elev reference as character sting
-  # vlat as decimal or 3 segments - and within certain range that would match where he collected with some buffer though
-  # vUTM - the right number of elements and with 10U and starting with 3 or 4 and 4 5 or 6 --> look at map to check this 
-  # coord uncertainty - only numeric (meters implied)
+## idBy
+  # if has non-NA elements...
+  if(length(data$idBy[is.na(data$idBy)])
+     <length(data$idBy)){
+    data %>% 
+      #column is read as character 
+      verify(., has_class("idBy", class="character"))
+  }
   
-# Writing cleaned sheet
+## Writing cleaned sheet ---
+  
 # adding archiveID row
 data_cleaned <- data %>% 
-mutate("archiveID"= J,
-       .before=pageNum)
+mutate("archiveID"= J,.before=pageNum)
+
+write.csv(data_cleaned, here::here("data","digitized_data",
+                                   "occurrence_data",
+                                   "clean_data", paste0("HJ-",J, "_clean-occurrences.csv")), row.names = F)

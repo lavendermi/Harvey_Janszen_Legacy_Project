@@ -9,9 +9,10 @@ Ideas:
 
 1)  UTM coordinates in their database seem to be accurate even when not in field notes... ? who should we trust. Could Harvey have put those in after (e.g. Wood duck pond saturna)
 2)  When collection numbers not in RBCM database, check that not in UBC database?
-3)  Things I will have to standarize from data entry template
+3)  Things I will have to standardize from data entry template
 4)  Standardization between occurrence data and RBCM data?
 5)  In GBIF data, things I have issues with:
-    -    "individualCount = 1 for all of them" - what if actual abundance given?
+    -   "individualCount = 1 for all of them" - what if actual abundance given?
 
     -   all caps sp presence or absence
+6)  

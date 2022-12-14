@@ -26,7 +26,7 @@ rm(requiredPackages)
 
   # USER INPUT: 
   # input file name for checked data & journal number
-  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-12.csv"
+  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-13.csv"
   J <-7 
   
   # loading data
@@ -55,7 +55,7 @@ rm(requiredPackages)
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
   missed_rows <- checked_data %>% 
-  assert(in_set("Y"), checkStatus) 
+  assert(in_set("C", "R"), checkStatus) 
   
 ## 3. CONSOLIDATNG & REMOVING ROWS ----
   

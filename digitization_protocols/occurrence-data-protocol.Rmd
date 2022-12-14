@@ -306,19 +306,19 @@ Begin with the **first page in a journal.**
 
 1.  **SAVE FREQUENTLY** (by pushing to github or backing up on OSF or Google Drive)
 
-2.  If certain names can't be deciphered or a location/ time can't be attributed to it, **still include as a row in the template,** with a valid **archiveID**, **pageNum** an **numPage** entry. It can be removed later (this will help for re-finding things on the page)
+2.  If certain names can't be deciphered or a location/ time can't be attributed to it, **still include as a row in the template,** with a valid **pageNum** an **numPage** entry. It can be removed later (this will help for re-finding things on the page)
 
 3.  **DON'T enter any taxon observations with either a collection number or the note "coll no \#" or "coll"** (this indicates a specimen was collected and therefore, we don't want to duplicate data already in herbarium databases)
 
 4.  **AVOID entering repeated observations of same taxa** at same locality, habitat/ sub location and same date
 
-    -   there will be checks to make sure this doesn't happen during data processing, but best to avoid to save time now
+    -   there will be checks to make sure this doesn't happen during data processing, but best to avoid to save time now, if the repetition is really obvious
 
 ## **Tips for efficiency**
 
 1.  When you first start a new page or new event (location and date), **count the** number of observations you think you will have. Enter the date and locality info for the first observation and then **copy for the amount of rows you think you will need. The same applies for associated collected occurrences**
 
-2.  When it comes to big chunks where most observations associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but can write down coordinates for collected specimen for the occurrence.
+2.  When it comes to big chunks where most observations are associated with collections - only write down ones that aren't a collection at that locality - be careful it can sometimes be tricky, but you can write down coordinates for the collected specimen as for the occurrence.
 
     -   Additionally, you can copy and paste large lists of associated occurrence numbers and taxa names to multiple rows to save time
 
@@ -330,7 +330,7 @@ Begin with the **first page in a journal.**
 
 # Metadata
 
--   Abundance codes: from HJ-7 field journal
+-   Abundance codes: from page 1 of the HJ-7 field journal
 
     -   "+" = 1
 
@@ -362,23 +362,13 @@ Begin with the **first page in a journal.**
 
     -   In checking these observations:
 
-        -   
+        1.  find each occurrence in journal as indicated by archiveID and page numbers
 
-            1)  find each occurrence in journal as indicated by archiveID and page numbers
+        2.  Fill in uncertain information with best guess
 
-        -   
+        3.  If still can not decipher or are uncertain, make a judgement call as to whether or not to include. If too uncertain or poor data quality, mark the toDelete column with "Y" for that observation
 
-            2)  Fill in uncertain information with best guess
-
-        -   
-
-            3)  If still can not decipher or are uncertain, make a judgement call as to whether or not to include. If too uncertain or poor data quality, mark the toDelete column with "Y" for that observation
-
-        -   
-
-            4)  fill the "checkStaus" column with "C" (completed) or "R" (return to) to check progress
-
-        -   **5) *WHAT SHOULD WE DO WITH DATAENTRY REMARKS (remove?) (replace?) (update?)***
+        4.  fill the "checkStaus" column with "C" (completed) or "R" (return to) to check progress
 
     -   once all rows have "C" in the checkStatus column, continue on
 
