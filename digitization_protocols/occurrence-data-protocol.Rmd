@@ -394,10 +394,76 @@ Begin with the **first page in a journal.**
 
 2.  Input name of the completed and cleaned file
 
-3.  Run the script to Part 4.
+3.  Run the script to up until step 4 ("Taxonomy Fields").
 
 4.  Follow the instructions in Part 4 to clean taxa names
 
-    1.  open GBIF species-lookup
+    -   Upload csv file to <https://www.gbif.org/tools/species-lookup>
 
-5.  Run part 5 following the instructions
+    -    Click "match to backbone" button
+
+    -   Review the outputs page by page, paying attention to the "matchType" column.
+
+        -   If match type is yellow or red, click on the neighbouring column "scientificName (editable)"
+
+        -   A list of taxon names will pop up
+
+        -   Select the name that has "accepted" beside it in brackets unless there was a spelling mistake in the verbatim name and you know the verbatim name was refferring to something else. If so, search for that species in the search bar and select the accepted name
+
+        -   If there are multiple accepted names, select the top results (this is often if there are two different authorities accepted)
+
+        -   the match type field should now say "edited"
+
+        -   go back through all pages of entries to check that all rows have match type "exact" or "edited" (grey or green)
+
+        -   select "GENERATE CSV" button in bottom right hand of page
+
+        -   place this downloaded file in data \> reference_data \> taxonomy with the name "normalized"
+
+        -   return to script part 3 to load this file in and continue the process
+
+5.  Run the initial part of step 5 (Georeferencing) up until the .csv file is written. Then follow the following instructions for referencing protocol in GEOlocate:
+
+    -   go to GEOlocate batch processor: <https://geo-locate.org/web/WebFileGeoref.aspx>
+
+    -   click "Select File"
+
+    -   upload the .csv file from data \> reference_data \> georeferencing \> "localities-to-georef_Xdate.csv"
+
+    -   select 16 - 32 entries / page
+
+    -   click "Options" button \> select "Do Uncertainty" \> "OK" \> "Close" to close this menu
+
+    -   select the "Page Georeference" button \> this might take a moment
+
+    -   select the first row in the table. The map should zoom to one of the pins it has automatically placed on the map
+
+    -   zoom into the map more or zoom out if needed
+
+    -   identify where all of the options are (green and red pins). Green pin = top option, red = alternate possibilities
+
+    -   Editing location: click on the green pin and read the "parse pattern". Then read the locality string for that location (first column in table). Consider...
+
+        -   Does it match? Did it get it wrong?
+
+        -   Did it focus on an extraneous detail in the string rather the main words?
+
+        -   With your knowledge of the geography of the area could you do a better job placing the pin?
+
+        -   If you think the pin is relatively accurate, leave it.
+
+        -   If you think you could do a better job, drag and drop the pin in a new location. Or select another pin (a red pin) that is better matched. The location of this pin can also be edited in a similar manner if needed.
+
+    -   Editing Uncertainty. Now look at the circle around it (uncertainty circle). This circle represents the area in which the real coordinate could be inside. Knowing this, consider...
+
+        -   Is it reasonable? e.g. if the locality string says "Galiano Island" does it encompass all of Galiano Island. Similarly is it encompassing much more area than is needed to encompass all of the island?
+
+        -   This is very subjective and open for interpretation. If you are uncertain in your ability to assign uncertainty, leave it as is
+
+        -   If you would like to change it, click on the pin \> select "Edit Uncertainty" \> drag the large arrow in or out to edit the radius of the circle \> when finished click on the pin again
+
+    -   IMPORTANT: IF YOU MAKE ANY EDITS IN LOCATION (you moved the location of a pin or selected a different pin than the one that was in green) OR UNCERTAINTY TO THE PIN, SELECT "CORRECT" before clicking on the next row in the table to save these changes. Otherwise you will have to re-select that row and do everything again since the change in coordinates and uncertainty will not be logged without pressing that button.
+
+    -   repeat for all rows on the page.
+
+    -   when the page is completed, click on the arrow in the bottom right to go to the next page and repeat the process. The changes made to the previous page should still be saved as you go.
