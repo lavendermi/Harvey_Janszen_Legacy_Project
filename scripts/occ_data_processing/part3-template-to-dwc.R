@@ -237,7 +237,7 @@
     data %>% 
     assert(not_na,county) 
   
-  ## assColl (associated collections)
+## assColl (associated collections)
   # adding "HJC-" to the beginning of collection numbers entered here to indicate
   # that it is a collected specimen 
   # if string split > 1 " " 
@@ -263,7 +263,7 @@
       } else if (length(str_split(data$assColl[i], ", "))==1) { # if there is only one 
                                                     # associated occurrence already...
         # paste "HJC-" infront and assign to the associated species column for that row
-        data$assColl[i] <- paste0("HJC-",data$assColl[i])
+        data$assColl[i] <- paste0("HJC",data$assColl[i])
       }
     }
   }
@@ -596,7 +596,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
 }
     
 # for loop: repeating the loop above but for record and collection numbers
-    
+  
 for (i in 1:dim(occ_data)[1]){ # for every row
       
       # if there is another row that matches date, and place...
@@ -611,7 +611,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                         occ_data$habitat[i]==occ_data$habitat &
                                         occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                                         occ_data$decimalLongitude[i]==occ_data$decimalLongitude
-                                      ,"recordNumber"])
+                                      ,"occurrenceID"])
         
         # if there is no collected associated taxa recorded...
         if (is.na(occ_data$assColl[i])){
