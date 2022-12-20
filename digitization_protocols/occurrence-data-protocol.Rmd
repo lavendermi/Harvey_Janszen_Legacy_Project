@@ -197,12 +197,12 @@ Begin with the **first page in a journal.**
 
     -   if you can't decipher a name, place the estimated name in [brackets] and make a note in the "dataEntryRemarks" column (e.g. cannot decipher one or more associated species names"
 
-    -   enter multiple names separated by
+    -   enter multiple names separated by commas
 
 18. **assCollOcc** = associated collected occurrences
 
     -   the collection numbers associated with associated collected occurrences
-    -   separated by a .............
+    -   enter multiple numbers separated by commas
 
 19. **locationRemarks =** additional information about location. Separate sentences with semicolons
 

@@ -33,7 +33,7 @@ rm(requiredPackages)
 ## 1. LOADING IN DATA ----
  
   # loading raw data 
-  J <-7 # USER INPUT
+  J <-8 # USER INPUT
 
   data <- read_excel(here::here("data","digitized_data", 
           "occurrence_data","raw_data", 

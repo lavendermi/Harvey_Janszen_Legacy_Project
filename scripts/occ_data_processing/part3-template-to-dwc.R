@@ -19,7 +19,6 @@
 # change file path to checked data
 
 
-
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
 # template and place it in darwin core terms
@@ -263,10 +262,14 @@
       } else if (length(str_split(data$assColl[i], ", "))==1) { # if there is only one 
                                                     # associated occurrence already...
         # paste "HJC-" infront and assign to the associated species column for that row
-        data$assColl[i] <- paste0("HJC",data$assColl[i])
+        data$assColl[i] <- paste0("HJC-",data$assColl[i])
       }
     }
   }
+  
+  ## assCollTaxa
+  # replacing commas with semicolons for consistency
+  data$assCollTaxa <- str_replace_all(data$assCollTaxa, ",", ";")
   
   ## dwc: recordNumber
   # assigning record number as a combined number of the archiveID, 
@@ -545,8 +548,9 @@
 # for loop: for each row, find other rows with matching date AND locality AND habitat, assign the scientificNames names of these rows 
     # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
     
-# temporarily make missing values in habitat column "missing"
+# temporarily make missing values in habitat and location remarks columns "missing"
     occ_data[is.na(occ_data$habitat), "habitat"] <- "missing" 
+    occ_data[is.na(occ_data$locationRemarks), "locationRemarks"] <- "missing" 
     
 for (i in 1:dim(occ_data)[1]){ # for every row
   
@@ -554,12 +558,14 @@ for (i in 1:dim(occ_data)[1]){ # for every row
   if (length(which((occ_data$fulldate[i] == occ_data$fulldate & 
                     occ_data$locality[i]==occ_data$locality &  
                     occ_data$habitat[i]==occ_data$habitat &
+                    occ_data$locationRemarks[i]==occ_data$locationRemarks &
                     occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                     occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
     
     nameVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
                                      occ_data$locality[i]==occ_data$locality &  
                                      occ_data$habitat[i]==occ_data$habitat &
+                                    occ_data$locationRemarks[i]==occ_data$locationRemarks &
                                      occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                                      occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                    ,"canonicalName"])
@@ -578,7 +584,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
             # separated by a special character
             } else if (j > 1) {
               
-              occ_data[i,"assCollTaxa"]<- paste(occ_data[i, "assCollTaxa"],nameVec[j],sep = " ; ")
+              occ_data[i,"assCollTaxa"]<- paste(occ_data[i, "assCollTaxa"],nameVec[j],sep = "; ")
               
             }
           }
@@ -588,7 +594,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           # for every match...
           for (j in 1:length(nameVec)){
               
-              occ_data[i,"assCollTaxa"] <- paste(occ_data[i,"assCollTaxa"],nameVec[j], sep = " ; ")
+              occ_data[i,"assCollTaxa"] <- paste(occ_data[i,"assCollTaxa"],nameVec[j], sep = "; ")
                             
           }
        }
@@ -603,12 +609,14 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       if (length(which((occ_data$fulldate[i] == occ_data$fulldate & 
                         occ_data$locality[i]==occ_data$locality &  
                         occ_data$habitat[i]==occ_data$habitat &
+                        occ_data$locationRemarks[i]==occ_data$locationRemarks &
                         occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                         occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
         
         numVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
                                         occ_data$locality[i]==occ_data$locality &  
                                         occ_data$habitat[i]==occ_data$habitat &
+                                        occ_data$locationRemarks[i]==occ_data$locationRemarks &
                                         occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
                                         occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                       ,"occurrenceID"])
