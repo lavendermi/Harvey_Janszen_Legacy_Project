@@ -121,7 +121,7 @@ Begin with the **first page in a journal.**
 
 9.  **date [REQUIRED] =** fill in YYYYMMDD
 
-10. **locality [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , "; " , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
+10. **locality [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , ";" , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
 
     -   e.g. Galiano Island; Mount Sutil
 
@@ -197,9 +197,12 @@ Begin with the **first page in a journal.**
 
     -   if you can't decipher a name, place the estimated name in [brackets] and make a note in the "dataEntryRemarks" column (e.g. cannot decipher one or more associated species names"
 
+    -   enter multiple names separated by
+
 18. **assCollOcc** = associated collected occurrences
 
     -   the collection numbers associated with associated collected occurrences
+    -   separated by a .............
 
 19. **locationRemarks =** additional information about location. Separate sentences with semicolons
 
@@ -400,7 +403,7 @@ Begin with the **first page in a journal.**
 
     -   Upload csv file to <https://www.gbif.org/tools/species-lookup>
 
-    -    Click "match to backbone" button
+    -   Click "match to backbone" button
 
     -   Review the outputs page by page, paying attention to the "matchType" column.
 
