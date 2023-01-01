@@ -109,13 +109,14 @@ rm(requiredPackages)
                .before=pageNum) %>% 
         mutate("toDelete"= "", # adding column to indicate which entries
                # too poor or uncertain to include
-             .before=pageNum)
+             .before=pageNum) %>% 
+        mutate("dataEntryRemarks"=dataEntryRemarks,.before=pageNum)
       
       ## saving file 
       write.csv(to_check, 
                 here::here("data","digitized_data","occurrence_data",
                            "data_checking", 
-                           paste0("oscc-data-to-check_ALL_",
+                           paste0("oscc-data-to-check_ALL_","HJ-",J,
                            Sys.Date(),".csv")), row.names = F)
     } 
   

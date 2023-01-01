@@ -60,7 +60,7 @@ rm(requiredPackages)
 ## 3. CONSOLIDATNG & REMOVING ROWS ----
   
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
-      if (checked_data$toDelete[i] == "Y"){
+      if (checked_data$toDelete[i] == "Y" | checked_data$toDelete[i] == "y"){
         raw_data[ #pageNum and numPage match that in raw data
           which(checked_data$pageNum[i] == raw_data$pageNum &
                   checked_data$numPage[i] == raw_data$numPage),] <- NA
