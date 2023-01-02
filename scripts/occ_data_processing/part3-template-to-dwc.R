@@ -5,20 +5,6 @@
 ###                         Created Nov. 7/22                       ###
 #######################################################################
 
-# to do: 
-
-# decide on separating character
-# field notes linking 
-
-## Issues to still address: 
-# what if geolocate guesses wrong locality? - should we be doing massive batch processes
-# or smaller, more in depth ones? + # how to process so many locations in Geolocate
-# verbatim coordinates, but should we be assinging those with coordinate uncertainty 
-# what direction to enter locality string in (doesn't matter but need to keep consistent when entered? )
-# find way to streamline to avoid going into another application
-# change file path to checked data
-
-
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
 # template and place it in darwin core terms
@@ -46,7 +32,7 @@
   
   date <- "2022-11-02"
   requiredPackages <-  c("assertr","dplyr","here", "lubridate",
-                         "magrittr","purrr","ritis",
+                         "magrittr","mapview","purrr","ritis",
                          "stringi","taxize","terra","tidyverse","tidyr")
   
   for (pkg in requiredPackages) {
@@ -145,9 +131,10 @@
   for(i in 1:dim(data)[1]){ # for each observation
     if(is.na(data$recordedBy[i])){ # if there were not other collectors mentioned
       data$recordedBy[i] <- "Harvey Janszen" # fill field with name
-    }else{ # if other collector names noted 
-      data$recordedBy[i] <- paste0("Harvey Jaszen, ", data$recordedBy[i]) # add his name as first
-      # collector 
+      # if other collector names noted 
+    }else if (!is.na(data$recordedBy[i]) & data$recordedBy[i] != "Harvey Janszen" ){ 
+      # add his name as first collector
+      data$recordedBy[i] <- paste0("Harvey Jaszen, ", data$recordedBy[i]) 
     }
   } 
   
@@ -289,7 +276,7 @@
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
   occ_data <- data %>% 
-    select(-pageNum,-numPage, -vName, -conf, -date) %>%
+    select(-pageNum,-numPage, -vName, -conf, -date, -index) %>%
     arrange(occurrenceID)
                                        
 ## 4) TAXONOMY FIELDS ----
@@ -386,25 +373,7 @@
                                         row.names = F)
     
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
-    # upload file 
-    # select options, check uncertainty box 
-    # select "page georeference" or georeferencing one at a time
-    # click on first row in table
-    # assess the options it provides (green as highest probability, red as other options)
-    # ... add protocol 
-    # edit uncertainty
-    # press correct button
-    # move onto next observation
-    # might take some time
-    # repeat for all pages
-    
-    # once finished
-    # select file management at bottom
-    # "export" --> delimited text csv, exclude all polygons
-    # select ok
-    # find exported file in downloads
-    # rename to geoLocate_YYYY-MM-DD.csv
-    # place in data folder
+    # Follow protocol outlined in "occurrence-data-protocol.Rmd"
     
   ## loading referenced occurrences 
     GEOlocate <- read.csv(here::here("data", "digitized_data","occurrence_data","occurrence_reference_data",
@@ -524,7 +493,7 @@
                         occ_data$county[i] == GEOlocate$county),
                          c("geoLocLat", "geoLocLon", "geoLocPrecision")] 
       occ_data[i,"georeferenceProtocol"] <- "GEOLocate batch process"
-      occ_data[i, "georeferenceSources$georeferenceSource"] <- "GEOLocate"
+      occ_data$georeferenceSources[i] <- "GEOLocate"
     
   } 
  }
@@ -540,22 +509,14 @@ points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),occ_data$decima
 mapview(points_to_map)          
               
 ## 6) ASSIGNING ASSOCIATE ROWS and TAXA----
-    ## Issues to still address: 
-      # concaternate with already entered associated species not in occurrence sheet - ones associated with specimen
-      # include remarks about more specific groupings? - like in shade at a particular site, or base vs seep vs edge? - might be more difficult because these don't neatly fit into dwc terms...
-      # assigning quotes around list terms 
-      # "sympatric" : " X taxa" or another term? 
-    
-    # at this point is should be taking occurrences from same time place, locality,
-    # habitat and writing species name and occurrence in field, pasted onto those already there
-    # MAKE SURE SAME UTM / COORDINATES IF PROVIDED TOO 
-    
-# for loop: for each row, find other rows with matching date AND locality AND habitat, assign the scientificNames names of these rows 
-    # to an "associatedTaxa" field, where names are separated by "|" preffered for dwc lists like these
-    
-# temporarily make missing values in habitat and location remarks columns "missing"
+  
+# temporarily make missing values in habitat and location remarks columns 
+# "missing"
     occ_data[is.na(occ_data$habitat), "habitat"] <- "missing" 
     occ_data[is.na(occ_data$locationRemarks), "locationRemarks"] <- "missing" 
+    
+# for loop: finds matching occurrences and places their names in associated 
+    # taxa column
     
 for (i in 1:dim(occ_data)[1]){ # for every row
   
@@ -568,11 +529,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                     occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
     
     nameVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
-                                     occ_data$locality[i]==occ_data$locality &  
-                                     occ_data$habitat[i]==occ_data$habitat &
-                                    occ_data$locationRemarks[i]==occ_data$locationRemarks &
-                                     occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-                                     occ_data$decimalLongitude[i]==occ_data$decimalLongitude
+                          occ_data$locality[i]==occ_data$locality &  
+                          occ_data$habitat[i]==occ_data$habitat &
+                          occ_data$locationRemarks[i]==occ_data$locationRemarks &
+                          occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+                          occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                    ,"canonicalName"])
         
         # if there is no collected associated taxa recorded...
@@ -589,7 +550,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
             # separated by a special character
             } else if (j > 1) {
               
-              occ_data[i,"assCollTaxa"]<- paste(occ_data[i, "assCollTaxa"],nameVec[j],sep = "; ")
+              occ_data[i,"assCollTaxa"]<- paste(occ_data[i, "assCollTaxa"],
+                                                nameVec[j],sep = "; ")
               
             }
           }
@@ -599,7 +561,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           # for every match...
           for (j in 1:length(nameVec)){
               
-              occ_data[i,"assCollTaxa"] <- paste(occ_data[i,"assCollTaxa"],nameVec[j], sep = "; ")
+              occ_data[i,"assCollTaxa"] <- paste(occ_data[i,"assCollTaxa"],
+                                                 nameVec[j], sep = "; ")
                             
           }
        }
@@ -619,11 +582,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                         occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
         
         numVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
-                                        occ_data$locality[i]==occ_data$locality &  
-                                        occ_data$habitat[i]==occ_data$habitat &
-                                        occ_data$locationRemarks[i]==occ_data$locationRemarks &
-                                        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-                                        occ_data$decimalLongitude[i]==occ_data$decimalLongitude
+                            occ_data$locality[i]==occ_data$locality &  
+                            occ_data$habitat[i]==occ_data$habitat &
+                            occ_data$locationRemarks[i]==occ_data$locationRemarks &
+                            occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+                            occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                       ,"occurrenceID"])
         
         # if there is no collected associated taxa recorded...
@@ -640,7 +603,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
               # separated by a special character
             } else if (j > 1) {
               
-              occ_data[i,"assColl"]<- paste(occ_data[i, "assColl"],numVec[j],sep = " ; ")
+              occ_data[i,"assColl"]<- paste(occ_data[i, "assColl"],
+                                            numVec[j],sep = "; ")
               
             }
           }
@@ -650,7 +614,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           # for every match...
           for (j in 1:length(numVec)){
             
-            occ_data[i,"assColl"] <- paste(occ_data[i,"assColl"],numVec[j], sep = " ; ")
+            occ_data[i,"assColl"] <- paste(occ_data[i,"assColl"],
+                                           numVec[j], sep = "; ")
             
           }
         }
@@ -660,70 +625,84 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     
 # converting "missing" habitat data back into NA
   occ_data[occ_data$habitat=="missing", "habitat"] <- NA
+  occ_data[occ_data$locationRemarks=="missing", "locationRemarks"] <- NA
   
 ## 7) CONSERVATION STATUS ----
-  ## Issues to address
-    # 1) what columns should status info go in - dynamic properties (RBCM), taxonRemarks 
-    # 2) way to automate download of file into R 
-    # IUCN, COSEWIC AND CDC status?
-    # 3) format of fields
-    # BC CDC list 
-    # {"Conservation Status: CDC: ,"Conservation status: COSEWIC: , "Conservation Status: IUCN: ",
     
-    # example Symph alb - two subspecies with different ranks - one ssp. albus - can we assume it is this one or leave undefined?
-    # scripts to periodically update the statuses of these data? 
+  ## reading downloaded BC Conservation Data centre ranks (BC CDC): 
+  # https://a100.gov.bc.ca/pub/eswp/
+    CDC <- read.csv(here::here("data","reference_data",
+                               "CDC-resultsExport_2022-11-15.csv"))
     
-## Provincial ranks 
-    # visit BC Ecosystems Explorer: https://a100.gov.bc.ca/pub/eswp/
-    # search plants category
-    # "export results"
-    # results table
-    # open and export as .csv 
-    
-    ## reading downloaded BC Conservation Data centre ranks (BC CDC)
-    CDC <- read.csv(here::here("data","reference_data","CDC-resultsExport_2022-11-15.csv"))
-    
-    ## splitting scientific name into genus, species, var/ subspecies, and intraspecific epithet 
+  ## splitting scientific name into genus, species, var/ subspecies, 
+  # and intraspecific epithet 
+  
     CDC_cleaned <- CDC %>% 
-      separate(col = Scientific.Name, # separating species column into genus and species to obtain specific ephithet
+      # separating species column into genus and species to obtain specific 
+      # ephithet
+      separate(col = Scientific.Name, 
                into = c("genus", "species", "abb", "intraspecificEpithet"),
                sep = " ", remove = FALSE) %>% 
-     unite("fullName", genus, species, intraspecificEpithet,sep = " ", na.rm=T, remove=F) %>% 
-     unite("scientificName", genus, species, sep=" ", na.rm=T) # uniting genus and species again for ease of searching names
+     unite("fullName", genus, species, intraspecificEpithet,sep = " ", 
+           na.rm=T, remove=F) %>% 
+    # uniting genus and species again for ease of searching names
+     unite("scientificName", genus, species, sep=" ", na.rm=T) 
     
   ## assigning CDC status (S5 to S1)
+    
     # initializing vectors for for loop 
     occ_data$provincialStatus <- NA
     
     for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
       
-      if (!is.na(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
-        # does the genus, species and intraspeicific epithet match one in the CDC? 
-        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"])==1){
-        occ_data$provincialStatus[k]<- CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"]
+      # for observations that have species with intraspecific epithet (subspecies)...
+      if (!is.na(occ_data$intraspecificEpithet[k])){ 
+        
+        # does the genus, species and intraspeicific epithet match one in the CDC?... 
+        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, 
+                              "Provincial"])==1){
+          
+          occ_data$provincialStatus[k]<- paste0("provincial status: ", CDC_cleaned[
+          occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"])
         }
         
       } else { # if there is no intraspecific epithet listed... 
         
         # if there is match for genus and species name in CDC...
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"]) > 1){ 
+        if(length(CDC_cleaned[CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k], "Provincial"]) > 1){ 
           
           # for how ever many number of subspecies there are ...
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"])){ 
+          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == 
+                                         occ_data$canonicalName[k], 
+                                         "Provincial"])){ 
             
             # do all of possible subspecies have same list code? 
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"Provincial"])) == 1){ 
-              # if so, then apply that list category to that row
-              occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Provincial"][1]
+            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == 
+                                           occ_data$canonicalName[k]),
+                                          "Provincial"])) == 1){ 
               
-            } else { # if multiple subspecies with different list categories and we don't know what subspecies
-              occ_data[k, "provincialStatus"]  <- NA 
+              # if so, then apply that list category to that row
+              occ_data[k, "provincialStatus"] <- paste0("provincial status: ",
+                CDC_cleaned[CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k], "Provincial"][1])
+              
+            } else { # if multiple subspecies with different list categories 
+              # and we don't know what subspecies...
+              
+              occ_data[k, "provincialStatus"]  <-paste0("provincial status:", NA)
+              
             } 
           }
           
         # if only one name that matches
-        } else if (length(CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Provincial"]) == 1){ 
-          occ_data[k, "provincialStatus"] <- CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Provincial"]
+        } else if (length(CDC_cleaned[CDC_cleaned$fullName == 
+                                      occ_data$canonicalName[k], 
+                                      "Provincial"]) == 1){ 
+          
+          occ_data[k, "provincialStatus"] <- paste0("provincial status: ",
+            CDC_cleaned[CDC_cleaned$fullName == 
+                          occ_data$canonicalName[k], "Provincial"])
           
         }
       }
@@ -735,49 +714,66 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     
     for (k in 1:dim(occ_data)[1]){ # for each occurrence observation
       
-      if (!is.na(occ_data$intraspecificEpithet[k])){ # for observations that have species with intraspecific epithet (subspecies)
+      # for observations that have species with intraspecific epithet (subspecies)...
+      if (!is.na(occ_data$intraspecificEpithet[k])){ 
         # does the genus, species and intraspeicific epithet match one in the CDC? 
-        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Global"])==1){
-          occ_data$globalStatus[k]<- CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, "Global"]
+        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, 
+                              "Global"])==1){
+          
+          occ_data$globalStatus[k]<- paste0("global status: ",
+            CDC_cleaned[occ_data$canonicalName[k]==
+                          CDC_cleaned$fullName, "Global"])
+          
         }
         
       } else { # if there is no intraspecific epithet listed... 
         
         # if there is match for genus and species name in CDC...
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Global"]) > 1){ 
+        if(length(CDC_cleaned[CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k], "Global"]) > 1){ 
           
           # for how ever many number of subspecies there are ...
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Global"])){ 
+          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == 
+                                         occ_data$canonicalName[k], "Global"])){ 
             
             # do all of possible subspecies have same list code? 
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == occ_data$canonicalName[k]),"Global"])) == 1){ 
-              # if so, then apply that list category to that row
-              occ_data[k, "globalStatus"] <- CDC_cleaned[CDC_cleaned$scientificName == occ_data$canonicalName[k], "Global"][1]
+            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == 
+                                           occ_data$canonicalName[k]),"Global"])) == 1){ 
               
-            } else { # if multiple subspecies with different list categories and we don't know what subspecies
-              occ_data[k, "globalStatus"]  <- NA 
+              # if so, then apply that list category to that row
+              occ_data[k, "globalStatus"] <- paste0("global status: ",
+                CDC_cleaned[CDC_cleaned$scientificName ==
+                              occ_data$canonicalName[k], "Global"][1])
+              
+            } else { # if multiple subspecies with different 
+              #list categories and we don't know what subspecies...
+              
+              occ_data[k, "globalStatus"]  <- paste0("global status: ", NA) 
+              
             } 
           }
           
           # if only one name that matches
-        } else if (length(CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Global"]) == 1){ 
-          occ_data[k, "globalStatus"] <- CDC_cleaned[CDC_cleaned$fullName == occ_data$canonicalName[k], "Global"]
+        } else if (length(CDC_cleaned[CDC_cleaned$fullName ==
+                                      occ_data$canonicalName[k], "Global"]) == 1){ 
+          
+          occ_data[k, "globalStatus"] <- paste0("global status: ",
+            CDC_cleaned[CDC_cleaned$fullName == 
+                          occ_data$canonicalName[k], "Global"])
           
         }
       }
     }
     
-
+    
     
 ## saving as .csv file  ----
 ## remove extraneous columns  
     
     dwc_data <- occ_data %>% 
-      ## assigning statuses as dwc::dyamic properties
-      #unite("dynamicProperties", provincialStatus, globalStatus, sep="; ") %>% 
-      
-      # add new column for min and max elevs
-      
+      # assigning statuses as dwc::dyamic properties
+      unite("dynamicProperties", provincialStatus, globalStatus, sep="; ") %>% 
+    
       # renaming columns to dwc terms 
       dplyr::rename(verbatimScientificName = vSciName, 
                     verbatimElevtion = vElevM,
