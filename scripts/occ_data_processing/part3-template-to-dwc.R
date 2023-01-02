@@ -284,7 +284,7 @@
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals
   # starting at 1 
-  data$occurrenceID <- paste0("HJO",1:dim(data)[1])
+  data$occurrenceID <- paste0("HJO-",1:dim(data)[1])
   
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
@@ -321,7 +321,7 @@
   
   # loading in the names normalization table 
     normalized_names <- read.csv(here::here("data","digitized_data","occurrence_data","occurrence_reference_data",
-                                            "taxonomy","normalized.csv"))
+                                            "taxonomy","normalized_2023-01-01.csv"))
     
   # linking to occurrenceID in template table
       
