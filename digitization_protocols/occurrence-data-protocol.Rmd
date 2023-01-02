@@ -5,23 +5,9 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-**To do:**
+# Data Entry
 
--   if two found at same location increase individual count??
-
--   make archive ID column in cleaning stage - remove from template and other entry books
-
--   add idqualifier columns and info of what to put
-
--   what to do with data entry remarks when checking
-
--   finish filling out column-specific instructions
-
--   qualifier column
-
--   in what order should books be digitized and processed? should everything from cleaning onwards be done with aggregated set?
-
-# Data entry template
+## Template
 
 *Start new template for every field journal.*
 
@@ -29,7 +15,7 @@ output: html_document
 
 -   Rename to "HJ-[input archiveID]-occ-entry-[YY-MM-DD].xlsx"
 
-# Setting up
+## Setting up
 
 1.  Open the data entry excel sheet
 
@@ -51,11 +37,11 @@ output: html_document
 
 5.  Second window will be used to search up localities that you are uncertain of
 
-# Entering data
+## Entering data
 
 Begin with the **first page in a journal.**
 
-1.  Enter **pageNum** (page number) --\> e.g 1 . (circled ain bottom corner of pages)
+1.  Enter "**pageNum"** (page number) --\> e.g 1 . (circled in bottom corner of pages)
 
 2.  **Scan the page for observations (species names)** starting at the top of the page. All species names are acceptable, except for entries which have a collection number beside them (or say "coll" indicating a collection).
 
@@ -65,13 +51,13 @@ Begin with the **first page in a journal.**
 
     -   To look for what location and date information is associated with each name, he often put the location and a date and then species associated with it BELOW or BESIDE
 
-3.  Enter **numPage** **[REQUIRED]** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
+3.  Enter "**numPage"** **[REQUIRED]** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
 
     -   easiest to enter all of the other data for the observation sequentially on the page and then click and drag a sequence of numbers in excel to number each observation
 
     -   enter observations by columns (e.g. if there are two columns of names on a page, enter the first column and then the second)
 
-4.  **vName** **[REQUIRED]** = the verbatim name written in the notes
+4.  **"vName"** **[REQUIRED]** = the verbatim name written in the notes
 
     -   this may be an abbreviation (e.g. Stel med)
 
@@ -79,7 +65,7 @@ Begin with the **first page in a journal.**
 
     -   or a full species name which is outdated, keep this outdated name, we want to know exactly what he wrote so we can be confident in assigning an updates species name
 
-5.  **vSciName [REQUIRED]** = your estimation of what the full species name is
+5.  **"vSciName" [REQUIRED]** = your estimation of what the full species name is
 
     -   This is where iNaturalist is helpful. Often the taxonomy might be outdated (indicated by a bracketed name in the search results on iNat).
 
@@ -99,19 +85,19 @@ Begin with the **first page in a journal.**
 
     -   there should be no spelling mistakes, but outdated taxon names should still be used here
 
-6.  **Conf** **[REQUIRED]** = enter your confidence level in the **taxon name** estimate (low = l, medium = m, high = h)
+6.  **"Conf"** **[REQUIRED]** = enter your confidence level in the **taxon name** estimate (low = l, medium = m, high = h)
 
     -   the names with low confidence will be checked over once all of the occurrences have been entered
 
     -   entries with medium confidence may be returned to if there is time
 
-7.  **sciName [REQUIRED] =** **full, properly spelled, updated taxon names.**
+7.  **"sciName" [REQUIRED] =** **full, properly spelled, updated taxon names.**
 
     -   refer to iNaturalist for updates taxon names
 
     -   If subspecies or variety, just include this epithet, and do not include the "ssp." or "var." abbreviations. (e.g. Instead of Lupinus latifolius ssp. subalpinus, put "Lupinus latifolius subalpinus")
 
-8.  **occStatus [REQUIRED] =** occurrence status (either present of absent)
+8.  **"occStatus" [REQUIRED] =** occurrence status (either present of absent)
 
     -   to save time, only enter if there is a note clearly saying "absent" or a species name is crossed out when there is a list of species with no other species name pointed to (indicating an absence and not just a name update)
 
@@ -119,9 +105,9 @@ Begin with the **first page in a journal.**
 
     -   otherwise, assume the species was observed (present) and you do not need to fill this in
 
-9.  **date [REQUIRED] =** fill in YYYYMMDD
+9.  **"date" [REQUIRED] =** fill in YYYYMMDD
 
-10. **locality [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , ";" , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
+10. **"locality" [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , ";" , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
 
     -   e.g. Galiano Island; Mount Sutil
 
@@ -133,17 +119,17 @@ Begin with the **first page in a journal.**
 
         -   e.g. Mt --\> Mount, Rd --\> Rd
 
-11. **Country [REQUIRED] =** full name of country of collection (either Canada or United States of America)
+11. **"Country" [REQUIRED] =** full name of country of collection (either Canada or United States of America)
 
-12. **stateProvince [REQUIRED] =** Full name of province/ state of collection (either British Columbia or Washington)
+12. **"stateProvince" [REQUIRED] =** Full name of province/ state of collection (either British Columbia or Washington)
 
-13. **island [REQUIRED] =** full name of island (if collected on island)
+13. **"island" [REQUIRED] =** full name of island (if collected on island)
 
     -   e.g. Galiano Island or Saltspring Island
 
     -   must contain the word "Island" capitalized
 
-14. **idQualifier =** identification Qualifier.
+14. **"idQualifier" =** identification Qualifier.
 
     -   only fill out if there was a question mark or other note of uncertainty about the taxon identification from HJ
 
@@ -155,9 +141,9 @@ Begin with the **first page in a journal.**
 
         -   e.g Festuca rubra --\> enter here as cf. Festuca rubra
 
-15. **county =** only fill out if on Vancouver Island or Mainland (otherwise it will be assigned depending on the island that it is on)
+15. **"county" =** only fill out if on Vancouver Island or Mainland (otherwise it will be assigned depending on the island that it is on)
 
-16. **habitat =** string describing the habitat conditions
+16. **"habitat" =** string describing the habitat conditions
 
     -   you can use commas when listing things
 
@@ -165,7 +151,7 @@ Begin with the **first page in a journal.**
 
     -   descriptions about type of species growing in area, but do not list associate species, this will be done in the associated taxa and occurrences columns
 
-    -   If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
+    -   If there are any words you can't make out or are uncertain of, use [brackets]? around the estimated word
 
         -   e.g. "Quercus woodland",
 
@@ -183,9 +169,11 @@ Begin with the **first page in a journal.**
 
         -   e.g. "marsh"
 
-        -   e.g. "[intertidal] marsh
+        -   e.g. "[intertidal]? marsh
 
-17. **assCollTaxa** = associated collected taxa (names of associated species), growing at same locality at same time
+    -   For forest type codes like Cw, Fd, write out the full species names: <https://www2.gov.bc.ca/gov/content/industry/forestry/managing-our-forest-resources/tree-seed/tree-seed-centre/seed-testing/codes>
+
+17. **"assCollTaxa"** = associated collected taxa (names of associated species), growing at same locality at same time
 
     -   ONLY denote associated taxa names in this field, if there is a record of a specimen collection (either a collection number or a note about "coll" next to a species name) since these won't be included later but are stored in a separate database (herbarium)
 
@@ -199,12 +187,12 @@ Begin with the **first page in a journal.**
 
     -   enter multiple names separated by commas
 
-18. **assCollOcc** = associated collected occurrences
+18. **"assCollOcc"** = associated collected occurrences
 
     -   the collection numbers associated with associated collected occurrences
     -   enter multiple numbers separated by commas
 
-19. **locationRemarks =** additional information about location. Separate sentences with semicolons
+19. **"locationRemarks" =** additional information about location. Separate sentences with semicolons
 
     Anything pertaining to the general location and not what has already been said in the habitat field. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
 
@@ -214,13 +202,13 @@ Begin with the **first page in a journal.**
 
     -   e.g. "mostly open water in lake"
 
-20. **vTaxonRank** **[REQUIRED]** = The most specific level of taxonomy provided verbatim. Only use if the verbatim taxon name is a family name or higher. If genus, species or subspecies, then this information will be filled in later automatically
+20. **"vTaxonRank"** **[REQUIRED]** = The most specific level of taxonomy provided verbatim. Only use if the verbatim taxon name is a family name or higher. If genus, species or subspecies, then this information will be filled in later automatically
 
     -   e.g. if "Brassicaceae" --\> put "family"
 
-21. **vElevM = verbatim elevation in meters.** If there is any information about elevation of the site, input into this column, WITHOUT units. It seems like all of HJ's measurements were in meters. On the off chance that they're not, convert to meters before entering.
+21. **"vElevM" = verbatim elevation in meters.** If there is any information about elevation of the site, input into this column, WITHOUT units. It seems like all of HJ's measurements were in meters. On the off chance that they're not, convert to meters before entering.
 
-22. **vLat & vLon =** verbatim latitude and longitude.
+22. **"vLat" & "vLon" =** verbatim latitude and longitude.
 
     For some locations, HJ provided coordinate infromation in lat, long coordinates. If this is the case input this info here either as:
 
@@ -230,11 +218,11 @@ Begin with the **first page in a journal.**
 
     Everything will be converted to decimal degrees at a later stage.
 
-23. **vUTM =** verbatim UTM coordinates. If provided, enter in the format:
+23. **"vUTM" =** verbatim UTM coordinates. If provided, enter in the format:
 
     -   "10U 45000 56890"
 
-24. **vCoordUncM = verbatim coordinate uncertainty in meters.** If coordinate uncertainty was clearly stated, input this in meters, without the "m" indicating meters.
+24. **"vCoordUncM" = verbatim coordinate uncertainty in meters.** If coordinate uncertainty was clearly stated, input this in meters, without the "m" indicating meters.
 
 25. **numPlantsCode = number of plants code.** HJ often used a number code beside taxon names to quickly indicate rough abundance. The key is as follows:
 
@@ -252,7 +240,7 @@ Begin with the **first page in a journal.**
 
     When entering these codes, enter "+" as 0 and the rest of the numbers as they are stated
 
-26. **orgQuantity & orgQuantityType = organism quantity and type.** Only use if HJ indicated abundance in some other way other than the number of plants code.
+26. **"orgQuantity" & "orgQuantityType" = organism quantity and type.** Only use if HJ indicated abundance in some other way other than the number of plants code.
 
     -   e.g. note about particular species being abundant/ persistant/ dominant/ very few at site --\> orgQuantity = "abundant"/ "persistant" / "dominant", "very few" and "orgQuantityType = **"qualitative"**
 
@@ -260,7 +248,7 @@ Begin with the **first page in a journal.**
 
     -   e.g. note about percent cover --\> orQuantity = "30 percent", orgQuantityType = "percent cover"
 
-27. **occRemarks =** occurrence remarks. Anything pertaining to extra information about the observation that hasn't already been entered OR note about other annotations in book for that occurrence such as an asterisk or if the name has been crossed out and replaced with a new one.
+27. **"occRemarks" =** occurrence remarks. Anything pertaining to extra information about the observation that hasn't already been entered OR note about other annotations in book for that occurrence such as an asterisk or if the name has been crossed out and replaced with a new one.
 
     -   e.g. "no usual travel off"
 
@@ -282,7 +270,7 @@ Begin with the **first page in a journal.**
 
     -   e.g. "non-flowering"
 
-28. **phenology** = if there were any notes about flowering phenology or life stage (either vegetative, flowering, flowering and fruiting, fruiting and flowering, budding, budding and flowering)
+28. **"phenology"** = if there were any notes about flowering phenology or life stage (either vegetative, flowering, flowering and fruiting, fruiting and flowering, budding, budding and flowering)
 
     -   e.g. "non-flowering" enter as --\> "vegetative"
 
@@ -290,16 +278,15 @@ Begin with the **first page in a journal.**
 
     -   e.g. "has fruits" or "has seeds" --\> "fruiting"
 
-29. recordedBy = people there at time of collection (full names or initials) only enter if there are additional names that Harvey denoted of people with him collecting.
+29. "recordedBy" = people there at time of collection (full names or initials) only enter if there are additional names that Harvey denoted of people with him collecting.
 
     -   e.g. "PJ" = enter as"Pam Janszen"
 
-    -   e.g.
-
-................. **FILL OUT MORE**
-
-30. **idBy = identification by**. Only fill out with names if there was a note about someone other than Harvey identifying it.
-31. **dataEntryRemaks =** any observation with remarks here will be checked over. Write whatever notes are important to completing data entry for that row/ what needs to be helped with.
+```{=html}
+<!-- -->
+```
+30. **"idBy" = identification by**. Only fill out with names if there was a note about someone other than Harvey identifying it.
+31. **"dataEntryRemaks" =** any observation with remarks here will be checked over. Write whatever notes are important to completing data entry for that row/ what needs to be helped with.
 
 ## When finished entering all data for book:
 
@@ -309,7 +296,7 @@ Begin with the **first page in a journal.**
 
 1.  **SAVE FREQUENTLY** (by pushing to github or backing up on OSF or Google Drive)
 
-2.  If certain names can't be deciphered or a location/ time can't be attributed to it, **still include as a row in the template,** with a valid **pageNum** an **numPage** entry. It can be removed later (this will help for re-finding things on the page)
+2.  If certain names can't be deciphered or a location/ time can't be attributed to it, **still include as a row in the template,** with a valid **pageNum** an **numPage** entry. It can be removed later (this will help for re-finding things on the page). To help remember what you had a difficult time deciphering, make a note of it in "dataEntryRemarks" and you can additionally attempt to fill out the information and place square brackets around the uncertain parts --\> e.g. [add tophar]?
 
 3.  **DON'T enter any taxon observations with either a collection number or the note "coll no \#" or "coll"** (this indicates a specimen was collected and therefore, we don't want to duplicate data already in herbarium databases)
 
@@ -347,9 +334,13 @@ Begin with the **first page in a journal.**
 
     -   "5" = 75+
 
--   ADD forest type codes Fd, Md, Ct, Am
+-   Codes like Cw, Fd, Md all refer to forest type codes which can be found here: <https://www2.gov.bc.ca/gov/content/industry/forestry/managing-our-forest-resources/tree-seed/tree-seed-centre/seed-testing/codes>
 
-# Processing step I: data entry checking
+# Data Processing
+
+Steps I and II are designed for the user to go through *one journal* at a time. Once completed for all journals, part 3 can be used to to aggregate and formally process the data.
+
+## Processing step I: data entry checking
 
 1.  Open script **"part1-a_checking.R"**
 
@@ -371,7 +362,7 @@ Begin with the **first page in a journal.**
 
         2.  Fill in uncertain information with best guess
 
-        3.  If still can not decipher or are uncertain, make a judgement call as to whether or not to include. If too uncertain or poor data quality, mark the toDelete column with "Y" for that observation
+        3.  If still cannot decipher words or are uncertain, make a judgement call as to whether or not to include. If too uncertain about either the taxon name, date observed, or locality, mark this observation with a "Y" or "y" in the toDelete column
 
         4.  fill the "checkStaus" column with "C" (completed) or "R" (return to) to check progress
 
@@ -387,7 +378,7 @@ Begin with the **first page in a journal.**
 
 12. The end result of this step will be a csv file in the "data_cleaning" folder that has been checked for obvious errors. The next step will take care of catching less obvious ones.
 
-# Processing step II: data cleaning
+## Processing step II: data cleaning
 
 1.  Open script "part2-data-cleaning.R"
 2.  Input name of completed data sheet from the previous step in the "data_cleaning" folder **(filename \<- ...)** and the **journal number (J\<- ...)**
@@ -400,7 +391,7 @@ Begin with the **first page in a journal.**
 9.  The end result of this script will be a new csv file in the folder "clean data" that will be converted to Darwin Core standards in the next script
 10. Repeat processing steps I and II for the rest of the journals before continuing on to step 3
 
-# Processing step III: conversion to Darwin Core fields
+## Processing step III: conversion to Darwin Core fields
 
 1.  Open script "part3_template-to-dwc.R"
 
@@ -428,7 +419,7 @@ Begin with the **first page in a journal.**
 
         -   select "GENERATE CSV" button in bottom right hand of page
 
-        -   place this downloaded file in data \> reference_data \> taxonomy with the name "normalized"
+        -   place this downloaded file in data \> digitized_data \> occurrence_data \> occurrence_reference_data \> taxonomy with the name "normalized"
 
         -   return to script part 3 to load this file in and continue the process
 
@@ -438,7 +429,7 @@ Begin with the **first page in a journal.**
 
     -   click "Select File"
 
-    -   upload the .csv file from data \> reference_data \> georeferencing \> "localities-to-georef_Xdate.csv"
+    -   upload the .csv file from data \> digitized_data \> occurrence_data \> occurrence_reference_data \> georeferencing \> "localities-to-georef_Xdate.csv"
 
     -   select 16 - 32 entries / page
 
@@ -464,6 +455,10 @@ Begin with the **first page in a journal.**
 
         -   If you think you could do a better job, drag and drop the pin in a new location. Or select another pin (a red pin) that is better matched. The location of this pin can also be edited in a similar manner if needed.
 
+        -   Avoid placing pin in water, and if the automatic result was initially in water, this is a good candidate to edit the location
+
+        -   **Tip:** *manually check locations using google maps or google earth if there is detail about certain lakes that GEOLocate did not catch but you could quickly and roughly approximate (e.g. "Mount Sutil, Galiano" --\> find rough location of Mount Sutil*
+
     -   Editing Uncertainty. Now look at the circle around it (uncertainty circle). This circle represents the area in which the real coordinate could be inside. Knowing this, consider...
 
         -   Is it reasonable? e.g. if the locality string says "Galiano Island" does it encompass all of Galiano Island. Similarly is it encompassing much more area than is needed to encompass all of the island?
@@ -477,3 +472,34 @@ Begin with the **first page in a journal.**
     -   repeat for all rows on the page.
 
     -   when the page is completed, click on the arrow in the bottom right to go to the next page and repeat the process. The changes made to the previous page should still be saved as you go.
+
+    -   once all localities have been georeferenced, export the file by..
+
+        -   click the "Export" button at the bottom of the screen
+
+        -   select:
+
+            -   delimited text: "CSV"
+
+            -   "exclude all polygons"
+
+            -   "ok"
+
+        -   rename the exported file to "geoLocate_YYYY_MM_DD"
+
+        -   place the exported file in data \> digitized_data \> occurrence_data \> occurrence_reference_data \> georeferencing
+
+5.  Return to the script and run the rest of section 5 starting at the "loading georeferenced occurrences" step.
+
+6.  A map should appear with the occurrences. If some coordinates seem off, these can be searched by referencing the coordinates on the map and matching to rows by either manually searching data or statements such as...
+
+    > ``` R
+    >  occ_data[which(occ_data$decimalLatitude > 50 & occ_data$decimalLongitude < -124.3)]
+    > ```
+
+-   The rows matching these criteria should appear, and can be checked.
+
+-   Manually change the coordinates in the spreadsheet and re-run the whole script until this point to fix any errors.
+
+7.  Run the rest of the script
+8.  The output will be a CSV file with all of the digitized occurrences in the "occurrence_data" folder labelled with the date of processing
