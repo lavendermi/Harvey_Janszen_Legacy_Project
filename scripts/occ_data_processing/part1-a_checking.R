@@ -33,7 +33,7 @@ rm(requiredPackages)
 ## 1. LOADING IN DATA ----
  
   # loading raw data 
-  J <-8 # USER INPUT
+  J <-7 # USER INPUT
 
   data <- read_excel(here::here("data","digitized_data", 
           "occurrence_data","raw_data", 
@@ -82,14 +82,16 @@ rm(requiredPackages)
                .before=pageNum) %>% 
         mutate("toDelete"= "", # adding column to indicate which entries
            # too poor or uncertain to include
-           .before=pageNum)
+           .before=pageNum) %>% 
+        relocate(., dataEntryRemarks, .after= toDelete)
+    
     
       ## saving file 
       write.csv(to_check, 
                 here::here("data",
                 "digitized_data","occurrence_data", 
                 "data_checking", 
-                 paste0("occ-data-to-check_HIGH-PRIORITY_",
+                 paste0("HJ-",J,"_","occ-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
       
     } else if (Q=="all"){
@@ -110,13 +112,14 @@ rm(requiredPackages)
         mutate("toDelete"= "", # adding column to indicate which entries
                # too poor or uncertain to include
              .before=pageNum) %>% 
-        mutate("dataEntryRemarks"=dataEntryRemarks,.before=pageNum)
+       relocate(., dataEntryRemarks, .after= toDelete)
+        
       
       ## saving file 
       write.csv(to_check, 
                 here::here("data","digitized_data","occurrence_data",
                            "data_checking", 
-                           paste0("oscc-data-to-check_ALL_","HJ-",J,
+                           paste0("HJ-",J,"_","occ-data-to-check_ALL_",
                            Sys.Date(),".csv")), row.names = F)
     } 
   

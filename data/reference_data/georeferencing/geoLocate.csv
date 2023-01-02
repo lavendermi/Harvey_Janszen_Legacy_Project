@@ -1,8 +1,0 @@
-locality string,country,state,county,latitude,longitude,"correction 
-                 status",precision,error polygon,multiple results,uncertainty,uncertainty (circular polygon)
-North Pender Island; log dump beach with navy channel,Canada,British Columbia,Southern Gulf Islands,48.810163,-123.373548,yes,Low(49),,"48.783333,-123.283333,NORTH PENDER ISLAND|Unavailable|5421|Low(49),48.783333,-123.283333,PENDER ISLAND|Unavailable|5421|Low(43),48.823611,-123.296667,NAVY CHANNEL|Unavailable|301|Low(42),59.866667,-132.5,NORTH|Unavailable|1189|Low(35)",5421,
-Prevost Island; at dock,Canada,British Columbia,Southern Gulf Islands,48.833333,-123.383333,yes,Low(44),,"48.833333,-123.383333,PREVOST ISLAND|Unavailable|5421|Low(44)",3237,
-Prevost Island,Canada,British Columbia,Southern Gulf Islands,48.833333,-123.383333,yes,High(89),,"48.833333,-123.383333,PREVOST ISLAND|Unavailable|5421|High(89)",3145,
-small island on east end of Prevost Island,Canada,British Columbia,Southern Gulf Islands,48.830169,-123.355867,yes,Low(44),,"48.833333,-123.383333,PREVOST ISLAND|Unavailable|5421|Low(44)",2984,
-on islands to south of Prevost Island,Canada,British Columbia,Southern Gulf Islands,48.816381,-123.37887,yes,Low(44),,"48.833333,-123.383333,PREVOST ISLAND|Unavailable|5421|Low(44)",2396,
-North East point of Prevost Island,Canada,British Columbia,Southern Gulf Islands,48.831977,-123.359215,yes,Medium(60),,"46.451624,-61.963471,(g3)East Point|Unavailable|9878|Medium(60),48.833333,-123.383333,PREVOST ISLAND|Unavailable|5421|Low(44),48.783333,-123.033333,EAST POINT|Unavailable|301|Low(40),59.866667,-132.5,NORTH|Unavailable|1189|Low(35)",2844,

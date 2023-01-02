@@ -347,6 +347,8 @@ Begin with the **first page in a journal.**
 
     -   "5" = 75+
 
+-   ADD forest type codes Fd, Md, Ct, Am
+
 # Processing step I: data entry checking
 
 1.  Open script **"part1-a_checking.R"**
@@ -377,35 +379,40 @@ Begin with the **first page in a journal.**
 
 8.  Open script **"part1-b_checking.R"**
 
-9.  Under the "LOADING DATA" tab, input the name of the checked file **(filename \<- ..) and the journal number (J \<- ...)**
+9.  Under the "LOADING DATA" tab, input the name of the checked file **(filename \<- .. ) and the journal number ( J \<- ... )**
 
 10. Run the script section by section
 
 11. If there is an error generated from section 2, then a row has been missed in the review and should be returned to. Once this is fixed, the data be saved and the script should be re-started.
 
+12. The end result of this step will be a csv file in the "data_cleaning" folder that has been checked for obvious errors. The next step will take care of catching less obvious ones.
+
 # Processing step II: data cleaning
 
 1.  Open script "part2-data-cleaning.R"
-2.  Input name of completed data sheet **(filename \<- ...)** and the **journal number (J\<- ...)**
-3.  Run the script
-4.  Take the csv output file and correct errors (Emma)
-5.  Take back to the same script to combine and make clean??
+2.  Input name of completed data sheet from the previous step in the "data_cleaning" folder **(filename \<- ...)** and the **journal number (J\<- ...)**
+3.  Open this csv file in another window
+4.  Run the script part by part
+5.  If an error message pops up after running a particular section, stop, return to the csv sheet in the other window, look for the error and correct it. Use the index values that pop up in the error message to find the location of these errors.
+6.  Once corrected, save the sheet, and re-run the script up to an including the section that had previously produced the error message.
+7.  Ensure that this error message no longer appears
+8.  Repeat these measures until the whole script has been completed
+9.  The end result of this script will be a new csv file in the folder "clean data" that will be converted to Darwin Core standards in the next script
+10. Repeat processing steps I and II for the rest of the journals before continuing on to step 3
 
 # Processing step III: conversion to Darwin Core fields
 
 1.  Open script "part3_template-to-dwc.R"
 
-2.  Input name of the completed and cleaned file
+2.  Run the script to up until step 4 ("Taxonomy Fields").
 
-3.  Run the script to up until step 4 ("Taxonomy Fields").
-
-4.  Follow the instructions in Part 4 to clean taxa names
+3.  Follow the instructions in Part 4 to clean taxa names
 
     -   Upload csv file to <https://www.gbif.org/tools/species-lookup>
 
     -   Click "match to backbone" button
 
-    -   Review the outputs page by page, paying attention to the "matchType" column.
+    -   Click on the "matchType" column label to order these by match type
 
         -   If match type is yellow or red, click on the neighbouring column "scientificName (editable)"
 
@@ -425,7 +432,7 @@ Begin with the **first page in a journal.**
 
         -   return to script part 3 to load this file in and continue the process
 
-5.  Run the initial part of step 5 (Georeferencing) up until the .csv file is written. Then follow the following instructions for referencing protocol in GEOlocate:
+4.  Run the initial part of step 5 (Georeferencing) up until the .csv file is written. Then follow the following instructions for referencing protocol in GEOlocate:
 
     -   go to GEOlocate batch processor: <https://geo-locate.org/web/WebFileGeoref.aspx>
 

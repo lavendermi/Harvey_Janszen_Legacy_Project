@@ -25,9 +25,9 @@ rm(requiredPackages)
 ## 1. LOADING DATA ----
 
   # USER INPUT: 
-  # input file name for checked data & journal number
-  filename_checked <-"occ-data-to-check_HIGH-PRIORITY_2022-12-13.csv"
-  J <-7 
+  # input file name for checked data & journal number - in "data_checking" folder
+  filename_checked <-"HJ-7_occ-data-to-check_HIGH-PRIORITY_2023-01-01.csv"
+  J <-7
   
   # loading data
   checked_data <- read.csv(here::here("data","digitized_data",
@@ -51,19 +51,33 @@ rm(requiredPackages)
                                 locality="[locality]", 
                                 country = "[country]",
                                 stateProvince = "[stateProvince]", 
-                                island ="[island]")
+                                island ="[island]") %>% 
+            # temp relocation of dataEntryRemarks to match checked data frame
+                relocate(., dataEntryRemarks, .before= pageNum)
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
   missed_rows <- checked_data %>% 
-  assert(in_set("C", "R"), checkStatus) 
+  assert(in_set("C", "R", "c","r"), checkStatus) 
   
 ## 3. CONSOLIDATNG & REMOVING ROWS ----
   
+  # removing rows which are empty
+  raw_data <- raw_data[-which(is.na(raw_data$vName) | is.na(raw_data$vName) & is.na(raw_data$vSciName) & is.na(raw_data$sciName)),] %>% 
+              dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  
+  checked_data <- checked_data[-which(is.na(checked_data$vName) | is.na(checked_data$vName) & is.na(checked_data$vSciName) & is.na(checked_data$sciName)), ] %>% 
+                dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
       if (checked_data$toDelete[i] == "Y" | checked_data$toDelete[i] == "y"){
-        raw_data[ #pageNum and numPage match that in raw data
-          which(checked_data$pageNum[i] == raw_data$pageNum &
-                  checked_data$numPage[i] == raw_data$numPage),] <- NA
+        for (j in 1:dim(raw_data)[1]){
+          if(checked_data$vName[i] == raw_data$vName[j]){
+              raw_data[j,] <- NA
+              raw_data[j,"vName"] <- "missing"
+              
+              
+          }
+        }
       } else {
       raw_data[ # if its archiveID, pageNum and numPage match that in raw data
       which(checked_data$pageNum[i] == raw_data$pageNum &
@@ -73,10 +87,13 @@ rm(requiredPackages)
     }
   }
   
+  raw_data[raw_data$vName=="missing","vName"] <- NA
+  
 ## 4. WRITING CHECKED FILE FOR NEXT PROCESSING STEP ----
   
   processed_data_1 <- raw_data %>% # removing rows that contain all NA values
-                      dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+                      relocate(., dataEntryRemarks, .after= idBy) %>% 
+                    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
   
   # saving to data_cleaning folder to prepare for Processing step 2 (cleaning)
   write.csv(processed_data_1, 

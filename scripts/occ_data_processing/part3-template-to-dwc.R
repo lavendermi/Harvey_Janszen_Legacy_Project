@@ -303,7 +303,7 @@
     filter(!is.na(sciName)) %>% 
     dplyr::rename(scientificName = sciName)
   
-    write.csv(Names, here::here("data", "reference_data", "taxonomy", 
+    write.csv(Names, here::here("data","digitized_data","occurrence_data", "occurrence_reference_data", "taxonomy", 
                                 paste0("taxa-names_",
                                 Sys.Date(), ".csv")), row.names = F)
     
@@ -320,7 +320,7 @@
     # add the date that this table was generated
   
   # loading in the names normalization table 
-    normalized_names <- read.csv(here::here("data","reference_data",
+    normalized_names <- read.csv(here::here("data","digitized_data","occurrence_data","occurrence_reference_data",
                                             "taxonomy","normalized.csv"))
     
   # linking to occurrenceID in template table
@@ -333,9 +333,6 @@
         occ_data[,cols[i]] <-NA
       }
       
-     occ_data <- occ_data %>% # temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       filter(!is.na(sciName))
-     
       for (i in 1:dim(occ_data)[1]){
         for (k in cols){
           occ_data[i, k] <- normalized_names[which(occ_data$sciName[i] ==
@@ -383,12 +380,12 @@
                  "error polygon" = NA, "multiple results" = NA, uncertainty=NA)
     
     # writing to data folder
-    write.csv(localities_to_georef, here::here("data", "reference_data", "georeferencing",
+    write.csv(localities_to_georef, here::here("data", "digitized_data","occurrence_data","occurrence_reference_data", "georeferencing",
                                         paste0("localities-to-georef_", 
                                         Sys.Date(), ".csv")), 
                                         row.names = F)
     
-  ## visit GEOLocate batch processor: https://geo-locate.org/web/WebFileGeoref.aspx
+  ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
     # upload file 
     # select options, check uncertainty box 
     # select "page georeference" or georeferencing one at a time
@@ -410,8 +407,8 @@
     # place in data folder
     
   ## loading referenced occurrences 
-    GEOlocate <- read.csv(here::here("data", "reference_data",
-                                     "georeferencing", "geoLocate.csv")) 
+    GEOlocate <- read.csv(here::here("data", "digitized_data","occurrence_data","occurrence_reference_data",
+                                     "georeferencing", "geoLocate_2023-01-01.csv")) 
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
                                                latitude, geoLocLon = longitude, 
@@ -439,10 +436,6 @@
     # coordinate estimates from GEOlocate table used
     # and assigned as official coordinates.
     
-    # converts UTM coordinates based on this projection: 
-    # may need to change - not sure what he was using!
-    projection <- "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs" 
-    
     # Additionally assigns verbatim coordinate uncertainty from verbatim
     # coordinates if present or assigns GEOLocate estimated uncertainty in METERS
     # official coordinate fields = "decimalLatitude" and "decimalLongitude" 
@@ -458,6 +451,8 @@
     occ_data$coordinateUncertaintyInMeters <- NA
     occ_data$verbatimCoordinateSystem <- NA
     occ_data$georeferenceSources <- NA
+    occ_data$vLat <- as.character(occ_data$vLat)
+    occ_data$vLon <- as.character(occ_data$vLon)
     
  for (i in 1:dim(occ_data)[1]){  # for each row 
   if (!is.na(occ_data$vLat[i]) & !is.na(occ_data$vLon[i]) & is.na(occ_data$vUTM)[i] | 
@@ -465,7 +460,7 @@
     # if there are verbatim lat and lon coordinates...
     # of if there are verbatim lat, lon and UTM coordinates... (use lat lon)
     
-    if((length(strsplit(occ_data$vLat[i], " ")[[1]]) > 1)){ 
+    if(length(strsplit(occ_data$vLat[i], " ")[[1]]) > 1){ 
       # if the coordinates are in degrees, minutes, second ...
       
           # convert degrees, minutes, seconds to decimal
@@ -482,9 +477,9 @@
     } else if (length(strsplit(occ_data$vLat[i], " ")[[1]]) ==1){
       # if lat lon are in decimal degrees...
       
-      occ_data$decimalLatidue[i] <- occ_data$vLat[i]
-      occ_data$decimalLongitude[i] <- occ_data$vLon[i]
-      occ_data$coordinateUncertaintyInMeters[i] <- occ_data$vCoodUncM[i]
+      occ_data$decimalLatitude[i] <- as.numeric(occ_data$vLat[i])
+      occ_data$decimalLongitude[i] <- as.numeric(occ_data$vLon[i])
+      occ_data$coordinateUncertaintyInMeters[i] <- occ_data$vCoordUncM[i]
       occ_data$verbatimCoordinateSystem[i] <- "decimal degrees"
       occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
     }
@@ -499,9 +494,9 @@
       # making dataframe with x y components
       points <- cbind(as.numeric(UTM$x), as.numeric(UTM$y)) 
       # making spatial points data frame
-      v <- vect(points, crs=projection) 
+      v <- vect(points, crs="+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs") 
       # projecting points using assinged crs  
-      z <- project(v, projection)  
+      z <- project(v,"+proj=longlat +datum=WGS84")  
       # extracting lat lon from spatial points frame
       lonlat <- as.data.frame(t((geom(z)[, c("x", "y")]))) 
     
@@ -534,6 +529,16 @@
   } 
  }
     
+    # making sure all Longitude is negative and entered properly
+    for(i in 1:dim(occ_data)[1]){
+      if(occ_data$decimalLongitude[i]>1){
+        occ_data$decimalLongitude[i] <- occ_data$decimalLongitude[i]*-1
+      }
+    }
+  
+points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),occ_data$decimalLatitude), proj4string = CRS("+proj=longlat +datum=WGS84"))
+mapview(points_to_map)          
+              
 ## 6) ASSIGNING ASSOCIATE ROWS and TAXA----
     ## Issues to still address: 
       # concaternate with already entered associated species not in occurrence sheet - ones associated with specimen

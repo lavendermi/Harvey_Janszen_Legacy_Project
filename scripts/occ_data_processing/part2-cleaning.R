@@ -38,8 +38,8 @@ rm(requiredPackages)
 
   J <-7 # journal number (USER INPUT)
 
-  # ENTER FILE NAME (USER INPUT)
-  filename <- "HJ7-processed-step-1_2022-12-13.csv" 
+  # ENTER FILE NAME (USER INPUT) - in data_cleaning folder
+  filename <- "HJ7-processed-step-1_2023-01-01.csv" 
   
   data <- read.csv(here::here("data","digitized_data",
                                 "occurrence_data",
@@ -119,6 +119,9 @@ rm(requiredPackages)
   # constraints: 1) must be character and only contain letters not numbers 
   # 2) every row has one 
   
+  # This function converts all first letters of name to capital 
+  data$vName<-sub("(.)", "\\U\\1",data$vName,perl=TRUE)
+  
   # from https://stackoverflow.com/questions/43195519/check-if-string-contains-only-numbers-or-only-characters-r
   letters_only <- function(x) !grepl("^[^A-Za-z]+[[:space:]]+", x)
   
@@ -136,6 +139,9 @@ rm(requiredPackages)
   # 4) specific epithet not capitalized 
   # 5) column read as character 
   
+  # This function converts all first letters of name to capital 
+  data$vSciName<-sub("(.)", "\\U\\1",data$vSciName,perl=TRUE)
+  
   # functions that can check if the genus name is capitalized 
   # and specific epithet not capitalized
   genusCapitalized <- function(x) grepl("^[[:upper:]]", x)
@@ -150,6 +156,7 @@ rm(requiredPackages)
     assert(genusCapitalized, vSciName) %>% 
     assert(specEpiphetNotCap, vSciName) %>% 
     chain_end
+  
   
 ## conf 
   # constraints: 1) in the set "l","m","h" 
@@ -172,6 +179,9 @@ rm(requiredPackages)
   # 3) genus name capitalized
   # 4) specific epithet not capitalized 
   # 5) read as character 
+  
+  # This function converts all first letters of name to capital 
+  data$sciName<-sub("(.)", "\\U\\1",data$sciName,perl=TRUE)
   
   data %>% 
     group_by(sciName) %>% 
@@ -347,36 +357,25 @@ rm(requiredPackages)
       chain_end
   }
 
-## vElevM 
-  # constraint: 1) read as numeric 
-  
-  # if there are non-Na elements...
-  if(length(data$vElevM[is.na(data$vElevM)])
-     <length(data$vElevM)){
-    data %>% 
-      verify(., has_class("vElevM", class="numeric"))
-  } 
-  
 ## vLat & vLon 
   # constraint: 1) within rough bounding box
   # of where HJ collected from 
   
   # if there are non-Na elements...
-  if(length(data$vLat[is.na(data$vLat)])
-     <length(data$vLat)){
+  if(length(data$vLat[is.na(data$vLat)])<length(data$vLat)){
     
     # loading function to convert to decimal degrees
     source(here::here("scripts","functions", "angle2dec.R")) 
     
       # converting degrees to decimal degrees
       for (i in 1:dim(data)[1]){
-        if(length(tstrspli(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
+        if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
           data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
           data$vLon[i] <- angle2dec(data$vLon[i])
         }
       }
   
-    data$vLon <- as.numeric(data$vLon) # converting to numeric so assert function works
+    data$vLat <- as.numeric(data$vLat) # converting to numeric so assert function works
     data$vLon <- as.numeric(data$vLon) 
     
   # check within certain range (drawn from arbitrary
@@ -385,8 +384,8 @@ rm(requiredPackages)
   
   data %>% 
     chain_start %>% 
-    assert(within_bounds(47,51),vLat) %>% 
-    assert(within_bounds(-129,-121),vLon) %>% 
+    assert(within_bounds(47,51,allow.na=T),vLat ) %>% 
+    assert(within_bounds(-129,-121,allow.na=T),vLon) %>% 
     chain_end(error_fun = error_df_return)
   } 
   
@@ -394,16 +393,27 @@ rm(requiredPackages)
   # constraint: 1) must be bounded by same limits as latitude and longitude
  
   # if there are non-Na elements...
-  if(length(data$vUTM[is.na(data$vUTM)])
-     <length(data$vUTM)){
-    projection <- "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs" # assumed 
+  if(length(data$vUTM[is.na(data$vUTM)])<length(data$vUTM)){
     
-    # convert UTM coordinates into decimal degrees
+    projection <- "+proj=utm +zone=10 +datum=WGS84  +units=m" # assumed 
+   
     UTM <- data %>% separate(vUTM, c("zone","x","y"), " ") # seperating UTM into x, and y components
     points <- cbind(as.numeric(UTM$x), as.numeric(UTM$y)) # making dataframe with x y components
-    v <- vect(points, crs=projection) # making spatial points data frame
-    z <- project(v, projection)  # projecting points using assinged crs  
-    lonlat <- as.data.frame(t((geom(z)[, c("x", "y")]))) # extracting lat lon from spatial points frame
+    
+    # assert that UTM coordinates have right number of digits
+    six_digits <- function(x) if(!is.na(x) & x !=6) return(FALSE) # custom predicate
+    right_zone <- function(x) if(!is.na(x) & x !="10U") return(FALSE) # custom predicate
+    
+      UTM %>% 
+        chain_start %>% 
+        assert(right_zone, zone) %>% 
+        assert(six_digits,x) %>% 
+        assert(six_digits,y)
+        
+    # convert UTM coordinates into decimal degrees
+    v <- terra::vect(points, crs=projection) # making spatial points data frame
+    z <- terra::project(v, "+proj=longlat +datum=WGS84")  # projecting points using assigned crs  
+    lonlat <- as.data.frame((geom(z)[, c("x", "y")])) # extracting lat lon from spatial points frame
     
     # assigning lat and lon from UTM to these rows 
     data$lat <- as.numeric(lonlat$y)
@@ -415,23 +425,13 @@ rm(requiredPackages)
     
     data %>% 
       chain_start %>% 
-      assert(within_bounds(47,51),lat) %>% 
-      assert(within_bounds(-129,-121),lon) %>% 
+      assert(within_bounds(47,51, allow.na=T),lat) %>% 
+      assert(within_bounds(-129,-121,allow.na=T),lon) %>% 
       chain_end
     
       # removing these columns for consistency
       data <- data %>% select(-c("lat", "lon"))
     
-  }
-  
-## vCoorUncM  
-  # constraint: must be numeric 
-  
-  # if there are non-Na elements...
-  if(length(data$vLat[is.na(data$vLat)])
-     <length(data$vLat)){
-    data %>% 
-      verify(., has_class("vCoorUncM", class="numeric"))
   }
   
 ## assColl
@@ -469,15 +469,24 @@ rm(requiredPackages)
   # 3) all specific epithets not capitalized
   # 4) read as character
     
+  # first make separate data frame where each row is an associated species name with associated index ID
+  # it was originally attached to 
+  
+  # creating index id for the original dataframe 
+  data$index <- 1:dim(data)[1]
+  
+  namesFrame <- data %>% 
+    select(assCollTaxa, index) %>% 
+  separate_rows(assCollTaxa,sep=", ")
+  
+  genusCapitalized <- function(x) if(!is.na(x)){grepl("^[[:upper:]]", x)}
+  
   # if there are non-Na elements...
-  if(length(data$assCollTaxa[is.na(data$assCollTaxa)])
-       <length(data$assCollTaxa)){
-  data %>% 
+  if(length(namesFrame$assCollTaxa[is.na(namesFrame$assCollTaxa)])<length(namesFrame$assCollTaxa)){
+  namesFrame %>% 
     chain_start %>%
-    assert(letters_only, assCollTaxa) 
-    assert(genusCapitalized, assCollTaxa) # this function NEEDS TO BE UPDATED FOR THE MUTLIPOLE ELEMENTS NORMALLY 
-    
-    chain_end
+    assert(letters_only, assCollTaxa) %>% 
+    assert(genusCapitalized, assCollTaxa)
   }
   
 ## numPlantsCode 
@@ -485,23 +494,13 @@ rm(requiredPackages)
   # 2) read as integer
   
   # if there are non-Na elements...
-  if(length(data$numPlantsCode[is.na(data$numPlantsCode)])
-     <length(data$numPlantsCode)){
+  if(length(data$numPlantsCode[is.na(data$numPlantsCode)])<length(data$numPlantsCode)){
   data %>% 
-    chain_start %>% 
-    assert(in_set(0:5),numPlantsCode) %>% 
-    verify(., has_class("vCoorUncM", class="numeric")) %>% 
-    chain_end
+    group_by(numPlantsCode) %>% 
+    dplyr::select("numPlantsCode") %>% 
+    assert(in_set(0:5, allow.na=T),numPlantsCode)
   }
 
-## orgQuantity
-  # if has non-NA elements...
-  if(length(data$orgQuantity[is.na(data$orgQuantity)])
-     <length(data$orgQuantity)){
-    data %>% 
-      #column is read as character 
-      verify(., has_class("orgQuantity", class="character"))
-  }
   
 ## orgQuantityType
   # if has non-NA elements...
@@ -548,3 +547,4 @@ mutate("archiveID"= J,.before=pageNum)
 write.csv(data_cleaned, here::here("data","digitized_data",
                                    "occurrence_data",
                                    "clean_data", paste0("HJ-",J, "_clean-occurrences.csv")), row.names = F)
+
