@@ -1,13 +1,10 @@
-#######################################################################
-###       Processing Step 3: conversion from Data Entry Template    ###
-###                      to RBCM Collections data format             ###
-###                         Emma Menchions                          ###
-###                         Created Nov. 7/22                       ###
-#######################################################################
-
-# To do: 
-# uncomment UTM related things
-# locality - how to deal with it 
+############################################################################
+###   Processing Step 4: conversion of Field Notes for from Darwin Core  ###
+###           Collection data from Darwin Core to the                    ###
+###              format of the Royal BC Museum Herbarium                 ###
+###                         Emma Menchions                               ###
+###                         Created Jan3/23                              ###
+############################################################################
 
 # Objective: takes dwc-formatted collections and converts them to RBCM format
 # for comparison
@@ -149,8 +146,8 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   dplyr::rename(Longitude = verbatimLongitude) %>% 
 
   ## AC, AD, AE verbatimUTM --> UTMZone + UTMNorthing + UTMEasting
-  # separate(verbatimUTM, into = c("UTMZone", "UTMNorthing", 
-  #"UTMEasting"), sep = " ") %>% 
+  separate(verbatimUTM, into = c("UTMZone", "UTMNorthing", 
+  "UTMEasting"), sep = " ") %>% 
 
   ## AF. verbatimElevation --> Elevation (+ unit)
   mutate("unit"= "m",.after=verbatimElevation) %>% 
@@ -181,10 +178,7 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
                 Variety, VarietyAuthority, Forma, FormaAuthority, Identifier, IDDate,
                 IDNotes, CDC, MuseumCollection, Collector, CollectorsFieldNumber,
                 CollectionDate, Prov_State, District, LocationName,LocationDescription,
-                Latitude, Longitude, 
-                #UTMZone,
-                #UTMNorthing, 
-                #UTMEasting, 
+                Latitude, Longitude,UTMZone,UTMNorthing, UTMEasting, 
                 Elevation, Park_ER_IR,
                 HabitatRemarks, SpecimenNotes, SpeciesAbundance,
                 locality, locationRemarks) %>% 
@@ -199,7 +193,7 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
 RBCM_format$Elevation[RBCM_format$Elevation=="m"] <- NA
 RBCM_format$QualifiedScientificName[RBCM_format$QualifiedScientificName=="NA"] <- NA
 
-# 4) Creating LocationName and LocationDescription columns from "Locality" using Gazeteer ----
+## 4) Creating LocationName and LocationDescription columns from "Locality" using Gazeteer ----
 # downloaded from https://catalogue.data.gov.bc.ca/dataset/bc-geographical-names
 BCplaces <- read.csv(here::here(
   "data","reference_data", "BCGW_7113060B_1672719865150_14800","GNSGGRPHCL.csv"))
@@ -263,7 +257,7 @@ RBCM_format$locationRemarks <- tolower(RBCM_format$locationRemarks)
   RBCM_format <- RBCM_format %>%  select(-locality, -locationRemarks)
   RBCM_format$LocationDescription <- tolower(RBCM_format$LocationDescription)
   
-## Saving file ----
+## 5) Saving file ----
   write.csv(RBCM_format,
             here::here("data", "digitized_data","collections_data",
                        "field_note_data", 
