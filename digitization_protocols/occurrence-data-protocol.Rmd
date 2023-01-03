@@ -111,17 +111,33 @@ Begin with the **first page in a journal.**
 
 9.  **"date" [REQUIRED] =** fill in YYYYMMDD
 
-10. **"locality" [REQUIRED] =** string describing specific location. GO FROM BIG TO SMALL. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , ";" , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
+10. **"locality" [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name (island, town, city, area, landmark, trail, road) or position relative to to these features. **Go from GENERAL to SPECIFIC and separate names with ";"**. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word. I*mportant: Use a web search to make ensure entry of proper spelling of place name!*
 
-    -   e.g. Galiano Island; Mount Sutil
+    **USE CAPITAL LETTERS** for each word of city/ town/ municipality/ island names
+
+    **SPELL OUT ABBREVIATIONS**
+
+    -   e.g. Mt --\> Mount, Rd --\> Rd
+
+    **SEPARATE PLACE NAMES WITH SEMI-COLON**. Do not tack on terms like "area" .
+
+    e.g. "George Hill area" --\> "George Hill; area around George Hill"
+
+    Start with island/ town/ area name...
+
+    -   e.g. "Mt. Sutil, Galiano" becomes --\> "Galiano Island; Mount Sutil"
+
+    -   e.g. "Magic lake horse padoc" becomes --\> "North Pender Island; Magic Lake; Magic Lake horse padoc"
+
+    -   e.g. "fen below Magic Lake" becomes --\> "North Pender Island; Magic Lake; fen below lake"
+
+    -   e.g. "small island S of prevost island" --\> "Prevost Island; small island to south"
+
+    -   e.g. "north side of Cowichan Lake" becomes --\> "Cowichan; Cowichan Lake; north side of lake"
 
     -   If there is a string of words like 10 km north of Mount Suitl
 
-        -   e.g. Galiano island; 10 kilometers north of Mount Sutil
-
-    -   try to separate terms with semi-colons, and spell out abbreviations
-
-        -   e.g. Mt --\> Mount, Rd --\> Rd
+        -   e.g. Galiano Island; Mount Sutil; 10 kilometers north of Mt. Sutil
 
 11. **"Country" [REQUIRED] =** full name of country of collection (either Canada or United States of America)
 
@@ -286,10 +302,8 @@ Begin with the **first page in a journal.**
 
     -   e.g. "PJ" = enter as"Pam Janszen"
 
-```{=html}
-<!-- -->
-```
 30. **"idBy" = identification by**. Only fill out with names if there was a note about someone other than Harvey identifying it.
+
 31. **"dataEntryRemaks" =** any observation with remarks here will be checked over. Write whatever notes are important to completing data entry for that row/ what needs to be helped with.
 
 ## When finished entering all data for book:
