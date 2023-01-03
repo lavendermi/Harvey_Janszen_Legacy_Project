@@ -95,23 +95,23 @@
         data[i,"orgQtype"] <- "individuals"
         
       }else if (data$numPlantsCode[i] == 1){ 
-        data[i,"orgQuantity"] <- "1-5"
+        data[i,"orgQuantity"] <- "1-5 plants"
         data[i,"orgQtype"] <- "individuals"
       
       }else if (data$numPlantsCode[i] == 2){
-        data[i,"orgQuantity"] <- "5-25"
+        data[i,"orgQuantity"] <- "5-25 plants"
         data[i,"orgQtype"] <- "individuals"
       
       } else if (data$numPlantsCode[i] == 3){
-        data[i,"orgQuantity"] <- "25-50"
+        data[i,"orgQuantity"] <- "25-50 plants"
         data[i,"orgQtype"] <- "individuals"
         
       }else if (data$numPlantsCode[i] == 4){
-        data[i,"orgQuantity"] <- "50-75"
+        data[i,"orgQuantity"] <- "50-75 plants"
         data[i,"orgQtype"] <- "individuals"
         
       }else if (data$numPlantsCode[i] == 5){
-        data[i,"orgQuantity"] <- "75+"
+        data[i,"orgQuantity"] <- "75+ plants"
         data[i,"orgQtype"] <- "individuals"
       }
       if(!is.na(data$occRemarks[i])){ # if there are already other occurrence remarks...
@@ -776,7 +776,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     
       # renaming columns to dwc terms 
       dplyr::rename(verbatimScientificName = vSciName, 
-                    verbatimElevtion = vElevM,
+                    verbatimElevation = vElevM,
                     identificationQualifier = idQualifier,
                     occurrenceStatus = occStatus, 
                     associatedTaxa = assCollTaxa, 
@@ -785,7 +785,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                     verbatimLatitude = vLat, 
                     verbatimLongitude = vLon, 
                     verbatimCoordinates = vUTM, 
-                    organismQuanity = orgQuantity, 
+                    organismQuantity = orgQuantity, 
                     organismQuantityType = orgQtype, 
                     occurrenceRemarks = occRemarks, 
                     lifeStage = phenology, 
