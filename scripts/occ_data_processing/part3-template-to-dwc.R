@@ -143,7 +143,8 @@
   
   for(i in 1:dim(data)[1]){  # for each row
     if(is.na(data$vTaxonRank[i])){ # if there is no taxon rank already...
-      if (length(strsplit(data$sciName[i], " ")[[1]])==1){ # if the length of the sciName string ==1,,,
+      # if the length of the sciName string ==1,,,
+      if (length(strsplit(data$sciName[i], " ")[[1]])==1){ 
         data$vTaxonRank[i] <- "genus" # assign genus
       }else if (length(strsplit(data$sciName[i], " ")[[1]])==2){ # if 2...
         data$vTaxonRank[i] <- "species" # assign species
@@ -290,7 +291,8 @@
     filter(!is.na(sciName)) %>% 
     dplyr::rename(scientificName = sciName)
   
-    write.csv(Names, here::here("data","digitized_data","occurrence_data", "occurrence_reference_data", "taxonomy", 
+    write.csv(Names, here::here("data","digitized_data","occurrence_data", 
+                                "occurrence_reference_data", "taxonomy", 
                                 paste0("taxa-names_",
                                 Sys.Date(), ".csv")), row.names = F)
     
@@ -307,7 +309,8 @@
     # add the date that this table was generated
   
   # loading in the names normalization table 
-    normalized_names <- read.csv(here::here("data","digitized_data","occurrence_data","occurrence_reference_data",
+    normalized_names <- read.csv(here::here("data","digitized_data","occurrence_data",
+                                            "occurrence_reference_data",
                                             "taxonomy","normalized_2023-01-01.csv"))
     
   # linking to occurrenceID in template table
@@ -367,7 +370,10 @@
                  "error polygon" = NA, "multiple results" = NA, uncertainty=NA)
     
     # writing to data folder
-    write.csv(localities_to_georef, here::here("data", "digitized_data","occurrence_data","occurrence_reference_data", "georeferencing",
+    write.csv(localities_to_georef, here::here("data", "digitized_data",
+                                               "occurrence_data",
+                                               "occurrence_reference_data",
+                                               "georeferencing",
                                         paste0("localities-to-georef_", 
                                         Sys.Date(), ".csv")), 
                                         row.names = F)
@@ -376,7 +382,8 @@
     # Follow protocol outlined in "occurrence-data-protocol.Rmd"
     
   ## loading referenced occurrences 
-    GEOlocate <- read.csv(here::here("data", "digitized_data","occurrence_data","occurrence_reference_data",
+    GEOlocate <- read.csv(here::here("data", "digitized_data",
+                                     "occurrence_data","occurrence_reference_data",
                                      "georeferencing", "geoLocate_2023-01-01.csv")) 
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
@@ -453,7 +460,8 @@
       occ_data$georeferenceSources[i] <- "Source" # indicates coordinates verbatim 
     }
     
-  } else if (!is.na(occ_data$vUTM[i]) & is.na(occ_data$vLat[i]) & is.na(occ_data$vLon[i])){
+  } else if (!is.na(occ_data$vUTM[i]) & is.na(occ_data$vLat[i]) & 
+             is.na(occ_data$vLon[i])){
     # if only UTM coordinates provided...
     
     ## convert UTM coordinates into decimal degrees
@@ -488,7 +496,8 @@
     
     # if no verbatim coordinates provided in either format...
       
-      occ_data[i, c("decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters")] <-  
+      occ_data[i, c("decimalLatitude", "decimalLongitude", 
+                    "coordinateUncertaintyInMeters")] <-  
         GEOlocate[which(occ_data$locality[i] == GEOlocate$locality &
                         occ_data$county[i] == GEOlocate$county),
                          c("geoLocLat", "geoLocLon", "geoLocPrecision")] 
@@ -505,7 +514,9 @@
       }
     }
   
-points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),occ_data$decimalLatitude), proj4string = CRS("+proj=longlat +datum=WGS84"))
+points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),
+                                     occ_data$decimalLatitude), 
+                               proj4string = CRS("+proj=longlat +datum=WGS84"))
 mapview(points_to_map)          
               
 ## 6) ASSIGNING ASSOCIATE ROWS and TAXA----
@@ -521,19 +532,21 @@ mapview(points_to_map)
 for (i in 1:dim(occ_data)[1]){ # for every row
   
   # if there is another row that matches date, and place...
-  if (length(which((occ_data$fulldate[i] == occ_data$fulldate & 
-                    occ_data$locality[i]==occ_data$locality &  
-                    occ_data$habitat[i]==occ_data$habitat &
-                    occ_data$locationRemarks[i]==occ_data$locationRemarks &
-                    occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-                    occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+  if (length(
+    which((occ_data$fulldate[i] == occ_data$fulldate & 
+    occ_data$locality[i]==occ_data$locality &  
+    occ_data$habitat[i]==occ_data$habitat &
+    occ_data$locationRemarks[i]==occ_data$locationRemarks &
+    occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+    occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
     
-    nameVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
-                          occ_data$locality[i]==occ_data$locality &  
-                          occ_data$habitat[i]==occ_data$habitat &
-                          occ_data$locationRemarks[i]==occ_data$locationRemarks &
-                          occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-                          occ_data$decimalLongitude[i]==occ_data$decimalLongitude
+    nameVec <- 
+      as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
+      occ_data$locality[i]==occ_data$locality &  
+      occ_data$habitat[i]==occ_data$habitat &
+      occ_data$locationRemarks[i]==occ_data$locationRemarks &
+      occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+      occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                    ,"canonicalName"])
         
         # if there is no collected associated taxa recorded...
@@ -574,19 +587,21 @@ for (i in 1:dim(occ_data)[1]){ # for every row
 for (i in 1:dim(occ_data)[1]){ # for every row
       
       # if there is another row that matches date, and place...
-      if (length(which((occ_data$fulldate[i] == occ_data$fulldate & 
-                        occ_data$locality[i]==occ_data$locality &  
-                        occ_data$habitat[i]==occ_data$habitat &
-                        occ_data$locationRemarks[i]==occ_data$locationRemarks &
-                        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-                        occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+      if (length(
+        which((occ_data$fulldate[i] == occ_data$fulldate & 
+        occ_data$locality[i]==occ_data$locality &  
+        occ_data$habitat[i]==occ_data$habitat &
+        occ_data$locationRemarks[i]==occ_data$locationRemarks &
+        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+        occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
         
-        numVec <- as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
-                            occ_data$locality[i]==occ_data$locality &  
-                            occ_data$habitat[i]==occ_data$habitat &
-                            occ_data$locationRemarks[i]==occ_data$locationRemarks &
-                            occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-                            occ_data$decimalLongitude[i]==occ_data$decimalLongitude
+        numVec <- 
+          as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
+          occ_data$locality[i]==occ_data$locality &  
+          occ_data$habitat[i]==occ_data$habitat &
+          occ_data$locationRemarks[i]==occ_data$locationRemarks &
+          occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+          occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                       ,"occurrenceID"])
         
         # if there is no collected associated taxa recorded...
@@ -737,8 +752,9 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                          occ_data$canonicalName[k], "Global"])){ 
             
             # do all of possible subspecies have same list code? 
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == 
-                                           occ_data$canonicalName[k]),"Global"])) == 1){ 
+            if (length(unique(
+              CDC_cleaned[(CDC_cleaned$scientificName == 
+              occ_data$canonicalName[k]),"Global"])) == 1){ 
               
               # if so, then apply that list category to that row
               occ_data[k, "globalStatus"] <- paste0("global status: ",
@@ -766,13 +782,13 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     }
     
     
-    
 ## saving as .csv file  ----
 ## remove extraneous columns  
     
     dwc_data <- occ_data %>% 
       # assigning statuses as dwc::dyamic properties
-      unite("dynamicProperties", provincialStatus, globalStatus, sep="; ") %>% 
+      unite("dynamicProperties", provincialStatus, 
+            globalStatus, sep="; ") %>% 
     
       # renaming columns to dwc terms 
       dplyr::rename(verbatimScientificName = vSciName, 
@@ -799,5 +815,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
              -numPlantsCode)
     
 ## saving csv file
-   write.csv(dwc_data, here::here("data", "digitized_data", "occurrence_data",paste0("darwin-core-occurrences_", Sys.Date(), ".csv")), row.names = F)
+   write.csv(dwc_data, here::here("data", "digitized_data",
+                                  "occurrence_data",
+                                  paste0("darwin-core-occurrences_", 
+                                         Sys.Date(), ".csv")), row.names = F)
     

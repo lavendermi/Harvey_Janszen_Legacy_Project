@@ -111,7 +111,7 @@ Begin with the **first page in a journal.**
 
 9.  **"date" [REQUIRED] =** fill in YYYYMMDD
 
-10. **"locality" [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , ";" , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
+10. **"locality" [REQUIRED] =** string describing specific location. GO FROM BIG TO SMALL. Does not contain country, province information, but includes place name or position relative to place name and city/town/ municipality/ island. Try to do city/ town/ municipality/ island , ";" , place name. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word
 
     -   e.g. Galiano Island; Mount Sutil
 

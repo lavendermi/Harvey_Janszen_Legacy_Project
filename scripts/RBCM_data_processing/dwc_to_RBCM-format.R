@@ -5,11 +5,17 @@
 ###                         Created Nov. 7/22                       ###
 #######################################################################
 
-# takes the dwc collection sheet and converts it to RBCM format
+# To do: 
+# uncomment UTM related things
+# locality - how to deal with it 
+
+# Objective: takes dwc-formatted collections and converts them to RBCM format
+# for comparison
 
 ## 1) LOADING & INSTALLING PACKAGES ----
 # using groundhog to manage package versioning 
 #install.packages("groundhog")
+
 library(groundhog)
 
 date <- "2022-11-02"
@@ -26,10 +32,22 @@ rm(requiredPackages)
 
 ## 2) READING IN DATA ----
 
-# using occurrence data in dwc format to test
+J <- # journal number
+  
+dwc_data <- read.csv(here::here(
+             "data","digitized_data",
+             "collections_data", 
+             "clean_data", 
+             paste0("HJ-",J, "_dwc-collections_YYYY-MM-DD.csv"))) 
 
-## 3) Converting columns to have similar names to RBCM ---
+# using occurrence data to test : 
 
+dwc_data <- read.csv(here::here(
+  "data","digitized_data",
+  "occurrence_data", 
+  "darwin-core-occurrences_2023-01-02.csv") )
+
+## 3) Converting columns to have similar names to RBCM ----
 
 RBCM_format <- dwc_data %>% # change variable to dwc_format
   ## A. RBCM Accession number - blank
@@ -112,17 +130,15 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   # convert SGI and NGI to "Gulf Islands" 
   # anything on Vancouver Island to Vancouver Island
   # Lower Fraser Valley
-  
-  dplyr::rename(District = county) %>% 
+  mutate("District"= "",.after=Collector) %>% 
 
   ## Y. locality --> LocationName!!!!!!!!!!!!!!!!
   # will need to re-adapt entry...
   # consider gazeteer matches- can I download match automatically? 
-
-  dplyr::rename(LocationName = locality) %>% 
+  mutate("LocationName"= "",.after=Collector) %>% 
   
   ## Z. locality --> LocationDescription !!!!!!!!!!!!!!!!
-  dplyr::rename(LocationDescription = locationRemarks) %>% 
+  mutate("LocationDescription"= "",.after=Collector) %>% 
   
   ## AA. decimalLatitude or verbatimLatitude ? --> Latitude
   dplyr::rename(Latitude = verbatimLatitude) %>% 
@@ -134,8 +150,8 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   #separate(verbatimUTM, into = c("UTMZone", "UTMNorthing", "UTMEasting"), sep = " ") %>% 
 
   ## AF. verbatimElevation --> Elevation (+ unit)
-  mutate("unit"= "m",.after=verbatimElevtion) %>% 
-  unite("Elevation", verbatimElevtion, unit, sep = " ", 
+  mutate("unit"= "m",.after=verbatimElevation) %>% 
+  unite("Elevation", verbatimElevation, unit, sep = " ", 
               na.rm=T, remove=T) %>% 
 
   ## AG. blank --> Park_ER_IR
@@ -147,11 +163,11 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   mutate(HabitatRemarks=str_replace_all(string=HabitatRemarks, pattern= ",", replacement =";")) %>% 
 
 ## AI. occurrenceRemarks + lifeStage + organismQuantity (and plant coding)/ individual count --> SpecimenNotes
-  unite("SpecimenNotes", occurrenceRemarks, lifeStage, organismQuanity, sep = " ", 
+  unite("SpecimenNotes", occurrenceRemarks, lifeStage, organismQuantity, sep = " ", 
         na.rm=T, remove=F) %>% 
   
 ## AJ. organismQuantity --> SpeciesAbundance
-  dplyr::rename(SpeciesAbundance = organismQuanity) %>% 
+  dplyr::rename(SpeciesAbundance = organismQuantity) %>% 
 
   dplyr::select(D, ScientificName, QualifiedScientificName,CommonName, Family,
                 Genus, Species, SpeciesAuthority, Subspecies, SubspeciesAuthority, 
@@ -163,8 +179,71 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
                 #UTMNorthing, 
                 #UTMEasting, 
                 Elevation, Park_ER_IR,
-                HabitatRemarks, SpecimenNotes, SpeciesAbundance)
+                HabitatRemarks, SpecimenNotes, SpeciesAbundance, locality, locationRemarks) %>% 
+  # 
+  mutate(locality=case_when(grepl(",", RBCM_format$locality) ~ str_replace_all(string=locality, pattern= ", ", replacement ="; "),
+                            !grepl(",", RBCM_format$locality) ~locality))
+  
 
+# replacing erraneous "m"s with NA
 RBCM_format$Elevation[RBCM_format$Elevation=="m"] <- NA
+
+# 4) Creating LocationName and LocationDescription columns from "Locality" using Gazeteer
+# downloaded from https://catalogue.data.gov.bc.ca/dataset/bc-geographical-names
+BCplaces <- read.csv(here::here(
+  "data","reference_data", "BCGW_7113060B_1672719865150_14800","GNSGGRPHCL.csv"))
+
+# initializing vectors
+placeNames <- c()
+RBCM_format$LocationName <- NA
+RBCM_format$LocationDescription <- NA
+RBCM_format[is.na(RBCM_format$locality), "locality"]<- "missing"
+RBCM_format[is.na(RBCM_format$locationRemarks), "locationRemarks"]<- "missing"
+
+# GEO_NAME
+  for (i in 1:dim(RBCM_format)[1]){ # for each row...
+      # split up locality string into different placename segments...
+      placeNames[i]<- strsplit(RBCM_format$locality[i], "; ")
+      
+      # for every segment...
+      for (j in 1:length(placeNames[i])){
+        # if there is a match in gazeteer...
+        if (length(BCplaces$GEO_NAME[placeNames[[i]][j] == BCplaces$GEO_NAME])==1){
+          
+          # and if there has not already been another locationName listed by a previous name segment...
+          if(is.na(RBCM_format$LocationName[i])){
+            # assign the LocationName as this name segment
+            RBCM_format$LocationName[i] <- BCplaces$GEO_NAME[placeNames[[i]][j]==BCplaces$GEO_NAME]
+            
+          } else { 
+            # if there is already a LocationName, paste it on to that name
+            RBCM_format$LocationName[i] <- paste0(RBCM_format$LocationName[i],"; ", BCplaces$GEO_NAME[placeNames[[i]][j]==BCplaces$GEO_NAME])
+          }
+        
+        # if there is no match in the gazeteer...
+        } else if (length(BCplaces$GEO_NAME[placeNames[j] == BCplaces$GEO_NAME])<1){
+          # assign it to the location description section
+          RBCM_format$LocationDescription[i] <- placeNames[[i]][j]
+          
+        }
+      }
+    
+      # additionally, if the assigned location description if different from
+      # the location remarks...
+      if(!is.na(RBCM_format$LocationDescription[i]) & RBCM_format$LocationDescription[i]!=RBCM_format$locationRemarks[i] & RBCM_format$locationRemarks[i] != "missing"){
+        # add the location remakrs to the location description with ";"
+        RBCM_format$LocationDescription[i] <- paste0(RBCM_format$LocationDescription[i], "; ",RBCM_format$locationRemarks[i])
+      
+        # or if there is no location description but there are location remarks
+        # , assign the location remarks to it
+      } else if (is.na(RBCM_format$LocationDescription[i]) & RBCM_format$locationRemarks[i]!= "missing"){
+        RBCM_format$LocationDescription[i] <- RBCM_format$locationRemarks[i]
+      }
+  }
+ 
+  # removing unecessary columns
+  RBCM_format <- RBCM_format %>%  select(-locality, -locationRemarks)
+  
+  # districts and county
 
 

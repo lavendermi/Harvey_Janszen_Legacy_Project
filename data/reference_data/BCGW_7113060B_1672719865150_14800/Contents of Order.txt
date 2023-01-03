@@ -1,0 +1,15 @@
+
+------------------
+Order Details
+-----------------
+Order ID: 2256141
+Date: 20230102
+
+----------------------
+Feature Types
+-----------------------
+ - BC Geographical Names in directory GNSGGRPHCL
+
+----------------------------
+Packaged Products
+----------------------------
