@@ -5,10 +5,6 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-Repository download instructions???????????????????
-
-Package management????????????????????
-
 # Data Entry
 
 ## Template
@@ -55,7 +51,7 @@ Begin with the **first page in a journal.**
 
     -   To look for what location and date information is associated with each name, he often put the location and a date and then species associated with it BELOW or BESIDE
 
-3.  Enter "**numPage"** **[REQUIRED]** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets "1", the next one "2", etc.)
+3.  Enter "**numPage"** **[REQUIRED]** (number on page) as the number of the observation on the page (e.g. the first species name that matches the criteria in step 3 gets"1", the next one "2", etc.)
 
     -   easiest to enter all of the other data for the observation sequentially on the page and then click and drag a sequence of numbers in excel to number each observation
 
@@ -358,6 +354,10 @@ Begin with the **first page in a journal.**
 
 Steps I and II are designed for the user to go through *one journal* at a time. Once completed for all journals, part 3 can be used to to aggregate and formally process the data.
 
+## Setup
+
+Download the repository from Github: <https://github.com/emench/Harvey_Janszen_Legacy_Project>
+
 ## Processing step I: data entry checking
 
 1.  Open script **"part1-a_checking.R"**
@@ -370,7 +370,7 @@ Steps I and II are designed for the user to go through *one journal* at a time. 
 
 5.  To get both options stated in #3, change Q to the other option, and re-run the script
 
-6.  **Find the .csv file** in data \> digitized_data \> occurrence_data \> data_checking
+6.  **Find the .csv file** in data \> data_digitization \> occurrence_data \> data_checking
 
 7.  Take the csv file and have it **reviewed by Andrew & Emma to check these flagged observations**
 
@@ -437,7 +437,7 @@ Steps I and II are designed for the user to go through *one journal* at a time. 
 
         -   select "GENERATE CSV" button in bottom right hand of page
 
-        -   place this downloaded file in data \> digitized_data \> occurrence_data \> occurrence_reference_data \> taxonomy with the name "normalized"
+        -   place this downloaded file in data \> data_digitization \> occurrence_data \> occurrence_reference_data \> taxonomy with the name "normalized"
 
         -   return to script part 3 to load this file in and continue the process
 
@@ -447,7 +447,7 @@ Steps I and II are designed for the user to go through *one journal* at a time. 
 
     -   click "Select File"
 
-    -   upload the .csv file from data \> digitized_data \> occurrence_data \> occurrence_reference_data \> georeferencing \> "localities-to-georef_Xdate.csv"
+    -   upload the .csv file from data \>data_digitization \> occurrence_data \> occurrence_reference_data \> georeferencing \> "localities-to-georef_Xdate.csv"
 
     -   select 16 - 32 entries / page
 
@@ -505,13 +505,13 @@ Steps I and II are designed for the user to go through *one journal* at a time. 
 
         -   rename the exported file to "geoLocate_YYYY_MM_DD"
 
-        -   place the exported file in data \> digitized_data \> occurrence_data \> occurrence_reference_data \> georeferencing
+        -   place the exported file in data \> data_digitization \> occurrence_data \> occurrence_reference_data \> georeferencing
 
 5.  Return to the script and run the rest of section 5 starting at the "loading georeferenced occurrences" step.
 
 6.  A map should appear with the occurrences. If some coordinates seem off, these can be searched by referencing the coordinates on the map and matching to rows by either manually searching data or statements such as...
 
-    > ``` R
+    > ``` r
     >  occ_data[which(occ_data$decimalLatitude > 50 & occ_data$decimalLongitude < -124.3)]
     > ```
 

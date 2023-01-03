@@ -1,6 +1,6 @@
 ###########################################################
 #######             Processing step Ia.             #######
-#######       Checking entered occurrence data      #######
+#######       Checking entered collection data      #######
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
@@ -13,8 +13,8 @@
 # c) low confidence in taxon name interpretation 
 # d) uncertainty in location and and no locality entered
 
-# 2. Create a new spreadsheet of these observations so they 
-# this uncertainty can be checked one observation at a time
+# 2. Create a new spreadsheet of these collections so they 
+# this uncertainty can be checked one row at a time
 
 ## LOADING PACKAGES ----
 library(groundhog)
@@ -37,7 +37,7 @@ rm(requiredPackages)
   J <-7 # USER INPUT
 
   data <- read_excel(here::here("data","data_digitization", 
-          "occurrence_data","raw_data", 
+          "collections_data","raw_data", 
           paste0("HJ-",J,"-","occ-entry.xlsx")))
 
   # renaming column names for easier recognition 
@@ -89,8 +89,7 @@ rm(requiredPackages)
     
       ## saving file 
       write.csv(to_check, 
-                here::here("data",
-                  "data_digitization","occurrence_data", 
+                here::here("data","data_digitization","occurrence_data", 
                 "data_checking", 
                  paste0("HJ-",J,"_","occ-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
