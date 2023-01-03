@@ -43,6 +43,7 @@ rm(requiredPackages)
   # renaming column names for easier recognition 
   data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
                                 numPage = "[numPage]", 
+                                recordNum= "[recordNum]",
                                 vName = "[vName]",
                                 vSciName= "[vSciName]", 
                                 sciName = "[sciName]",
