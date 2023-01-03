@@ -20,6 +20,7 @@
 ## LOADING PACKAGES ----
 library(groundhog)
 
+set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
 requiredPackages <-  c("assertr","dplyr","here", "terra","tidyverse",
                        "tidyr")

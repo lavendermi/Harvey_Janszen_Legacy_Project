@@ -11,8 +11,10 @@
 
 ## 1) LOADING & INSTALLING PACKAGES ----
 # using groundhog to manage package versioning 
-#install.packages("groundhog")
 
+install.packages("groundhog")
+
+set.groundhog.folder(here::here("packages"))
 library(groundhog)
 
 date <- "2022-11-02"
@@ -36,13 +38,6 @@ dwc_data <- read.csv(here::here(
              "collections_data", 
              "clean_data", 
              paste0("HJ-",J, "_dwc-collections_YYYY-MM-DD.csv"))) 
-
-# using occurrence data to test : 
-
-dwc_data <- read.csv(here::here(
-  "data","digitized_data",
-  "occurrence_data", 
-  "darwin-core-occurrences_2023-01-03.csv") )
 
 ## 3) Converting columns to have similar names to RBCM ----
 
