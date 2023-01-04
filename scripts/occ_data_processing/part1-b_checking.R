@@ -63,15 +63,17 @@ rm(requiredPackages)
 ## 3. CONSOLIDATNG & REMOVING ROWS ----
   
   # removing rows which are empty
-  raw_data <- raw_data[-which(is.na(raw_data$vName) | 
-              is.na(raw_data$vName) & is.na(raw_data$vSciName) &
-              is.na(raw_data$sciName)),] %>% 
-              dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  raw_data <- raw_data %>%  
+    dplyr::filter(!is.na(vName) & 
+                    !is.na(vSciName) &
+                    !is.na(sciName)) %>% 
+    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
   
-  checked_data <- checked_data[-which(is.na(checked_data$vName) | 
-                is.na(checked_data$vName) & is.na(checked_data$vSciName) & 
-                  is.na(checked_data$sciName)), ] %>% 
-                dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  checked_data <- checked_data %>% 
+    dplyr::filter(!is.na(vName) & 
+                    !is.na(vSciName) &
+                    !is.na(sciName)) %>% 
+    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
   
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
       if (checked_data$toDelete[i] == "Y" | checked_data$toDelete[i] == "y"){

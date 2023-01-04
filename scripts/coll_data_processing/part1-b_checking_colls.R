@@ -22,29 +22,31 @@ for (pkg in requiredPackages) {
   if (pkg %in% rownames(.packages()) == FALSE)
   {groundhog.library(pkg, date)}
 }
+
 rm(requiredPackages)
 ## 1. LOADING DATA ----
 
   # USER INPUT: 
   # input file name for checked data & journal number - in "data_checking" folder
-  filename_checked <-"HJ-7_occ-data-to-check_HIGH-PRIORITY_2023-01-01.csv"
+  filename_checked <-"HJ-7_coll-data-to-check_HIGH-PRIORITY_2023-01-03.csv"
   J <-7
   
   # loading data
   checked_data <- read.csv(here::here("data","data_digitization",
-                                      "occurrence_data",
-                                      "data_checking", 
+                                      "collection_data","field_note_data",
+                                      "2_data_checking",
                                       filename_checked)) 
   
   raw_data <- read_excel(here::here("data","data_digitization",
-                                    "occurrence_data", 
-                                    "raw_data", paste0("HJ-",J,
-                                      "-","occ-entry.xlsx"))) 
+                                    "collection_data", "field_note_data",
+                                    "1_raw_data", paste0("HJ-",J,
+                                      "-","collection-entry.xlsx"))) 
   
   # renaming columns of raw data to match
   raw_data <- raw_data %>%dplyr::rename(
                                 pageNum = "[pageNum]", 
-                                numPage = "[numPage]", 
+                                numPage = "[numPage]",
+                                recordNum="[recordNum]",
                                 vName = "[vName]",
                                 vSciName= "[vSciName]", 
                                 sciName = "[sciName]",
@@ -56,22 +58,27 @@ rm(requiredPackages)
             # temp relocation of dataEntryRemarks to match checked data frame
                 relocate(., dataEntryRemarks, .before= pageNum)
   
+  # reading recordNumber as character: 
+  checked_data$recordNum <- as.character(checked_data$recordNum)
+  
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
-  missed_rows <- checked_data %>% 
+  checked_data %>% 
   assert(in_set("C", "R", "c","r"), checkStatus) 
   
 ## 3. CONSOLIDATNG & REMOVING ROWS ----
   
   # removing rows which are empty
-  raw_data <- raw_data[-which(is.na(raw_data$vName) | 
-              is.na(raw_data$vName) & is.na(raw_data$vSciName) &
-              is.na(raw_data$sciName)),] %>% 
-              dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  raw_data <- raw_data %>%  
+    dplyr::filter(!is.na(vName) & 
+    !is.na(vSciName) &
+    !is.na(sciName)) %>% 
+    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
   
-  checked_data <- checked_data[-which(is.na(checked_data$vName) | 
-                is.na(checked_data$vName) & is.na(checked_data$vSciName) & 
-                  is.na(checked_data$sciName)), ] %>% 
-                dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  checked_data <- checked_data %>% 
+    dplyr::filter(!is.na(vName) & 
+                    !is.na(vSciName) &
+                    !is.na(sciName)) %>% 
+    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
   
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
       if (checked_data$toDelete[i] == "Y" | checked_data$toDelete[i] == "y"){
@@ -103,7 +110,7 @@ rm(requiredPackages)
   # saving to data_cleaning folder to prepare for Processing step 2 (cleaning)
   write.csv(processed_data_1, 
             here::here("data", "data_digitization", 
-            "occurrence_data","data_cleaning",
+            "collection_data","field_note_data","3_data_cleaning",
             paste0("HJ", J, "-processed-step-1_",Sys.Date(),".csv")),
             row.names = F)
             
