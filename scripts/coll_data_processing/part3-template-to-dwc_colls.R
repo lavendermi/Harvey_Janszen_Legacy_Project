@@ -712,32 +712,35 @@ for (i in 1:dim(occ_data)[1]){ # for every row
             globalStatus, sep="; ") %>% 
     
       # renaming columns to dwc terms 
-      dplyr::rename(verbatimScientificName = vSciName, 
-                    verbatimElevation = vElevM,
-                    identificationQualifier = idQualifier,
-                    occurrenceStatus = occStatus, 
-                    associatedTaxa = assCollTaxa, 
-                    associatedOccurrences = assColl, 
-                    verbatimTaxonRank=vTaxonRank, 
-                    verbatimLatitude = vLat, 
-                    verbatimLongitude = vLon, 
-                    verbatimCoordinates = vUTM, 
-                    organismQuantity = orgQuantity, 
-                    organismQuantityType = orgQtype, 
-                    occurrenceRemarks = occRemarks, 
-                    lifeStage = phenology, 
-                    identificationBy= idBy, 
-                    scientificNameauthorship = authorship, 
-                    taxonRank = rank, 
-                    taxonomicStatus = status, eventDate = fulldate) %>% 
+
+    dplyr::rename(verbatimScientificName = vSciName, 
+                  verbatimElevation = vElevM,
+                  recordNumber = recordNum,
+                  identificationQualifier = idQualifier,
+                  occurrenceStatus = occStatus, 
+                  associatedTaxa = assCollTaxa, 
+                  associatedOccurrences = assColl, 
+                  verbatimTaxonRank=vTaxonRank, 
+                  verbatimLatitude = vLat, 
+                  verbatimLongitude = vLon, 
+                  verbatimCoordinates = vUTM, 
+                  organismQuantity = orgQuantity, 
+                  organismQuantityType = orgQtype, 
+                  occurrenceRemarks = occRemarks, 
+                  lifeStage = phenology, 
+                  identificationBy= idBy, 
+                  scientificNameauthorship = authorship, 
+                  taxonRank = rank, 
+                  taxonomicStatus = status, eventDate = fulldate) %>% 
       
       # removing columns 
-      select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
-             -numPlantsCode)
+      select( -canonicalName, -confidence,
+              -numPlantsCode, - curationMetadata)
+    
     
 ## saving csv file
    write.csv(dwc_data, here::here("data", "data_digitization",
-                                  "occurrence_data",
-                                  paste0("darwin-core-occurrences_", 
+                                  "collection_data","field_note_data",
+                                  paste0("darwin-core-collections_", 
                                          Sys.Date(), ".csv")), row.names = F)
     

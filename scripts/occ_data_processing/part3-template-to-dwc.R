@@ -795,7 +795,6 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       # renaming columns to dwc terms 
       dplyr::rename(verbatimScientificName = vSciName, 
                     verbatimElevation = vElevM,
-                    recordNumber = recordNum,
                     identificationQualifier = idQualifier,
                     occurrenceStatus = occStatus, 
                     associatedTaxa = assCollTaxa, 
@@ -814,9 +813,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                     taxonomicStatus = status, eventDate = fulldate) %>% 
       
       # removing columns 
-      select( -canonicalName, -confidence,
-             -numPlantsCode, - curationMetadata)
-    
+      select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
+             -numPlantsCode)
 ## saving csv file
    write.csv(dwc_data, here::here("data", "data_digitization",
                                   "occurrence_data",

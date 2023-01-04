@@ -97,17 +97,9 @@ Begin with the **first page in a journal.**
 
     -   If subspecies or variety, just include this epithet, and do not include the "ssp." or "var." abbreviations. (e.g. Instead of Lupinus latifolius ssp. subalpinus, put "Lupinus latifolius subalpinus")
 
-8.  **"occStatus" [REQUIRED] =** occurrence status (either present of absent)
+8.  **"date" [REQUIRED] =** fill in YYYYMMDD
 
-    -   to save time, only enter if there is a note clearly saying "absent" or a species name is crossed out when there is a list of species with no other species name pointed to (indicating an absence and not just a name update)
-
-        -   then enter the word "absent"
-
-    -   otherwise, assume the species was observed (present) and you do not need to fill this in
-
-9.  **"date" [REQUIRED] =** fill in YYYYMMDD
-
-10. **"locality" [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name (island, town, city, area, landmark, trail, road) or position relative to to these features. **Go from GENERAL to SPECIFIC and separate names with ";"**. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word. I*mportant: Use a web search to make ensure entry of proper spelling of place name!*
+9.  **"locality" [REQUIRED] =** string describing specific location. Does not contain country, province information, but includes place name (island, town, city, area, landmark, trail, road) or position relative to to these features. **Go from GENERAL to SPECIFIC and separate names with ";"**. If there are any words you can't make out or are uncertain of, use [brackets] around the estimated word. I*mportant: Use a web search to make ensure entry of proper spelling of place name!*
 
     **USE CAPITAL LETTERS** for each word of city/ town/ municipality/ island names
 
@@ -135,17 +127,17 @@ Begin with the **first page in a journal.**
 
         -   e.g. Galiano Island; Mount Sutil; 10 kilometers north of Mt. Sutil
 
-11. **"Country" [REQUIRED] =** full name of country of collection (either Canada or United States of America)
+10. **"Country" [REQUIRED] =** full name of country of collection (either Canada or United States of America)
 
-12. **"stateProvince" [REQUIRED] =** Full name of province/ state of collection (either British Columbia or Washington)
+11. **"stateProvince" [REQUIRED] =** Full name of province/ state of collection (either British Columbia or Washington)
 
-13. **"island" [REQUIRED] =** full name of island (if collected on island)
+12. **"island" [REQUIRED] =** full name of island (if collected on island)
 
     -   e.g. Galiano Island or Saltspring Island
 
     -   must contain the word "Island" capitalized
 
-14. **"idQualifier" =** identification Qualifier.
+13. **"idQualifier" =** identification Qualifier.
 
     -   only fill out if there was a question mark or other note of uncertainty about the taxon identification from HJ
 
@@ -157,7 +149,15 @@ Begin with the **first page in a journal.**
 
         -   e.g Festuca rubra --\> enter here as cf. Festuca rubra
 
-15. **"county" =** only fill out if on Vancouver Island or Mainland (otherwise it will be assigned depending on the island that it is on)
+14. **"county" =** only fill out if on Vancouver Island or Mainland (otherwise it will be assigned depending on the island that it is on)
+
+15. **"occStatus" =** occurrence status (either present of absent)
+
+    -   to save time, only enter if there is a note clearly saying "absent" or a species name is crossed out when there is a list of species with no other species name pointed to (indicating an absence and not just a name update)
+
+        -   then enter the word "absent"
+
+    -   otherwise, assume the species was observed (present) and you do not need to fill this in
 
 16. **"habitat" =** string describing the habitat conditions
 
