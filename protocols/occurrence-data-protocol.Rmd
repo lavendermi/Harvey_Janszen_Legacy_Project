@@ -370,7 +370,7 @@ Download the repository from Github: <https://github.com/emench/Harvey_Janszen_L
 
 5.  To get both options stated in #3, change Q to the other option, and re-run the script
 
-6.  **Find the .csv file** in data \> data_digitization \> occurrence_data \> data_checking
+6.  **Find the .csv file** in data \> data_digitization \> occurrence_data \> 2_data_checking
 
 7.  Take the csv file and have it **reviewed by Andrew & Emma to check these flagged observations**
 
@@ -399,14 +399,14 @@ Download the repository from Github: <https://github.com/emench/Harvey_Janszen_L
 ## Processing step II: data cleaning
 
 1.  Open script "part2-data-cleaning.R"
-2.  Input name of completed data sheet from the previous step in the "data_cleaning" folder **(filename \<- ...)** and the **journal number (J\<- ...)**
+2.  Input name of completed data sheet from the previous step in the "3_data_cleaning" folder **(filename \<- ...)** and the **journal number (J\<- ...)**
 3.  Open this csv file in another window
 4.  Run the script part by part
 5.  If an error message pops up after running a particular section, stop, return to the csv sheet in the other window, look for the error and correct it. Use the index values that pop up in the error message to find the location of these errors.
 6.  Once corrected, save the sheet, and re-run the script up to an including the section that had previously produced the error message.
 7.  Ensure that this error message no longer appears
 8.  Repeat these measures until the whole script has been completed
-9.  The end result of this script will be a new csv file in the folder "clean data" that will be converted to Darwin Core standards in the next script
+9.  The end result of this script will be a new csv file in the folder "4_clean data" that will be converted to Darwin Core standards in the next script
 10. Repeat processing steps I and II for the rest of the journals before continuing on to step 3
 
 ## Processing step III: conversion to Darwin Core fields
