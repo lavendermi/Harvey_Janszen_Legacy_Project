@@ -37,8 +37,8 @@ rm(requiredPackages)
   J <-7 # USER INPUT
 
   data <- read_excel(here::here("data","data_digitization", 
-          "collections_data","raw_data", 
-          paste0("HJ-",J,"-","occ-entry.xlsx")))
+          "collection_data","field_note_data","1_raw_data", 
+          paste0("HJ-",J,"-","collection-entry.xlsx")))
 
   # renaming column names for easier recognition 
   data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
@@ -90,9 +90,9 @@ rm(requiredPackages)
     
       ## saving file 
       write.csv(to_check, 
-                here::here("data","data_digitization","occurrence_data", 
-                "data_checking", 
-                 paste0("HJ-",J,"_","occ-data-to-check_HIGH-PRIORITY_",
+                here::here("data","data_digitization","collection_data", "field_note_data",
+                "2_data_checking", 
+                 paste0("HJ-",J,"_","coll-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
       
     } else if (Q=="all"){
@@ -118,9 +118,9 @@ rm(requiredPackages)
       
       ## saving file 
       write.csv(to_check, 
-                here::here("data","data_digitization","occurrence_data",
-                           "data_checking", 
-                           paste0("HJ-",J,"_","occ-data-to-check_ALL_",
+                here::here("data","data_digitization","collection_data","field_note_data",
+                           "2_data_checking", 
+                           paste0("HJ-",J,"_","coll-data-to-check_ALL_",
                            Sys.Date(),".csv")), row.names = F)
     } 
   

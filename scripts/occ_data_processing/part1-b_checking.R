@@ -33,12 +33,12 @@ rm(requiredPackages)
   # loading data
   checked_data <- read.csv(here::here("data","data_digitization",
                                       "occurrence_data",
-                                      "data_checking", 
+                                      "2_data_checking", 
                                       filename_checked)) 
   
   raw_data <- read_excel(here::here("data","data_digitization",
                                     "occurrence_data", 
-                                    "raw_data", paste0("HJ-",J,
+                                    "1_raw_data", paste0("HJ-",J,
                                       "-","occ-entry.xlsx"))) 
   
   # renaming columns of raw data to match
@@ -103,7 +103,7 @@ rm(requiredPackages)
   # saving to data_cleaning folder to prepare for Processing step 2 (cleaning)
   write.csv(processed_data_1, 
             here::here("data", "data_digitization", 
-            "occurrence_data","data_cleaning",
+            "occurrence_data","3_data_cleaning",
             paste0("HJ", J, "-processed-step-1_",Sys.Date(),".csv")),
             row.names = F)
             

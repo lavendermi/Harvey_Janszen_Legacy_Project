@@ -37,7 +37,7 @@ rm(requiredPackages)
   J <-7 # USER INPUT
 
   data <- read_excel(here::here("data","data_digitization", 
-          "occurrence_data","raw_data", 
+          "occurrence_data","1_raw_data", 
           paste0("HJ-",J,"-","occ-entry.xlsx")))
 
   # renaming column names for easier recognition 
@@ -91,7 +91,7 @@ rm(requiredPackages)
       write.csv(to_check, 
                 here::here("data",
                   "data_digitization","occurrence_data", 
-                "data_checking", 
+                "2_data_checking", 
                  paste0("HJ-",J,"_","occ-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
       
@@ -119,7 +119,7 @@ rm(requiredPackages)
       ## saving file 
       write.csv(to_check, 
                 here::here("data","data_digitization","occurrence_data",
-                           "data_checking", 
+                           "2_data_checking", 
                            paste0("HJ-",J,"_","occ-data-to-check_ALL_",
                            Sys.Date(),".csv")), row.names = F)
     } 

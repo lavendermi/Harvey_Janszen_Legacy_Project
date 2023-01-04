@@ -44,7 +44,7 @@ rm(requiredPackages)
   
   data <- read.csv(here::here("data","data_digitization",
                                 "occurrence_data",
-                                "data_cleaning", 
+                                "3_data_cleaning", 
                                 filename))
   
   # loading places metadata
@@ -547,5 +547,5 @@ mutate("archiveID"= J,.before=pageNum)
 
 write.csv(data_cleaned, here::here("data","data_digitization",
                                    "occurrence_data",
-                                   "clean_data", paste0("HJ-",J, "_clean-occurrences.csv")), row.names = F)
+                                   "4_clean_data", paste0("HJ-",J, "_clean-occurrences.csv")), row.names = F)
 

@@ -53,12 +53,12 @@
       data <- read.csv(
         here::here("data","data_digitization",
                    "occurrence_data", 
-                    "clean_data", 
+                    "4_clean_data", 
                     paste0("HJ-",index[1], "_clean-occurrences.csv"))) 
     } else{ 
       data <- rbind(data, read.csv(
         here::here("data","data_digitization",
-                    "clean_data", 
+                    "4_clean_data", 
                     paste0("HJ-",i,"_clean-occurrences.csv"))))
     }
   }
