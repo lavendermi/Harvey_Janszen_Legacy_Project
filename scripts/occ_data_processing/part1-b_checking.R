@@ -23,23 +23,25 @@ for (pkg in requiredPackages) {
   {groundhog.library(pkg, date)}
 }
 rm(requiredPackages)
+
 ## 1. LOADING DATA ----
 
-  # USER INPUT: 
-  # input file name for checked data & journal number - in "data_checking" folder
-  filename_checked <-"HJ-7_occ-data-to-check_HIGH-PRIORITY_2023-01-01.csv"
-  J <-7
+  J <-7 # journal number (only ONE at a time) (USER INPUT) ! 
   
   # loading data
-  checked_data <- read.csv(here::here("data","data_digitization",
-                                      "occurrence_data",
-                                      "2_data_checking", 
-                                      filename_checked)) 
   
   raw_data <- read_excel(here::here("data","data_digitization",
                                     "occurrence_data", 
                                     "1_raw_data", paste0("HJ-",J,
-                                      "-","occ-entry.xlsx"))) 
+                                     "-","occ-entry.xlsx"))) 
+  # most recent checked data entry
+  checked_data <- read.csv(
+    here::here("data","data_digitization",
+    "occurrence_data","2_data_checking", 
+    paste0("HJ",J), 
+    as.character(max(list.files(here::here("data","data_digitization",
+                                "occurrence_data",
+                                 "2_data_checking", paste0("HJ",J)))))))
   
   # renaming columns of raw data to match
   raw_data <- raw_data %>%dplyr::rename(
@@ -106,6 +108,7 @@ rm(requiredPackages)
   write.csv(processed_data_1, 
             here::here("data", "data_digitization", 
             "occurrence_data","3_data_cleaning",
+            paste0("HJ",J),
             paste0("HJ", J, "-processed-step-1_",Sys.Date(),".csv")),
             row.names = F)
             

@@ -21,7 +21,8 @@ library(groundhog)
 
 set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
-requiredPackages <-  c("assertr","readxl","dplyr","here", "tidyverse","tidyr")
+requiredPackages <-  c("assertr","readxl","dplyr","here", 
+                       "tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
   if (pkg %in% rownames(installed.packages()) == FALSE)
@@ -33,15 +34,32 @@ rm(requiredPackages)
 
 ## 1. LOADING IN DATA ----
  
-  # loading raw data 
-  J <-7 # USER INPUT
-
-  data <- read_excel(here::here("data","data_digitization", 
-          "occurrence_data","1_raw_data", 
-          paste0("HJ-",J,"-","occ-entry.xlsx")))
-
+  
+  J <- 7 # Journal number (only ONE at a time) --> USER INPUT !
+  
+  # loading raw data
+  total_data <- read_excel(here::here("data","data_digitization", 
+                           "occurrence_data","1_raw_data", 
+                            paste0("HJ-",J,"-","occ-entry.xlsx"))) 
+  
+  ## finding new rows entered 
+  
+  # if there is one or more files that have been previously processed...
+  if(length(list.files(here::here("data", "data_digitization",
+                                  "occurrence_data","template_format",
+                                  "prev_proccessed", paste0("HJ",J))))>=1){
+    
+    # read in the file with the latest date (with most observations) 
+    old_data <- read.csv(max(list.files(
+      here::here("data", "data_digitization","occurrence_data",
+                 "prev_proccessed", paste0("HJ",J)))))  
+    
+    # remove rows from current data table that contain old data                                              
+    new_data <- total_data %>% anti_join(old_data)
+  }
+  
   # renaming column names for easier recognition 
-  data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
+  total_data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
                                 numPage = "[numPage]", 
                                 vName = "[vName]",
                                 vSciName= "[vSciName]", 
@@ -54,6 +72,11 @@ rm(requiredPackages)
   
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
   
+## writing sheet of total columns reviewed/ processed
+  write.csv(total_data, here::here("data", "data_digitization","occurrence_data",
+                             "prev_proccessed", paste0("HJ",J), 
+                             paste0("HJ-", J, "_rows-reviewed_",Sys.Date())))
+
 # Extract rows where... 
 # a) vName, vSciName, or sciName are empty
 # b) there are dataEntry remarks

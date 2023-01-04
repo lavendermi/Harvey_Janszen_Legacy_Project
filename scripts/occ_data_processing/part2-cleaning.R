@@ -10,7 +10,7 @@
 
 ## Things to do: 
 
-# add check to see specific epihet lower case in assCollTaxa 
+# add check to see specific epithet lower case in assCollTaxa 
 # add journal page numbers for Journal 5
 
 ## LOADING PACKAGES ----
@@ -33,15 +33,15 @@ rm(requiredPackages)
 
   # loading data that has passed the first processing step 
 
-  J <-7 # journal number (USER INPUT)
-
-  # ENTER FILE NAME (USER INPUT) - in data_cleaning folder
-  filename <- "HJ7-processed-step-1_2023-01-01.csv" 
+  J <-7 # journal number --> USER INPUT !!
   
-  data <- read.csv(here::here("data","data_digitization",
-                                "occurrence_data",
-                                "3_data_cleaning", 
-                                filename))
+  data <- read.csv(
+    here::here("data","data_digitization",
+    "occurrence_data","3_data_cleaning", 
+     paste0("HJ",J), 
+     as.character(max(list.files(here::here("data","data_digitization",
+     "occurrence_data",
+     "3_data_cleaning", paste0("HJ",J)))))))
   
   # loading places metadata
   places <- read.csv(here::here("data", 
@@ -543,5 +543,5 @@ mutate("archiveID"= J,.before=pageNum)
 
 write.csv(data_cleaned, here::here("data","data_digitization",
                                    "occurrence_data",
-                                   "4_clean_data", paste0("HJ-",J, "_clean-occurrences.csv")), row.names = F)
+                                   "4_clean_data", paste0("HJ-",J, "_clean-occurrences_",Sys.Date(),".csv")), row.names = F)
 
