@@ -17,16 +17,14 @@ requiredPackages <-  c("assertr","expss", "readxl","dplyr",
                        "here", "tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
 
 ## 1. LOADING DATA ----
 
-  J <-7 # journal number (only ONE at a time) (USER INPUT) ! 
+  J <-5 # journal number (only ONE at a time) (USER INPUT) ! 
   
   # loading data
   
@@ -39,9 +37,9 @@ rm(requiredPackages)
     here::here("data","data_digitization",
     "occurrence_data","2_data_checking", 
     paste0("HJ",J), 
-    as.character(max(list.files(here::here("data","data_digitization",
+    as.character(unique(max(list.files(here::here("data","data_digitization",
                                 "occurrence_data",
-                                 "2_data_checking", paste0("HJ",J)))))))
+                                 "2_data_checking", paste0("HJ",J))))))))
   
   # renaming columns of raw data to match
   raw_data <- raw_data %>%dplyr::rename(
@@ -59,7 +57,8 @@ rm(requiredPackages)
                 relocate(., dataEntryRemarks, .before= pageNum)
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
-  missed_rows <- checked_data %>% 
+  # (if no error message appears, then everything is fine)
+  checked_data %>% 
   assert(in_set("C", "R", "c","r"), checkStatus) 
   
 ## 3. CONSOLIDATNG & REMOVING ROWS ----

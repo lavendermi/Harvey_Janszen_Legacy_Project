@@ -25,17 +25,15 @@ requiredPackages <-  c("assertr","readxl","dplyr","here",
                        "tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
 
 ## 1. LOADING IN DATA ----
  
   
-  J <- 7 # Journal number (only ONE at a time) --> USER INPUT !
+  J <- 5 # Journal number (only ONE at a time) --> USER INPUT !
   
   # loading raw data
   total_data <- read_excel(here::here("data","data_digitization", 
@@ -56,10 +54,12 @@ rm(requiredPackages)
     
     # remove rows from current data table that contain old data                                              
     new_data <- total_data %>% anti_join(old_data)
+  } else {
+    new_data <- total_data
   }
   
   # renaming column names for easier recognition 
-  total_data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
+  new_data <- new_data %>% dplyr::rename(pageNum = "[pageNum]", 
                                 numPage = "[numPage]", 
                                 vName = "[vName]",
                                 vSciName= "[vSciName]", 
@@ -73,8 +73,8 @@ rm(requiredPackages)
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
   
 ## writing sheet of total columns reviewed/ processed
-  write.csv(total_data, here::here("data", "data_digitization","occurrence_data",
-                             "prev_proccessed", paste0("HJ",J), 
+  write.csv(new_data, here::here("data", "data_digitization","occurrence_data",
+                             "prev_proccessed", "template_format",paste0("HJ",J), 
                              paste0("HJ-", J, "_rows-reviewed_",Sys.Date())))
 
 # Extract rows where... 
@@ -93,7 +93,7 @@ rm(requiredPackages)
   
   if (Q == "hp"){
 
-    to_check <- data %>% 
+    to_check <- new_data %>% 
       dplyr::filter(is.na(vName) | is.na(vSciName) | is.na(sciName) | 
                       !is.na(dataEntryRemarks) |
                       is.na(date)| 
@@ -114,13 +114,13 @@ rm(requiredPackages)
       write.csv(to_check, 
                 here::here("data",
                   "data_digitization","occurrence_data", 
-                "2_data_checking", 
+                "2_data_checking", paste0("HJ",J),
                  paste0("HJ-",J,"_","occ-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
       
     } else if (Q=="all"){
       
-      to_check <- data %>% 
+      to_check <- new_data %>% 
         dplyr::filter(is.na(vName) | is.na(vSciName) |
                         is.na(sciName) | 
                         !is.na(dataEntryRemarks) |
@@ -142,7 +142,7 @@ rm(requiredPackages)
       ## saving file 
       write.csv(to_check, 
                 here::here("data","data_digitization","occurrence_data",
-                           "2_data_checking", 
+                           "2_data_checking", paste0("HJ",J),
                            paste0("HJ-",J,"_","occ-data-to-check_ALL_",
                            Sys.Date(),".csv")), row.names = F)
     } 

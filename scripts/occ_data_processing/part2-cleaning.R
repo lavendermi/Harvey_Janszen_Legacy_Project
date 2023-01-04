@@ -22,26 +22,24 @@ requiredPackages <-  c("assertr","dplyr","here", "terra","tidyverse",
                        "tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
 
 ## READING IN DATA ----
 
   # loading data that has passed the first processing step 
 
-  J <-7 # journal number --> USER INPUT !!
+  J <-5 # journal number --> USER INPUT !!
   
   data <- read.csv(
     here::here("data","data_digitization",
     "occurrence_data","3_data_cleaning", 
-     paste0("HJ",J), 
+     paste0("HJ",J), unique(
      as.character(max(list.files(here::here("data","data_digitization",
      "occurrence_data",
-     "3_data_cleaning", paste0("HJ",J)))))))
+     "3_data_cleaning", paste0("HJ",J))))))))
   
   # loading places metadata
   places <- read.csv(here::here("data", 
@@ -543,5 +541,8 @@ mutate("archiveID"= J,.before=pageNum)
 
 write.csv(data_cleaned, here::here("data","data_digitization",
                                    "occurrence_data",
-                                   "4_clean_data", paste0("HJ-",J, "_clean-occurrences_",Sys.Date(),".csv")), row.names = F)
+                                   "4_clean_data",paste0("HJ",J),
+                                   paste0("HJ-",J, "_clean-occurrences_",
+                                          Sys.Date(),".csv")), row.names = F)
+# writing duplicate to indicate that 
 
