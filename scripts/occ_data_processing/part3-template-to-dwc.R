@@ -7,7 +7,7 @@
 
 ## OVERVIEW ----
 # this script will take occurrence data from the data entry 
-# template and place it in darwin core terms
+# template and place it in darwin core format
 
 # OCCURRENCE DATA = data in field journals including:
   # 1) observation only occurrences (where specimen has not been collected - 
@@ -20,10 +20,7 @@
 # what should not be entered? 
   # checklist data from other people's observations/ collections 
 
-# before using this script should have
-  # 1) a completed template with occurrence data 
-  # 2) observations with low confidence in deciphering field notes have been 
-      # removed or checked over and corrected (mostly with species names)
+# complete steps 1 and 2 before running 
 
 ## 1) LOADING & INSTALLING PACKAGES ----
   # using groundhog to manage package versioning 
@@ -58,6 +55,7 @@
     } else{ 
       data <- rbind(data, read.csv(
         here::here("data","data_digitization",
+                   "occurrence_data", 
                     "4_clean_data", 
                     paste0("HJ-",i,"_clean-occurrences.csv"))))
     }
@@ -532,13 +530,15 @@ mapview(points_to_map)
 for (i in 1:dim(occ_data)[1]){ # for every row
   
   # if there is another row that matches date, and place...
-  if (length(
-    which((occ_data$fulldate[i] == occ_data$fulldate & 
-    occ_data$locality[i]==occ_data$locality &  
-    occ_data$habitat[i]==occ_data$habitat &
-    occ_data$locationRemarks[i]==occ_data$locationRemarks &
-    occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-    occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+  if (length(occ_data$occurrenceID[
+    which(occ_data$fulldate[i] == occ_data$fulldate & 
+          occ_data$locality[i]==occ_data$locality &  
+          occ_data$habitat[i]==occ_data$habitat &
+          occ_data$locationRemarks[i]==occ_data$locationRemarks &
+          occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+          occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
+          occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
+          occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
     
     nameVec <- 
       as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
@@ -587,13 +587,15 @@ for (i in 1:dim(occ_data)[1]){ # for every row
 for (i in 1:dim(occ_data)[1]){ # for every row
       
       # if there is another row that matches date, and place...
-      if (length(
-        which((occ_data$fulldate[i] == occ_data$fulldate & 
-        occ_data$locality[i]==occ_data$locality &  
-        occ_data$habitat[i]==occ_data$habitat &
-        occ_data$locationRemarks[i]==occ_data$locationRemarks &
-        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-        occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+      if (length(occ_data$occurrenceID[
+        which(occ_data$fulldate[i] == occ_data$fulldate & 
+              occ_data$locality[i]==occ_data$locality &  
+              occ_data$habitat[i]==occ_data$habitat &
+              occ_data$locationRemarks[i]==occ_data$locationRemarks &
+              occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+              occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
+              occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
+              occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
         
         numVec <- 
           as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
@@ -793,6 +795,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       # renaming columns to dwc terms 
       dplyr::rename(verbatimScientificName = vSciName, 
                     verbatimElevation = vElevM,
+                    recordNumber = recordNum,
                     identificationQualifier = idQualifier,
                     occurrenceStatus = occStatus, 
                     associatedTaxa = assCollTaxa, 
@@ -811,8 +814,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                     taxonomicStatus = status, eventDate = fulldate) %>% 
       
       # removing columns 
-      select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
-             -numPlantsCode)
+      select( -canonicalName, -confidence,
+             -numPlantsCode, - curationMetadata)
     
 ## saving csv file
    write.csv(dwc_data, here::here("data", "data_digitization",

@@ -1,29 +1,12 @@
 #######################################################################
 ###       Processing Step 3: conversion from Data Entry Template    ###
-###                      to Darwin Core Occurrences                 ###
+###                      to Darwin Core Collections                 ###
 ###                         Emma Menchions                          ###
 ###                         Created Nov. 7/22                       ###
 #######################################################################
 
 ## OVERVIEW ----
-# this script will take occurrence data from the data entry 
-# template and place it in darwin core terms
-
-# OCCURRENCE DATA = data in field journals including:
-  # 1) observation only occurrences (where specimen has not been collected - 
-      # no collection number and no note of collection)
-  # 2) observations of associated taxa in notes of collected specimen 
-  # 3) checklist / surveys containing groups of species names in different sites 
-      # (each species observation is a row)
-  # 4) Survey data - where abundances have been collected
-
-# what should not be entered? 
-  # checklist data from other people's observations/ collections 
-
-# before using this script should have
-  # 1) a completed template with occurrence data 
-  # 2) observations with low confidence in deciphering field notes have been 
-      # removed or checked over and corrected (mostly with species names)
+# this script will take collection data and place it in darwin core format
 
 ## 1) LOADING & INSTALLING PACKAGES ----
   # using groundhog to manage package versioning 
@@ -46,33 +29,34 @@
 
 ## 2) READING IN DATA ----
   
-  index <- c(7,8,9,27) # USER INPUT 
+  index <- c(5,7,8,9,27) # USER INPUT 
   
   for (i in index){
     if (i == index[1]){
       data <- read.csv(
         here::here("data","data_digitization",
-                   "occurrence_data", 
-                    "clean_data", 
-                    paste0("HJ-",index[1], "_clean-occurrences.csv"))) 
+                   "collection_data","field_note_data" ,
+                    "4_clean_data", 
+                    paste0("HJ-",index[1], "_clean-collections.csv"))) 
     } else{ 
       data <- rbind(data, read.csv(
         here::here("data","data_digitization",
-                    "clean_data", 
-                    paste0("HJ-",i,"_clean-occurrences.csv"))))
+                    "collection_data", "field_note_data",
+                    "4_clean_data", 
+                    paste0("HJ-",i,"_clean-collections.csv"))))
     }
   }
   
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
   ## dwc:datasetName
-  data$datasetName <- "Harvey Janszen Observations"
+  data$datasetName <- "Harvey Janszen Collection"
 
   ## dwc:basisOfRecord
   # Human observation = (report by a known observer that an organism was 
   # present at the place and time)
   # all records should be this type 
-  data$basisOfRecord <- "HumanObservation"
+  data$basisOfRecord <- "PreservedSpecimen"
 
   ## dwc: "year", "month", "day" 
   # splitting YYYYMMDD date entered into separate year, month, day columns
@@ -157,8 +141,7 @@
   # constraints: 1) in set of ranks
   # 2) read as character
   
-  ranks <- c("subspecies","species", "genus", "family", "order", 
-             "class", "phylum", "kindgom")
+  ranks <- c("subspecies","species", "genus")
   
   # if there are non-Na elements...
   if(length(data$vTaxonRank[is.na(data$vTaxonRank)])
@@ -175,13 +158,9 @@
   }
   
   ## dwc: occurrenceStatus
-  # automatically assigning occurrence status as present if it 
-  # was not filled in
-  for(i in 1:dim(data)[1]){ # for each observation
-    if(is.na(data$occStatus[i])){ # if there was no remark
-      data$occStatus[i] <- "present" # assign as present
-    }
-  } 
+  # automatically assigning occurrence status as present since all were collected specimens
+  
+  data$occStatus <- "present" 
   
   ## dwc: islandGroup
   ## automatically assigning island group, if the island field was filled in 
@@ -224,61 +203,20 @@
     data %>% 
     assert(not_na,county) 
   
-## assColl (associated collections)
-  # adding "HJC-" to the beginning of collection numbers entered here to indicate
-  # that it is a collected specimen 
-  # if string split > 1 " " 
-  
-  taxa <- NULL #initializing vectors
-  taxa_coll <- NULL
-  
-  for (i in 1:dim(data)[1]){ # for each obs
-    if (!is.na(data$assColl[i])){ # if there is an associated species 
-                                  # already listed (collected specimens)
-      if (length(str_split(data$assColl[i], ", ")[[1]])>1){ 
-        # if there is more than one ...
-        taxa <- str_split(data$assColl[i], ", ")[[1]]
-        
-        for (j in 1:length(taxa)){ # for each occurrence number 
-          # input "HJC-" before the number to indicate collected specimen number
-          taxa_coll[j] <- paste0("HJC-",taxa[j]) 
-        }
-        # and assign this to the associated species column for that row
-        
-        data$assColl[i] <- paste(taxa_coll, collapse= "; ")
-        
-      } else if (length(str_split(data$assColl[i], ", "))==1) { # if there is only one 
-                                                    # associated occurrence already...
-        # paste "HJC-" infront and assign to the associated species column for that row
-        data$assColl[i] <- paste0("HJC-",data$assColl[i])
-      }
-    }
-  }
-  
-  ## assCollTaxa
-  # replacing commas with semicolons for consistency
-  data$assCollTaxa <- str_replace_all(data$assCollTaxa, ",", ";")
-  
-  ## dwc: recordNumber
-  # assigning record number as a combined number of the archiveID, 
-  # pageNumber and number on page
-  data$recordNumber <- paste0("HJ",data$archiveID, "-", 
-                              data$pageNum, "-", data$numPage)
-  
   # dwc:fieldNotes
   # stating where the field notes are stored and where the images are 
-  data$fieldNotes <- "Imaged notes: X,  Original notes housed at UBC herbarium"
+  data$fieldNotes <- paste0("HJ-", data$archiveID, " page: ", data$pageNum, " num: ", data$numPage, ", Imaged notes: X,  Original notes housed at UBC herbarium")
   
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals
   # starting at 1 
-  data$occurrenceID <- paste0("HJO-",1:dim(data)[1])
+  data$occurrenceID <- paste0("HJC-",data$recordNum)
   
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
   occ_data <- data %>% 
-    select(-pageNum,-numPage, -vName, -conf, -date, -index) %>%
-    arrange(occurrenceID)
+    select(-pageNum,-numPage, -vName, -conf, -date, -index, -dataEntryRemarks, -archiveID) %>%
+    arrange(recordNum)
                                        
 ## 4) TAXONOMY FIELDS ----
   
@@ -291,8 +229,9 @@
     filter(!is.na(sciName)) %>% 
     dplyr::rename(scientificName = sciName)
   
-    write.csv(Names, here::here("data","data_digitization","occurrence_data", 
-                                "occurrence_reference_data", "taxonomy", 
+    write.csv(Names, here::here("data","data_digitization","collection_data",
+                                "field_note_data","coll_reference_data",
+                                "taxonomy", 
                                 paste0("taxa-names_",
                                 Sys.Date(), ".csv")), row.names = F)
     
@@ -309,9 +248,9 @@
     # add the date that this table was generated
   
   # loading in the names normalization table 
-    normalized_names <- read.csv(here::here("data","data_digitization","occurrence_data",
-                                            "occurrence_reference_data",
-                                            "taxonomy","normalized_2023-01-01.csv"))
+    normalized_names <- read.csv(here::here("data","data_digitization","collection_data",
+                                            "field_note_data","coll_reference_data",
+                                            "taxonomy","normalized_2023-01-03.csv"))
     
   # linking to occurrenceID in template table
       
@@ -371,20 +310,20 @@
     
     # writing to data folder
     write.csv(localities_to_georef, here::here("data", "data_digitization",
-                                               "occurrence_data",
-                                               "occurrence_reference_data",
+                                               "collection_data","field_note_data",
+                                               "coll_reference_data",
                                                "georeferencing",
                                         paste0("localities-to-georef_", 
                                         Sys.Date(), ".csv")), 
                                         row.names = F)
-    
+  
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
     # Follow protocol outlined in "occurrence-data-protocol.Rmd"
     
   ## loading referenced occurrences 
     GEOlocate <- read.csv(here::here("data", "data_digitization",
-                                     "occurrence_data","occurrence_reference_data",
-                                     "georeferencing", "geoLocate_2023-01-01.csv")) 
+                                     "collection_data","field_note_data","coll_reference_data",
+                                     "georeferencing", "geoLocate_2023-01-03.csv")) 
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
                                                latitude, geoLocLon = longitude, 
@@ -520,25 +459,32 @@ points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),
 mapview(points_to_map)          
               
 ## 6) ASSIGNING ASSOCIATE ROWS and TAXA----
+
+# matches date,  place, or has SAME coordinates on same date
   
 # temporarily make missing values in habitat and location remarks columns 
 # "missing"
     occ_data[is.na(occ_data$habitat), "habitat"] <- "missing" 
     occ_data[is.na(occ_data$locationRemarks), "locationRemarks"] <- "missing" 
+    occ_data$assCollTaxa <- NA
+    occ_data$assColl <- NA
     
 # for loop: finds matching occurrences and places their names in associated 
     # taxa column
     
 for (i in 1:dim(occ_data)[1]){ # for every row
   
-  # if there is another row that matches date, and place...
-  if (length(
-    which((occ_data$fulldate[i] == occ_data$fulldate & 
+  # if there is another row that matches date, and place 
+  # or another row with matching verbatim coordinates and name
+  if (length(occ_data$occurrenceID[
+    which(occ_data$fulldate[i] == occ_data$fulldate & 
     occ_data$locality[i]==occ_data$locality &  
     occ_data$habitat[i]==occ_data$habitat &
     occ_data$locationRemarks[i]==occ_data$locationRemarks &
     occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-    occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+    occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
+    occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
+    occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
     
     nameVec <- 
       as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
@@ -548,10 +494,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
       occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                    ,"canonicalName"])
-        
-        # if there is no collected associated taxa recorded...
-        if (is.na(occ_data$assCollTaxa[i])){
-            
+     
           # for every match 
           for (j in 1:length(nameVec)){
             # for the first match, just input this name
@@ -568,17 +511,6 @@ for (i in 1:dim(occ_data)[1]){ # for every row
               
             }
           }
-          
-        # or if there is already a collected associated taxa listed...
-        } else if (!is.na(occ_data$assCollTaxa[i])){   
-          # for every match...
-          for (j in 1:length(nameVec)){
-              
-              occ_data[i,"assCollTaxa"] <- paste(occ_data[i,"assCollTaxa"],
-                                                 nameVec[j], sep = "; ")
-                            
-          }
-       }
   }
 }
     
@@ -587,13 +519,15 @@ for (i in 1:dim(occ_data)[1]){ # for every row
 for (i in 1:dim(occ_data)[1]){ # for every row
       
       # if there is another row that matches date, and place...
-      if (length(
-        which((occ_data$fulldate[i] == occ_data$fulldate & 
-        occ_data$locality[i]==occ_data$locality &  
-        occ_data$habitat[i]==occ_data$habitat &
-        occ_data$locationRemarks[i]==occ_data$locationRemarks &
-        occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
-        occ_data$decimalLongitude[i]==occ_data$decimalLongitude))) > 1){
+      if (length(occ_data$occurrenceID[
+        which(occ_data$fulldate[i] == occ_data$fulldate & 
+              occ_data$locality[i]==occ_data$locality &  
+              occ_data$habitat[i]==occ_data$habitat &
+              occ_data$locationRemarks[i]==occ_data$locationRemarks &
+              occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
+              occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
+              occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
+              occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
         
         numVec <- 
           as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
@@ -603,9 +537,6 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
           occ_data$decimalLongitude[i]==occ_data$decimalLongitude
                                       ,"occurrenceID"])
-        
-        # if there is no collected associated taxa recorded...
-        if (is.na(occ_data$assColl[i])){
           
           # for every match 
           for (j in 1:length(numVec)){
@@ -624,16 +555,6 @@ for (i in 1:dim(occ_data)[1]){ # for every row
             }
           }
           
-          # or if there is already a collected associated record num listed...
-        } else if (!is.na(occ_data$assColl[i])){   
-          # for every match...
-          for (j in 1:length(numVec)){
-            
-            occ_data[i,"assColl"] <- paste(occ_data[i,"assColl"],
-                                           numVec[j], sep = "; ")
-            
-          }
-        }
       }
     } 
     

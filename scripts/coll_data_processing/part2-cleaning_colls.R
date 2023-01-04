@@ -1,6 +1,6 @@
 ###########################################################
 #######               Cleaning entered              ####### 
-#######     occurrence data in data entry template  #######
+#######     collection data in data entry template  #######
 #######                 Emma Menchions 22-11-20     #######                       
 ###########################################################
 
@@ -10,7 +10,7 @@
 
 ## Things to do: 
 
-# add check to see specific epihet lower case in assCollTaxa 
+# add check to see specific epithet lower case in assCollTaxa 
 # add journal page numbers for Journal 5
 
 ## LOADING PACKAGES ----
@@ -36,11 +36,12 @@ rm(requiredPackages)
   J <-7 # journal number (USER INPUT)
 
   # ENTER FILE NAME (USER INPUT) - in data_cleaning folder
-  filename <- "HJ7-processed-step-1_2023-01-01.csv" 
+  filename <- "HJ7-processed-step-1_2023-01-03.csv" 
   
   data <- read.csv(here::here("data","data_digitization",
-                                "occurrence_data",
-                                "data_cleaning", 
+                                "collection_data",
+                              "field_note_data",
+                                "3_data_cleaning", 
                                 filename))
   
   # loading places metadata
@@ -100,7 +101,7 @@ rm(requiredPackages)
 
 ## numPage 
   # constraints: 1) between 1 and 100 (arbitrary threshold - 
-  # unlikely to be more than 100 observaitons on page)
+  # unlikely to be more than 100 observations on page)
   # 2) read as an integer
   # 3) all rows must have entry
   
@@ -111,6 +112,10 @@ rm(requiredPackages)
     assert(in_set(1:100), numPage) %>% # checking if integer from 1 - 31
     assert(not_na, numPage) %>%  # checking that all rows have number
     chain_end 
+## recordNum
+  
+  data %>% 
+    assert(not_na, recordNum)
   
 ## vName 
   # constraints: 1) must be character and only contain letters not numbers 
@@ -431,61 +436,6 @@ rm(requiredPackages)
     
   }
   
-## assColl
-  # constraints: 1) if assCollTaxa is non-Na, this column should be non-NA
-  # 2) read as character
-  paired_col_not_empty <- function(x) if(x==" ") return(FALSE)
-  
-  # if there are non-Na elements...
-  if(length(data$assColl[is.na(data$assColl)])
-     <length(data$assColl)){
-    
-      # checking class 
-      data %>% 
-        verify(., has_class("assColl", class="character"))
-    
-      # checking that all rows with data entered in assCollTaxa have 
-      # something enetered in the assCollTaxa column
-    for (i in 1:dim(data)[1]){
-        if (is.na(data$assCollTaxa[i]) & is.na(data$assColl[i])){
-          match <- T 
-        } else if (!is.na(data$assCollTaxa[i]) & !is.na(data$assColl[i])){
-          match <- T
-        } else if (!is.na(data$assCollTaxa[i]) & is.na(data$assColl[i])){
-          match <- F 
-        } else if (is.na(data$assCollTaxa[i]) & !is.na(data$assColl[i])){
-          match <- F 
-        }
-    }
-  } 
-      
-  
-## assCollTaxa 
-  # constraints: 1) if assCollOcc is non-Na, this column should be non-NA
-  # 2) all genus names capitalized
-  # 3) all specific epithets not capitalized
-  # 4) read as character
-    
-  # first make separate data frame where each row is an associated species name with associated index ID
-  # it was originally attached to 
-  
-  # creating index id for the original dataframe 
-  data$index <- 1:dim(data)[1]
-  
-  namesFrame <- data %>% 
-    select(assCollTaxa, index) %>% 
-  separate_rows(assCollTaxa,sep=", ")
-  
-  genusCapitalized <- function(x) if(!is.na(x)){grepl("^[[:upper:]]", x)}
-  
-  # if there are non-Na elements...
-  if(length(namesFrame$assCollTaxa[is.na(namesFrame$assCollTaxa)])<length(namesFrame$assCollTaxa)){
-  namesFrame %>% 
-    chain_start %>%
-    assert(letters_only, assCollTaxa) %>% 
-    assert(genusCapitalized, assCollTaxa)
-  }
-  
 ## numPlantsCode 
   # constraint: 1) must be between 0 and 5 
   # 2) read as integer
@@ -542,6 +492,6 @@ data_cleaned <- data %>%
 mutate("archiveID"= J,.before=pageNum)
 
 write.csv(data_cleaned, here::here("data","data_digitization",
-                                   "occurrence_data",
-                                   "clean_data", paste0("HJ-",J, "_clean-occurrences.csv")), row.names = F)
+                                   "collection_data","field_note_data", 
+                                   "4_clean_data", paste0("HJ-",J, "_clean-collections.csv")), row.names = F)
 
