@@ -33,12 +33,11 @@
                          "magrittr","mapview","purrr","ritis",
                          "stringi","taxize","terra","tidyverse","tidyr")
   
+  
   for (pkg in requiredPackages) {
-    if (pkg %in% rownames(installed.packages()) == FALSE)
-    {install.packages(pkg)}
-    if (pkg %in% rownames(.packages()) == FALSE)
-    {groundhog.library(pkg, date)}
+    groundhog.library(pkg, date)
   }
+  
   rm(requiredPackages)
 
 ## 2) READING IN DATA ----
