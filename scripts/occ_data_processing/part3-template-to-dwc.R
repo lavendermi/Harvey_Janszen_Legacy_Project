@@ -47,7 +47,7 @@
   
   for (i in 1:length(J)){
     if (i == 1){
-      tota_data <- read.csv(
+      total_data <- read.csv(
         here::here("data","data_digitization",
         "occurrence_data","4_clean_data", 
         # reading in most recent round of cleaned occurrences
@@ -68,7 +68,8 @@
     }
   }
   
-## findinging new rows entered and removing those already processed 
+  
+## finding new rows entered and removing those already processed 
   # loading all other dwc sheets that still have archive ID, pageNum and numPage
   # removing those with the same 
   
@@ -76,29 +77,52 @@
   # need a step at the ed 
   
   # if there is one or more files that have been previously processed...
-  if(length(list.files(here::here("data", "data_digitization",
-                                  "occurrence_data","cleaned",
-                                  "prev_proccessed", paste0("HJ",J))))>=1){
-    
-    # read in the file with the latest date (with most observations) 
-    old_data <- read.csv(max(list.files(
-      here::here("data", "data_digitization","occurrence_data",
-                 "prev_proccessed", paste0("HJ",J)))))  
+  if(length(J)>1){
+      if(length(list.files(here::here("data", "data_digitization",
+                                  "occurrence_data",
+                                  "prev_proccessed", "dwc", "all")))>=1){
+       
+        # read in the file with the latest date (with most observations) 
+          old_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
+                                          "prev_proccessed","dwc","all",unique(as.character(max(list.files(
+                                            here::here("data", "data_digitization","occurrence_data",
+                                            "prev_proccessed", "dwc", "all")))))))
+     
+         
+      } else {
+        data <- total_data
+      }
     
     # remove rows from current data table that contain old data                                              
     data <- total_data %>% anti_join(old_data)
-    
+
   } else {
-    data <- total_data
+    if(length(list.files(here::here("data", "data_digitization",
+                                    "occurrence_data",
+                                    "prev_proccessed", "dwc", paste0("HJ",J))))>=1){
+      # read in the file with the latest date (with most observations) 
+      old_data <- read.csv(
+        here::here("data", "data_digitization","occurrence_data",
+        "prev_proccessed","dwc",paste0("HJ",J),unique(as.character(max(list.files(
+      here::here("data", "data_digitization","occurrence_data",
+                   "prev_proccessed","dwc", paste0("HJ",J))))))))  
+      
+      # remove rows from current data table that contain old data                                              
+      data <- total_data %>% anti_join(old_data)
+      
+    } else {
+      data <- total_data
+    }
     
   }
+  
   
   # writing duplicate dummy sheet to prev_processed with all rows (total_data)
   # do the rest with new_data
   
   if (length(J>1)){
     # write a duplicate that tells you what rows have already been processed in the future
-    write.csv(total_dwc_data, here::here("data", "data_digitization",
+    write.csv(total_data, here::here("data", "data_digitization",
                                          "occurrence_data","prev_proccessed","dwc",
                                          "all",
                                          paste0("darwin-core-occurrences_", 
@@ -107,7 +131,7 @@
     
   } else{
     # write a duplicate that tells you what rows have already been processed in the future
-    write.csv(total_dwc_data, here::here("data", "data_digitization",
+    write.csv(total_data, here::here("data", "data_digitization",
                                          "occurrence_data","prev_proccessed","dwc",
                                          paste0("HJ",J),
                                          paste0("darwin-core-occurrences_", 
@@ -332,8 +356,6 @@
   occ_data <- data %>% 
     select(-pageNum,-numPage, -vName, -conf, -date, -index) %>%
     arrange(occurrenceID)
-  
-  
                                        
 ## 4) TAXONOMY FIELDS ----
   
@@ -375,18 +397,18 @@
     if(length(J)>1){
     normalized_names <- read.csv(
       here::here("data","data_digitization","occurrence_data",
-      "occurrence_reference_data",
+      "occ_reference_data",
       "taxonomy","all","normalized",unique(as.character(max(list.files(
       here::here("data","data_digitization","occurrence_data",
-      "occurrence_reference_data",
+      "occ_reference_data",
       "taxonomy","all","normalized")))))))
     }else{
       normalized_names <- read.csv(
         here::here("data","data_digitization","occurrence_data",
-                   "occurrence_reference_data",
+                   "occ_reference_data",
                    "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
                      here::here("data","data_digitization","occurrence_data",
-                                "occurrence_reference_data",
+                                "occ_reference_data",
                                 "taxonomy",paste0("HJ",J),"normalized")))))))
     }
     
@@ -449,14 +471,14 @@
     # writing to data folder
 
     if(length(J)>1){
-      write.csv(Names, here::here("data","data_digitization","occurrence_data", 
-                                  "occurrence_reference_data", "georeferencing", "all","raw",
+      write.csv(localities_to_georef, here::here("data","data_digitization","occurrence_data", 
+                                  "occ_reference_data", "georeferencing", "all","raw",
                                   paste0("localities-to-georef_", 
                                          Sys.Date(), ".csv")), 
                 row.names = F)
     }else{
-      write.csv(Names, here::here("data","data_digitization","occurrence_data", 
-                                  "occurrence_reference_data", "georeferencing", 
+      write.csv(localities_to_georef, here::here("data","data_digitization","occurrence_data", 
+                                  "occ_reference_data", "georeferencing", 
                                   paste0("HJ",J),"raw",
                                   paste0("localities-to-georef_", 
                                          Sys.Date(), ".csv")), 
@@ -467,25 +489,22 @@
     # Follow protocol outlined in "occurrence-data-protocol.Rmd"
     
   ## loading referenced occurrences 
-    GEOlocate <- read.csv(here::here("data", "data_digitization",
-                                     "occurrence_data","occurrence_reference_data",
-                                     "georeferencing", "geoLocate_2023-01-01.csv")) 
-    
+   
     if(length(J)>1){
       GEOlocate <- read.csv(
         here::here("data","data_digitization","occurrence_data",
-                   "occurrence_reference_data",
+                   "occ_reference_data",
                    "georeferencing","all","done",unique(as.character(max(list.files(
                      here::here("data","data_digitization","occurrence_data",
-                                "occurrence_reference_data",
+                                "occ_reference_data",
                                 "georeferencing","all","done")))))))
     }else{
       GEOlocate <- read.csv(
         here::here("data","data_digitization","occurrence_data",
-                   "occurrence_reference_data",
+                   "occ_reference_data",
                    "georeferencing",paste0("HJ",J),"done",unique(as.character(max(list.files(
                      here::here("data","data_digitization","occurrence_data",
-                                "occurrence_reference_data",
+                                "occ_reference_data",
                                 "georeferencing",paste0("HJ",J),"done")))))))
     }
     
@@ -917,24 +936,24 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                     scientificNameauthorship = authorship, 
                     taxonRank = rank, 
                     taxonomicStatus = status, eventDate = fulldate) %>% 
-    
-  
-      
+
       # removing columns
       select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
              -numPlantsCode)
     
-    
 ## appending previously processed data 
     
-  # if there are one or more files that have been previously proccessed...
+  # if there are one or more files that have been previously processed...
   if(length(J)> 1){
     if(length(list.files(here::here("data", "data_digitization","occurrence_data",
-                                    "prev_proccessed", "all")))>=1){
+                                    "darwin_core_data","all")))>=1){
       
     # read in the file with the latest date (with most observations) 
-      old_dwc_data <- read.csv(max(list.files(here::here("data", "data_digitization","occurrence_data",
-                                                     "prev_proccessed", "all"))))  
+      old_dwc_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
+                      "darwin_core_data","all",
+                       unique(as.character(max(list.files(here::here(
+                      "data", "data_digitization","occurrence_data",
+                        "darwin_core_data","all")))))))
       
     # append rows from current data table that contain old data and sort by date                                        
       new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
@@ -945,12 +964,12 @@ for (i in 1:dim(occ_data)[1]){ # for every row
   
   # if only one journal considered...
   }else {
-    if(length(list.files(here::here("data", "data_digitization","occurrence_data","dwc",
-                                    "prev_proccessed", "all")))>=1){
+    if(length(list.files(here::here("data", "data_digitization","occurrence_data",
+                                    "darwin_core_data",paste0("HJ",J))))>=1){
       
       # read in the file with the latest date (with most observations) 
       old_dwc_data <- read.csv(max(list.files(here::here("data", "data_digitization","occurrence_data",
-                                                         "prev_proccessed", "dwc", paste0("HJ",J))))) 
+                                                         "darwin_core_data", paste0("HJ",J))))) 
       
       # append rows from current data table that contain old data and sort by date                                        
       new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
@@ -964,7 +983,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     
 ## saving csv files
   
-  if(length(J) > 1){ # if more than one journal was proccessed in this script...
+  if(length(J) > 1){ # if more than one journal was processed in this script...
     # write it to folder "darwin_core_data > all"
    write.csv(new_total_dwc_data, here::here("data", "data_digitization",
                                   "occurrence_data","darwin_core_data",
