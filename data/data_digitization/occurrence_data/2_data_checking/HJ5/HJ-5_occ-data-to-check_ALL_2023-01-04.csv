@@ -1,0 +1,3 @@
+checkStatus,toDelete,dataEntryRemarks,pageNum,numPage,vName,vSciName,conf,sciName,date,locality,country,stateProvince,island,idQualifier,county,occStatus,habitat,assCollTaxa,assColl,locationRemarks,vTaxonRank,vElevM,vLat,vLon,vUTM,vCoordUncM,numPlantsCode,orgQuantity,orgQtype,occRemarks,phenology,recordedBy,idBy
+C,n,grandiflora looks crossed out?,11,NA,Collinsia parviflora,Collinsia parviflora,l,Collinsia parviflora,19730316,Saturna Island,Canada,British Columbia,Saturna Island,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+C,y,NA,11,NA,NA,NA,NA,NA,19730319,Saturna Island; Breezy Bay; near bay,NA,NA,NA,NA,NA,NA,NA,NA,NA,collected up trail to Breezy Bay,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

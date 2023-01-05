@@ -741,6 +741,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
 ## saving csv file
    write.csv(dwc_data, here::here("data", "data_digitization",
                                   "collection_data","field_note_data",
+                                  "darwin_core_data",
                                   paste0("darwin-core-collections_", 
                                          Sys.Date(), ".csv")), row.names = F)
     

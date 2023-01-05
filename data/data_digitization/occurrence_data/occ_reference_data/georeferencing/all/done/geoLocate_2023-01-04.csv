@@ -1,0 +1,4 @@
+locality string,country,state,county,latitude,longitude,"correction 
+                 status",precision,error polygon,multiple results,uncertainty,uncertainty (circular polygon)
+Saturna Island,Canada,British Columbia,Southern Gulf Islands,48.783333,-123.13764,yes,High(89),,"48.783333,-123.15,SATURNA ISLAND|Unavailable|5421|High(89),48.798827,-123.130774,(g3)Saturna Island|Unavailable|6869|Medium(64),48.8,-123.2,SATURNA|Unavailable|301|Low(37)",8170,
+Saturna Island; Taylor Point,Canada,British Columbia,Southern Gulf Islands,48.763889,-123.131389,yes,Medium(64),,"48.798827,-123.130774,(g3)Saturna Island|Unavailable|6869|Medium(64),48.783333,-123.15,SATURNA ISLAND|Unavailable|5421|Low(44),48.763889,-123.131389,TAYLOR POINT|Unavailable|602|Low(42),50.858611,-127.139722,TAYLOR POINT|Unavailable|602|Low(42),48.8,-123.2,SATURNA|Unavailable|301|Low(37),56.15,-120.666667,TAYLOR|CAN:muni:198@PPL|3996|Low(37)",602 m,
