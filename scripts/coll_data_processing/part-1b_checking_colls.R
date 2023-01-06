@@ -129,6 +129,15 @@ rm(requiredPackages)
             "collection_data","3_data_cleaning",paste0("HJ",J),
             paste0("HJ", J, "-processed-step-1_",Sys.Date(),".csv")),
             row.names = F)
+  
+  # and removing old files to save storage
+  if(length(list.files(here::here("data", 
+                                  "data_digitization","collection_data",
+                                  "3_data_cleaning", paste0("HJ",J))))>2){
+    file.remove(unique(as.character(min(list.files(here::here("data", 
+                                                              "data_digitization","collection_data",
+                                                              "3_data_cleaning", paste0("HJ",J)))))))   
+  }
             
             
   

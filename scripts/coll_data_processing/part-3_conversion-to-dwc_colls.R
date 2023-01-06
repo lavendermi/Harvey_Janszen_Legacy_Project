@@ -785,7 +785,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                   taxonomicStatus = status, eventDate = fulldate) %>% 
       
       # removing columns 
-      select( -archiveID,-canonicalName, -confidence,
+      select( -canonicalName, -confidence,
               -numPlantsCode, - curationMetadata)
     
     
@@ -814,8 +814,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                       "darwin_core_data",paste0("HJ",J))))>=1){
         
         # read in the file with the latest date (with most observations) 
-        old_dwc_data <- read.csv(max(list.files(here::here("data", "data_digitization","collection_data",
-                                                           "darwin_core_data", paste0("HJ",J))))) 
+        old_dwc_data <- read.csv(here::here("data", "data_digitization","collection_data",
+                                            "darwin_core_data",paste0("HJ",J),
+                                            unique(as.character(max(list.files(here::here("data", 
+                                                                      "data_digitization","collection_data",
+                                                           "darwin_core_data", paste0("HJ",J))))))))
         
         # append rows from current data table that contain old data and sort by date                                        
         new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
@@ -834,6 +837,14 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                                "all",
                                                paste0("darwin-core-collections_", 
                                                       Sys.Date(), ".csv")), row.names = F)
+      # and removing old files to save storage
+      if(length(list.files(here::here("data", 
+                                      "data_digitization","collection_data",
+                                      "darwin_core_data", "all")))>2){
+        file.remove(unique(as.character(min(list.files(here::here("data", 
+                          "data_digitization","collection_data",
+                           "darwin_core_data", "all"))))))   
+      }
       
       
     }else{ # if only one journal, place it in respective folder in darwin_core_data
@@ -843,6 +854,14 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                                paste0("HJ",J),
                                                paste0("darwin-core-collections_", 
                                                       Sys.Date(), ".csv")), row.names = F)
+      # and removing old files to save storage
+      if(length(list.files(here::here("data", 
+                                      "data_digitization","collection_data",
+                                      "darwin_core_data", paste0("HJ",J))))>2){
+        file.remove(unique(as.character(min(list.files(here::here("data", 
+                                                                  "data_digitization","collection_data",
+                                                                  "darwin_core_data", paste0("HJ",J)))))))   
+      
     }
-    
-    
+  }
+

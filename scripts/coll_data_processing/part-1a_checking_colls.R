@@ -146,6 +146,15 @@ rm(requiredPackages)
                            Sys.Date(),".csv")), row.names = F)
     } 
   
+  # and removing old files to save storage
+  if(length(list.files(here::here("data", 
+                                  "data_digitization","collection_data",
+                                  "2_data_checking", paste0("HJ",J))))>4){
+    file.remove(unique(as.character(min(list.files(here::here("data", 
+                                                              "data_digitization","collection_data",
+                                                              "2_data_checking", paste0("HJ",J)))))))   
+  }
+  
 ## 3. ADDRESS THE ISSUES IN THESE ROWS in CSV FILE ----
   # add data or change that data in these rows within the new
   # .csv file created
