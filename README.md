@@ -14,6 +14,6 @@ This includes:
 
 3)  Digitized herbarium label data
 
-![This is an image](img/LDP-Internship-map.png)
+![A path diagram of this repository for the Harvey Janszen Legacy Project](img/LDP-Internship-map.png)
 
 
