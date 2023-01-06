@@ -1,3 +1,3 @@
 Occurrence Data
 
-![Occurrence data worflow](img/LDP-occurrences-flow.png)
+![Occurrence data worflow](/img/LDP-occurrences-flow.png)
