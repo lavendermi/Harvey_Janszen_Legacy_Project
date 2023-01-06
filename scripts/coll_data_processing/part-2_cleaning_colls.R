@@ -52,6 +52,7 @@ rm(requiredPackages)
   # for HJ-27 = numeric between 1 and 28 
   # for HJ-7 = numeric between 1 and 159
   # for HJ-9 = numeric between 1 and 206
+  # for HJ-5 = numeric between 1 and 116
   # 2) read as an integer
   # 3) all rows must have entry
 
@@ -85,7 +86,15 @@ rm(requiredPackages)
     chain_start %>% 
     verify(., has_class("pageNum", class="integer")) %>% 
     assert(in_set(1:28),pageNum) %>% 
-    chain_end 
+    chain_end
+    
+  }else if(J==5){
+    data %>% 
+      group_by(pageNum) %>% 
+      chain_start %>% 
+      verify(., has_class("pageNum", class="integer")) %>% 
+      assert(in_set(1:116),pageNum) %>% 
+      chain_end 
   }
 
 ## numPage 
