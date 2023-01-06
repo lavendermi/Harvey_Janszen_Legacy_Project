@@ -41,9 +41,15 @@ dwc_data <- read.csv(
             "collection_data",
             "darwin_core_data", paste0("HJ",J))))))))
 
+rbcm_database <- read.csv(here::here("data","existing_data","rbcm_HJ-specimens.csv"))
+
 ## 3) Converting columns to have similar names to RBCM ----
 
-RBCM_format <- dwc_data %>% # change variable to dwc_format
+RBCM_format <- dwc_data %>% 
+  
+  # only retaining rows that have recordNumber in rbcm_database
+  inner_join(rbcm_database, by = c("list_fruit" = "Fruit"))
+  
   ## A. RBCM Accession number - blank
   mutate("D"= "",.before=verbatimScientificName) %>% 
   
@@ -114,8 +120,8 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   ## T. recordedBy --> Collector
   dplyr::rename(Collector = recordedBy) %>% 
 
-  ## U. blank --> CollectorsFieldNumber
-  mutate("CollectorsFieldNumber"= "",.after=Collector) %>% 
+  ## U. recordNumber --> CollectorsFieldNumber
+  dplyr::rename(recordNumer = CollectorsFieldNumber) %>% 
   
   ## V. eventDate --> CollectionDate
   dplyr::rename(CollectionDate = eventDate) %>% 
