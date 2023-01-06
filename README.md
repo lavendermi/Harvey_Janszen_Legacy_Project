@@ -1,4 +1,4 @@
----
+------------------------------------------------------------------------
 
 # Living Data Rescue: Harvey Janszen Legacy Project
 
@@ -40,9 +40,9 @@ This repository contains data entry templates, digitization protocols, data proc
 
 ## General workflow
 
-DwC = Darwin Core occurrence data standards
+DwC = [Darwin Core occurrence data standards](https://dwc.tdwg.org/list/#dwc_fieldNotes)
 
-GBIF = Global Biodiversity Information Facility
+GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
 ## ![A path diagram of this repository for the Harvey Janszen Legacy Project](img/LDP-Internship-map.png)
 
@@ -72,7 +72,7 @@ GBIF = Global Biodiversity Information Facility
 
     -   [occ_data_processing](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/occ_data_processing) folder (contains scripts to process data iteratively)
 
-    Output
+    *Output*
 
     -   [CSV files of Darwin Core formatted occurrences found here](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/data_digitization/occurrence_data/darwin_core_data)
 
@@ -90,8 +90,34 @@ GBIF = Global Biodiversity Information Facility
 
     -   [post-entry-processing](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/protocols/post-entry-processing.Rmd) (follow this protocol to process entered data)
 
-    -   [coll_data_processing](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/coll_data_processing)folder (contains scripts to process data iteratively)
+    -   [coll_data_processing](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/coll_data_processing) folder (contains scripts to process data iteratively)
 
-    Output
+    *Output*
 
     -   [CSV files of Darwin Core formatted collection data found here](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/data_digitization/collection_data/darwin_core_data)
+
+3.  **RBCM data checking**
+
+    *Field Note processing*
+
+    -   [dwc-to-rbcm-format](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/dwc-to-rbcm-format.R) (script to convert collection data from DwC to the format of the RBCM database
+
+    -   aggregating
+
+    *Label data entry*
+
+    -   label-data-entry-template.xlsx
+
+    -   1_raw_label_data
+
+    -   label-data-entry-protocol
+
+    *Label data processing*
+
+    -   label-processing
+
+    *Comparing/ reviewing labels & database*
+
+    *Comparing/ reviewing field notes & database*
+
+4.  **Observation-only & Collection data aggregation**
