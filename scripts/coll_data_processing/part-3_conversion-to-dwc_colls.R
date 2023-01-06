@@ -239,12 +239,31 @@
                                   "coll_reference_data", "taxonomy", "raw","all",
                                   paste0("taxa-names_",
                                          Sys.Date(), ".csv")), row.names = F)
+      # and removing old files to save storage
+      if(length(list.files(here::here("data","data_digitization","collection_data", 
+                                                 "coll_reference_data", "taxonomy", "raw","all")))>2){
+        file.remove(here::here("data","data_digitization","collection_data", 
+                               "coll_reference_data", "taxonomy", "raw","all",
+                               unique(as.character(min(list.files(
+                                here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "raw","all")))))))   
+      }
+      
     }else{
       write.csv(Names, here::here("data","data_digitization","collection_data", 
                                   "coll_reference_data", "taxonomy", 
                                   "raw", paste0("HJ",J),
                                   paste0("taxa-names_",
                                          Sys.Date(), ".csv")), row.names = F)
+      # and removing old files to save storage
+      if(length(list.files(here::here("data","data_digitization","collection_data", 
+                                      "coll_reference_data", "taxonomy", "raw",paste0("HJ",J))))>2){
+        file.remove(here::here("data","data_digitization","collection_data", 
+                               "coll_reference_data", "taxonomy", "raw",paste0("HJ",J),
+                               unique(as.character(min(list.files(
+                                here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "raw",paste0("HJ",J))))))))   
+      }
     }
     
     # Upload csv file to https://www.gbif.org/tools/species-lookup
@@ -343,6 +362,16 @@
                                                    paste0("localities-to-georef_", 
                                                           Sys.Date(), ".csv")), 
                   row.names = F)
+        
+        # and removing old files to save storage
+        if(length(list.files(here::here("data","data_digitization","collection_data", 
+                                        "coll_reference_data", "georeferencing", "raw","all")))>2){
+          file.remove(here::here("data","data_digitization","collection_data", 
+                                 "coll_reference_data", "georeferencing", "raw","all",
+                                 unique(as.character(min(list.files(
+                                   here::here("data","data_digitization","collection_data", 
+                                    "coll_reference_data", "georeferencing", "raw","all")))))))   
+        }
       }else{
         write.csv(localities_to_georef, here::here("data","data_digitization","collection_data", 
                                                    "coll_reference_data", "georeferencing", "raw",
@@ -350,6 +379,19 @@
                                                    paste0("localities-to-georef_", 
                                                           Sys.Date(), ".csv")), 
                   row.names = F)
+        # and removing old files to save storage
+        if(length(list.files(here::here("data","data_digitization","collection_data", 
+                                        "coll_reference_data", "georeferencing", "raw",
+                                        paste0("HJ",J))))>2){
+          
+          file.remove(here::here("data","data_digitization","collection_data", 
+                                 "coll_reference_data", "georeferencing", "raw",
+                                 paste0("HJ",J),
+                                 unique(as.character(min(list.files(here::here("data",
+                                   "data_digitization","collection_data", 
+                                  "coll_reference_data", "georeferencing", "raw",
+                                  paste0("HJ",J))))))))  
+        }
       }
   
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
@@ -841,9 +883,12 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       if(length(list.files(here::here("data", 
                                       "data_digitization","collection_data",
                                       "darwin_core_data", "all")))>2){
-        file.remove(unique(as.character(min(list.files(here::here("data", 
+        file.remove(here::here("data", 
+                               "data_digitization","collection_data",
+                               "darwin_core_data", "all",
+                              unique(as.character(min(list.files(here::here("data", 
                           "data_digitization","collection_data",
-                           "darwin_core_data", "all"))))))   
+                           "darwin_core_data", "all")))))))   
       }
       
       
@@ -858,9 +903,12 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       if(length(list.files(here::here("data", 
                                       "data_digitization","collection_data",
                                       "darwin_core_data", paste0("HJ",J))))>2){
-        file.remove(unique(as.character(min(list.files(here::here("data", 
-                                                                  "data_digitization","collection_data",
-                                                                  "darwin_core_data", paste0("HJ",J)))))))   
+        file.remove(here::here("data", 
+                               "data_digitization","collection_data",
+                               "darwin_core_data", paste0("HJ",J),
+                    unique(as.character(min(list.files(here::here("data", 
+                    "data_digitization","collection_data",
+                     "darwin_core_data", paste0("HJ",J))))))))   
       
     }
   }

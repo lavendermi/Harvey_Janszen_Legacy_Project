@@ -31,13 +31,15 @@ rm(requiredPackages)
 
 ## 2) READING IN DATA ----
 
-J <- # journal number
+J <- 7 # journal number
   
-dwc_data <- read.csv(here::here(
-             "data","digitized_data",
-             "collections_data", 
-             "4_clean_data", 
-             paste0("HJ-",J, "_dwc-collections_YYYY-MM-DD.csv"))) 
+dwc_data <- read.csv(
+            here::here("data","data_digitization",
+            "collection_data","darwin_core_data", 
+            paste0("HJ",J), unique(
+            as.character(max(list.files(here::here("data","data_digitization",
+            "collection_data",
+            "darwin_core_data", paste0("HJ",J))))))))
 
 ## 3) Converting columns to have similar names to RBCM ----
 
@@ -53,6 +55,7 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
            case_when(is.na(identificationQualifier) ~ "NA", 
            !is.na(identificationQualifier) ~ 
              str_c(identificationQualifier,scientificNameauthorship, sep=" "))) %>% 
+  mutate_at(c("QualifiedScientificName"), ~na_if(., "NA")) %>% 
   
   ## D. Common name --> blank
   mutate("CommonName"= "",.before=family) %>% 
@@ -140,8 +143,8 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   ## AB. decimalLongitude or verbatimLongitude ? --> Longitude
   dplyr::rename(Longitude = verbatimLongitude) %>% 
 
-  ## AC, AD, AE verbatimUTM --> UTMZone + UTMNorthing + UTMEasting
-  separate(verbatimUTM, into = c("UTMZone", "UTMNorthing", 
+  ## AC, AD, AE verbatimCoordinates (UTM) --> UTMZone + UTMNorthing + UTMEasting
+  separate(verbatimCoordinates, into = c("UTMZone", "UTMNorthing", 
   "UTMEasting"), sep = " ") %>% 
 
   ## AF. verbatimElevation --> Elevation (+ unit)
@@ -182,7 +185,8 @@ RBCM_format <- dwc_data %>% # change variable to dwc_format
   mutate(locality=
            case_when(grepl(",", locality) ~ 
                     str_replace_all(string=locality, pattern= ", ",
-                    replacement ="; "),!grepl(",", locality) ~locality))
+                    replacement ="; "),!grepl(",", locality) ~locality)) %>% 
+  mutate_all(na_if, "")
 
 # replacing erraneous "m"s with NA
 RBCM_format$Elevation[RBCM_format$Elevation=="m"] <- NA
@@ -254,8 +258,8 @@ RBCM_format$locationRemarks <- tolower(RBCM_format$locationRemarks)
   
 ## 5) Saving file ----
   write.csv(RBCM_format,
-            here::here("data", "digitized_data","collections_data",
+            here::here("data", "data_digitization","rbcm_data",
                        "field_note_data", 
-                       paste0("RBCM-format-field-notes_",Sys.Date())))
+                       paste0("HJ", J,"_rbcm-format-field-notes_",Sys.Date(),".csv")), row.names = F)
   
 
