@@ -2,7 +2,7 @@
 ---
 ---
 
-# Living Data Rescue: Harvey_Janszen_Legacy_Project
+# Living Data Rescue: Harvey Janszen Legacy Project
 
 This repository contains data entry templates, digitization protocols, data processing scripts, and digitized data outputs for the field notes of Harvey Janszen (1946-2021)
 
