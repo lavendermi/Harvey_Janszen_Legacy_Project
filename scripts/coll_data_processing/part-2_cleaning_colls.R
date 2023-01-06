@@ -4,15 +4,6 @@
 #######                 Emma Menchions 22-11-20     #######                       
 ###########################################################
 
-# this script will go through each column and perform a 
-# series of checks for data entry errors for one journal 
-# at a time 
-
-## Things to do: 
-
-# add check to see specific epithet lower case in assCollTaxa 
-# add journal page numbers for Journal 5
-
 ## LOADING PACKAGES ----
 library(groundhog)
 

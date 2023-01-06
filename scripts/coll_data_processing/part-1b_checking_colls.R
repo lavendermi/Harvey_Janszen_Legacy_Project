@@ -4,10 +4,6 @@
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
-# Combine the filled-out checked data sheet with the raw
-# data to form a data file that passes the first data check 
-# processing step #1
-
 ## LOADING PACKAGES ----
 library(groundhog)
 
