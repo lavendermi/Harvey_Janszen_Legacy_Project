@@ -1,0 +1,244 @@
+---
+title: "Data Processing Protocol for Harvey Janszen Field Notes"
+author: "Emma Menchions"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Overview
+
+## Components
+
+This data processing workflow is segmented into 3 main components:
+
+Step 1 = **data checking** (fixing known errors or uncertainties)
+
+Step 2= **data cleaning** (finding and fixing small unknown errors)
+
+Step 3 = **data conversion** (converting the data format to Darwin Core data standards)
+
+The scripts are also designed so that data can be continually entered on the same entry excel sheets and only the newly added rows will be selected for cleaning, checking and conversion, and added to the previously processed data once the new data has been processed.
+
+Steps I and II are designed for the user to go through *one journal* at a time, while step III can be performed one at a time or for all journals simultaneously. However, I would recommend first performing steps I and II on all journals individually and then performing step 3 with all of the new data from ALL journals (this will be discussed further).
+
+To avoid processing large amounts of new data, it might be helpful to follow this protocol and process new data that has been entered during field note entry every few weeks when data is being actively entered.
+
+## Occurrence Data versus Collection Data
+
+This protocol can be used to process both observation-only (occurrence) data or collection occurrence data (which has a specimen associated with it). However, the scripts differ slightly depending on which type.
+
+## Scripts
+
+There are a total of 4 scripts for all three steps which can be found in the folders *"scripts \> occ_data_processing"* (for observation-only data) or *"scripts \> coll_data_processing"* (for processing collection data)
+
+"part-1a_checking.R"
+
+"part-1b_checking.R"
+
+"part-2_cleaning.R"
+
+"part-3_conversion-to-dwc.R"
+
+# Setup
+
+Download the repository from Github: <https://github.com/emench/Harvey_Janszen_Legacy_Project>
+
+This repository contains all of the existing data, scripts, and packages required to perform data processing
+
+# Processing step I: data checking
+
+1.  Open script **"part-1a_checking.R"**
+
+2.  **Input the journal number** for the data entered that you would like to review
+
+3.  Input whether you want to only check high-priority cases (Q \<- "hp") or include "medium" confidence taxon name deciphering flags (Q \<- "all") **(in section 2).**
+
+    -   high priority (hp) includes any observation with dataEntryRemarks, and taxon names where there is low certainty in what the name is either from the inability to decipher the handwriting, or taxonomic changes that seem suspicious.
+
+    -   selecting "all" will also include those with "medium" confidence in taxon name deciphering
+
+    -   Pick "hp" when time for data checking is limited.
+
+4.  **Run the script**
+
+5.  **Find the .csv file** in the folder: *data \> data_digitization \> occurrence_data \> 2_data_checking*
+
+6.  Take the csv file and have it **reviewed by Andrew & Emma to check these flagged observations**
+
+    -   In checking these observations:
+
+        1.  Fill in uncertain information with best guess
+
+        2.  The field notes can be referenced with the corresponding archiveID and page numbers for that row
+
+        3.  If you still cannot decipher words or are uncertain, make a judgement call as to whether or not to include the row. If you are too uncertain about either the taxon name, date observed, or locality, mark this observation with a "Y" or "y" in the toDelete column. As long as you are confident in these fields, that is sufficient. (n can be entered to keep rows, as long as they are not labelled with "y" or "Y" in the toDelete column, they will be kept)
+
+        4.  Fill the "checkStaus" column with "C" (completed) or "R" (return to) to track progress
+
+    -   once all rows have "C" in the checkStatus column, continue on
+
+7.  Open script **"part1-b_checking.R"**
+
+8.  Under the "LOADING DATA" tab, **input** **the journal number ( J \<- ... )**
+
+9.  Run the script section by section
+
+10. If there is an error generated from section 2, then a row has been missed in the review and should be returned to. Once this is fixed, the data be saved and the script should be re-started.
+
+11. The end result of this step will be a CSV file in the "data_cleaning" folder that has been checked for obvious errors. The next step will take care of catching less obvious ones.
+
+## Processing step II: data cleaning
+
+1.  Open script **"part-2_data-cleaning.R"**
+2.  Under the "LOADING DATA" tab, **input** **the journal number ( J \<- ... )**
+3.  Open the CSV file in another window in a spread sheet editor like Excel
+4.  Run the script part by part
+5.  If an error message pops up after running a particular section, stop, return to the CSV sheet in the other window, look for the error using the row index value generated with the error message and correct it.
+6.  Once corrected, save the sheet, and re-load the data by re-running the script up to an including the section that had previously produced the error message.
+7.  Ensure that this error message no longer appears
+8.  Repeat these measures until the whole script has been completed
+9.  The end result of this script will be a CSV file of checked and cleaned new data entries in the folder "4_clean data" that will be converted to Darwin Core standards in the next script
+10. *Recommended:* Repeat processing steps I and II for the rest of the journals before continuing on to step 3
+
+## Processing step III: conversion to Darwin Core fields
+
+1.  Open script **"part-3_conversion-to-dwc.R"**
+
+2.  Run the script to up until step 4 ("Taxonomy Fields").
+
+3.  Follow the instructions in Part 4 to clean taxa names
+
+    -   Locate the CSV file produced, located in *"data \> digitized_data \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> taxonomy \> journal number or ALL (if doing more than one journal) \> raw \> taxa-names_Xdate"*
+
+    -   Upload file to <https://www.gbif.org/tools/species-lookup>
+
+    -   Click the **"match to backbone"** button
+
+    -   Click on the **"matchType"** column label to order these by match type
+
+        -   If match type is **yellow or red**, click on the **neighbouring column "scientificName (editable)"**
+
+        -   A list of taxon names will pop up
+
+        -   **Select the name** that has "accepted" beside it in brackets unless there was a spelling mistake in the verbatim name and you know the verbatim name was refferring to something else. If so, search for that species in the search bar and select the accepted name Additionally, synonyms can be selected if the "accepted" listing is a higher rank (e.g. genus rather than species). (short story: prioritize selection of "accepted" names over "synonyms" but not at the cost of sacrificing taxon specificity)
+
+        -   If there are multiple accepted names, select the top results (this is often if there are two different authorities accepted)
+
+        -   the match type field should now say "edited"
+
+        -   go back through all pages of entries to check that all rows have match type "exact" or "edited" (grey or green)
+
+        -   **select "GENERATE CSV"** button in bottom right hand of page
+
+        -   **place this downloaded** file in "*data \> data_digitization \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> taxonomy \> journal number or ALL (if doing more than one journal) \> normalized"*
+
+        -   **add the date** (YYYY-MM-DD) to the end of the file name (e.g "normalized_2023-01-01")
+
+        -   **return to the script** in R
+
+        -   **Run the rest of the Taxonomy section**
+
+4.  **Run the initial part of step 5 (Georeferencing)** up to an including the write.csv command . Then follow the following instructions for georeferencing in GEOlocate:
+
+    -   Go to **GEOlocate batch processor**: <https://geo-locate.org/web/WebFileGeoref.aspx>
+
+    -   Click **"Select File"**
+
+    -   Upload the CSV file from "*data \> data_digitization \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> georeferencing \> journal number or ALL (if doing more than one journal) \> raw \> localities-to-georef_Xdate.csv"*
+
+    -   **Select 16 - 32 entries / page**
+
+    -   Click "Options" button \> **select "Do Uncertainty"** \> "OK" \> "Close" to close this menu
+
+    -   **Select the "Page Georeference"** button \> this might take a moment
+
+    -   **Select the first row in the table**. The map should zoom to one of the pins it has automatically placed on the map
+
+    -   Zoom into the map more or zoom out if needed
+
+    -   Identify where all of the options are (green and red pins). Green pin = top option, red = alternate possibilities
+
+    -   **Editing location:** click on the green pin and read the **"parse pattern"**. Then read the locality string for that location (first column in table). Consider...
+
+        -   Does it match? Did it get it wrong?
+
+        -   Did it focus on an extraneous detail in the string rather the main words?
+
+        -   With your knowledge of the geography of the area could you do a better job placing the pin? *(you can use **google maps/ earth** to get a sense of this)*
+
+        -   If you think the pin is relatively accurate, leave it.
+
+        -   If you think you could do a better job, drag and drop the pin to a new location. Or select another pin (a red pin) that is better matched. The location of this pin can also be edited in a similar manner if needed.
+
+        -   Avoid placing the pin in water, and if the automatic result was initially in water, this would be a good candidate to edit the location of so that it is on land close by
+
+        -   **Tip:** *manually check locations using google maps or google earth if there is detail about certain lakes that GEOLocate did not catch but you could quickly and roughly approximate (e.g. "Mount Sutil, Galiano" --\> find rough location of Mount Sutil*
+
+    -   **Editing Uncertainty.** Now look at the circle around it (uncertainty circle). This circle represents the area in which the real coordinate could be inside. Knowing this, consider...
+
+        -   Is it reasonable? e.g. if the locality string says "Galiano Island" does it encompass all of Galiano Island. Similarly is it encompassing much more area than is needed to encompass all of the island?
+
+        -   This is very subjective and open for interpretation. If you are uncertain in your ability to assign uncertainty, leave it as is
+
+        -   If you would like to change it, click on the pin \> select "Edit Uncertainty" \> drag the large arrow in or out to edit the radius of the circle \> when finished click on the pin again
+
+    -   **IMPORTANT: IF YOU MAKE ANY EDITS IN LOCATION** (you moved the location of a pin or selected a different pin than the one that was in green) **OR UNCERTAINTY TO THE PIN, SELECT the CORRECT"** **button** before clicking on the next row in the table to save these changes. Otherwise you will have to re-select that row and do everything again since the change in coordinates and uncertainty will not be logged without pressing that button.
+
+    -   **Repeat for all rows** on the page.
+
+    -   When the page is completed, click on the arrow in the bottom right to go to the next page and repeat the process. The changes made to the previous page should still be saved as you go.
+
+    -   Once all localities have been georeferenced, export the file by\...
+
+        -   Clicking of the **"Export"** button at the bottom of the screen
+
+        -   select:
+
+            -   **delimited text: "CSV"**
+
+            -   **"exclude all polygons"**
+
+            -   "ok"
+
+        -   **rename the exported file to "geoLocate_YYYY-MM-DD"**
+
+        -   place the exported file in *"data \> data_digitization \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> georeferencing \> journal number or ALL (if doing more than one journal) \> done"*
+
+5.  Return to the script and run the rest of section 5 starting at the "loading georeferenced occurrences" step.
+
+6.  A map should appear with the location of each row. If some coordinates seem off, these can be searched by referencing the coordinates indicated on the map and matching to rows by either manually searching data or using statements such as...
+
+    > ``` r
+    >  occ_data[which(occ_data$decimalLatitude > 50 & occ_data$decimalLongitude < -124.3)]
+    > ```
+
+-   The rows matching these criteria should appear, and can be checked.
+
+-   Manually change the coordinates in the spreadsheet and re-run the whole script until this point to fix any errors (skipping the task of using gbif species look up and georeferencing since the CSV files generated the first time will be re-used if the script is run)
+
+7.  Run the rest of the script
+8.  The output will be a CSV file with all of the digitized occurrences in the *"darwin_core_data"* folder labelled with the date of processing.
+
+# Recommended workflows
+
+## For observation-only (occurrence) data
+
+-   Follow the **"occ-data-entry-protocol.Rmd"**
+
+-   Continue to digitize the journals by adding to the data entry templates in the *"data \> digitized_data \> occurrence_data \> 1_raw_data"* folder
+
+-   Every few weeks, once \~ 500-1000 new rows have been added in total, this protocol could be used to check, clean, and convert the data. Alternatively, this protocol could be followed only a few times with large chunks of data, but data checking, taxonomy verification and georeferencing will require larger chunks of time to carry out
+
+-   The scripts and folder structures are designed in a way where you can just continually add to the entry templates and run the scripts as outlined above and only new rows will be checked, cleaned and converted and added to the previously processed data, so you won't have to repeat these steps for everything multiple times
+
+## For collection data
+
+-   Follow the **"coll-data-entry-protocol.Rmd"** protocol
+
+-   Start by digitizing one journal in particular
+
+-   Once it is finished, follow the processing protocol outlined here
+
+-   For the "part-3_conversion-to-dwc" script, enter ( J \<- single journal number), and do the processing one journal at a time. The outputs will be found in the subfolders with that journal number
+
+-   To use this data to review RBCM herbarium data, follow the protocol: "rbcm-data-review-protocol"

@@ -44,13 +44,8 @@ dwc_data <- read.csv(
 rbcm_database <- read.csv(here::here("data","existing_data","rbcm_HJ-specimens.csv"))
 
 ## 3) Converting columns to have similar names to RBCM ----
-
+  
 RBCM_format <- dwc_data %>% 
-  
-  # only retaining rows that have recordNumber in rbcm_database
-  dplyr::rename(recordNumber = CollectorsFieldNumber) %>% 
-  inner_join(rbcm_database, by = "CollectorsFieldNumber")
-  
   ## A. RBCM Accession number - blank
   mutate("D"= "",.before=verbatimScientificName) %>% 
   
@@ -122,7 +117,8 @@ RBCM_format <- dwc_data %>%
   dplyr::rename(Collector = recordedBy) %>% 
 
   ## U. recordNumber --> CollectorsFieldNumber
-  
+  dplyr::rename(CollectorsFieldNumber= recordNumber) 
+
   ## V. eventDate --> CollectionDate
   dplyr::rename(CollectionDate = eventDate) %>% 
   
