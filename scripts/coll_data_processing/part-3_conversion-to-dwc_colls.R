@@ -17,35 +17,41 @@
   date <- "2022-11-02"
   requiredPackages <-  c("assertr","dplyr","here", "lubridate",
                          "magrittr","mapview","purrr","ritis",
-                         "stringi","taxize","terra","tidyverse","tidyr")
+                         "stringi","taxize","terra","tidyverse","sp","tidyr")
   
   for (pkg in requiredPackages) {
-    if (pkg %in% rownames(installed.packages()) == FALSE)
-    {install.packages(pkg)}
-    if (pkg %in% rownames(.packages()) == FALSE)
-    {groundhog.library(pkg, date)}
+    groundhog.library(pkg, date)
   }
+  
   rm(requiredPackages)
-
+  
 ## 2) READING IN DATA ----
   
-  index <- c(5,7,8,9,27) # USER INPUT 
+  J <- c(7) # journal(s) number --> USER INPUT !!
   
-  for (i in index){
-    if (i == index[1]){
+  for (i in 1:length(J)){
+    if (i == 1){
       data <- read.csv(
         here::here("data","data_digitization",
-                   "collection_data","field_note_data" ,
-                    "4_clean_data", 
-                    paste0("HJ-",index[1], "_clean-collections.csv"))) 
+                   "collection_data","4_clean_data", 
+                   # reading in most recent round of cleaned collections
+                   paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                     here::here("data","data_digitization",
+                                "collection_data", 
+                                "4_clean_data", 
+                                paste0("HJ",J[i]))))))))
     } else{ 
       data <- rbind(data, read.csv(
         here::here("data","data_digitization",
-                    "collection_data", "field_note_data",
-                    "4_clean_data", 
-                    paste0("HJ-",i,"_clean-collections.csv"))))
+                   "collection_data","4_clean_data", 
+                   # reading in most recent round of cleaned collections
+                   paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                     here::here("data","data_digitization",
+                                "collection_data", "4_clean_data", 
+                                paste0("HJ",J[i])))))))))
     }
   }
+  
   
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
@@ -126,7 +132,6 @@
   # automatically adding "genus" if length(sciName) == 1, otherwise "species"
   
   for(i in 1:dim(data)[1]){  # for each row
-    if(is.na(data$vTaxonRank[i])){ # if there is no taxon rank already...
       # if the length of the sciName string ==1,,,
       if (length(strsplit(data$sciName[i], " ")[[1]])==1){ 
         data$vTaxonRank[i] <- "genus" # assign genus
@@ -134,7 +139,6 @@
         data$vTaxonRank[i] <- "species" # assign species
       }else if (length(strsplit(data$sciName[i], " ")[[1]])==3) # if 3...
         data$vTaxonRank[i] <- "subspecies" # assing subspecies
-    }
   }
   
   # checking to make sure all rows now have vTaxonRank
@@ -215,7 +219,7 @@
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
   occ_data <- data %>% 
-    select(-pageNum,-numPage, -vName, -conf, -date, -index, -dataEntryRemarks, -archiveID) %>%
+    select(-pageNum,-numPage, -vName, -conf, -date, -dataEntryRemarks, -archiveID) %>%
     arrange(recordNum)
                                        
 ## 4) TAXONOMY FIELDS ----
@@ -229,11 +233,19 @@
     filter(!is.na(sciName)) %>% 
     dplyr::rename(scientificName = sciName)
   
-    write.csv(Names, here::here("data","data_digitization","collection_data",
-                                "field_note_data","coll_reference_data",
-                                "taxonomy", 
-                                paste0("taxa-names_",
-                                Sys.Date(), ".csv")), row.names = F)
+  
+    if(length(J)>1){
+      write.csv(Names, here::here("data","data_digitization","collection_data", 
+                                  "coll_reference_data", "taxonomy", "raw","all",
+                                  paste0("taxa-names_",
+                                         Sys.Date(), ".csv")), row.names = F)
+    }else{
+      write.csv(Names, here::here("data","data_digitization","collection_data", 
+                                  "coll_reference_data", "taxonomy", 
+                                  "raw", paste0("HJ",J),
+                                  paste0("taxa-names_",
+                                         Sys.Date(), ".csv")), row.names = F)
+    }
     
     # Upload csv file to https://www.gbif.org/tools/species-lookup
     # select "match to backbone" button
@@ -248,9 +260,24 @@
     # add the date that this table was generated
   
   # loading in the names normalization table 
-    normalized_names <- read.csv(here::here("data","data_digitization","collection_data",
-                                            "field_note_data","coll_reference_data",
-                                            "taxonomy","normalized_2023-01-03.csv"))
+    if(length(J)>1){
+      normalized_names <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "taxonomy","normalized","all",unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "taxonomy","all","normalized")))))))
+    }else{
+      normalized_names <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "taxonomy","normalized",paste0("HJ",J),unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "taxonomy","normalized",paste0("HJ",J))))))))
+    }
+    
     
   # linking to occurrenceID in template table
       
@@ -308,22 +335,46 @@
                  status" = NA, precision=NA, 
                  "error polygon" = NA, "multiple results" = NA, uncertainty=NA)
     
-    # writing to data folder
-    write.csv(localities_to_georef, here::here("data", "data_digitization",
-                                               "collection_data","field_note_data",
-                                               "coll_reference_data",
-                                               "georeferencing",
-                                        paste0("localities-to-georef_", 
-                                        Sys.Date(), ".csv")), 
-                                        row.names = F)
+      # writing to data folder
+      
+      if(length(J)>1){
+        write.csv(localities_to_georef, here::here("data","data_digitization","collection_data", 
+                                                   "coll_reference_data", "georeferencing", "raw","all",
+                                                   paste0("localities-to-georef_", 
+                                                          Sys.Date(), ".csv")), 
+                  row.names = F)
+      }else{
+        write.csv(localities_to_georef, here::here("data","data_digitization","collection_data", 
+                                                   "coll_reference_data", "georeferencing", "raw",
+                                                   paste0("HJ",J),
+                                                   paste0("localities-to-georef_", 
+                                                          Sys.Date(), ".csv")), 
+                  row.names = F)
+      }
   
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
-    # Follow protocol outlined in "occurrence-data-protocol.Rmd"
+    # Follow protocol outlined in "post-entry-processing.Rmd"
     
-  ## loading referenced occurrences 
-    GEOlocate <- read.csv(here::here("data", "data_digitization",
-                                     "collection_data","field_note_data","coll_reference_data",
-                                     "georeferencing", "geoLocate_2023-01-03.csv")) 
+  ## loading referenced locations
+    
+    if(length(J)>1){
+      GEOlocate <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "georeferencing","done","all",unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "georeferencing","done","all")))))))
+    }else{
+      GEOlocate <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "georeferencing","done",paste0("HJ",J),unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "georeferencing","done",paste0("HJ",J))))))))
+    }
+    
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
                                                latitude, geoLocLon = longitude, 
@@ -469,7 +520,7 @@ mapview(points_to_map)
     occ_data$assCollTaxa <- NA
     occ_data$assColl <- NA
     
-# for loop: finds matching occurrences and places their names in associated 
+# for loop: finds matching rows and places their names in associated 
     # taxa column
     
 for (i in 1:dim(occ_data)[1]){ # for every row
@@ -703,16 +754,16 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     }
     
     
-## saving as .csv file  ----
+## final processing  ----
 ## remove extraneous columns  
     
-    dwc_data <- occ_data %>% 
+    new_dwc_data <- occ_data %>% 
       # assigning statuses as dwc::dyamic properties
       unite("dynamicProperties", provincialStatus, 
             globalStatus, sep="; ") %>% 
     
-      # renaming columns to dwc terms 
-
+      
+    # renaming columns to dwc terms 
     dplyr::rename(verbatimScientificName = vSciName, 
                   verbatimElevation = vElevM,
                   recordNumber = recordNum,
@@ -734,14 +785,64 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                   taxonomicStatus = status, eventDate = fulldate) %>% 
       
       # removing columns 
-      select( -canonicalName, -confidence,
+      select( -archiveID,-canonicalName, -confidence,
               -numPlantsCode, - curationMetadata)
     
     
-## saving csv file
-   write.csv(dwc_data, here::here("data", "data_digitization",
-                                  "collection_data","field_note_data",
-                                  "darwin_core_data",
-                                  paste0("darwin-core-collections_", 
-                                         Sys.Date(), ".csv")), row.names = F)
+## appending previously processed data 
+    
+    # if there are one or more files that have been previously processed...
+    if(length(J)> 1){
+      if(length(list.files(here::here("data", "data_digitization","collection_data",
+                                      "darwin_core_data","all")))>=1){
+        
+        # read in the file with the latest date (with most observations) 
+        old_dwc_data <- read.csv(here::here("data", "data_digitization","collection_data",
+                                            "darwin_core_data","all",
+                                            unique(as.character(max(list.files(here::here(
+                                              "data", "data_digitization","collection_data",
+                                              "darwin_core_data","all")))))))
+        
+        # append rows from current data table that contain old data and sort by date                                        
+        new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
+        
+      }
+      
+      # if only one journal considered...
+    }else {
+      if(length(list.files(here::here("data", "data_digitization","collection_data",
+                                      "darwin_core_data",paste0("HJ",J))))>=1){
+        
+        # read in the file with the latest date (with most observations) 
+        old_dwc_data <- read.csv(max(list.files(here::here("data", "data_digitization","collection_data",
+                                                           "darwin_core_data", paste0("HJ",J))))) 
+        
+        # append rows from current data table that contain old data and sort by date                                        
+        new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
+        
+        
+      }
+      
+    }
+    
+    ## saving csv files
+    
+    if(length(J) > 1){ # if more than one journal was processed in this script...
+      # write it to folder "darwin_core_data > all"
+      write.csv(new_total_dwc_data, here::here("data", "data_digitization",
+                                               "collection_data","darwin_core_data",
+                                               "all",
+                                               paste0("darwin-core-collections_", 
+                                                      Sys.Date(), ".csv")), row.names = F)
+      
+      
+    }else{ # if only one journal, place it in respective folder in darwin_core_data
+      
+      write.csv(new_total_dwc_data, here::here("data", "data_digitization",
+                                               "collection_data","darwin_core_data",
+                                               paste0("HJ",J),
+                                               paste0("darwin-core-collections_", 
+                                                      Sys.Date(), ".csv")), row.names = F)
+    }
+    
     

@@ -31,7 +31,38 @@ rm(requiredPackages)
   raw_data <- read_excel(here::here("data","data_digitization",
                                     "occurrence_data", 
                                     "1_raw_data", paste0("HJ-",J,
-                                     "-","occ-entry.xlsx"))) 
+                                     "-","occ-entry.xlsx"))) %>% 
+    dplyr::rename(
+      pageNum = "[pageNum]", 
+      numPage = "[numPage]", 
+      vName = "[vName]",
+      vSciName= "[vSciName]", 
+      sciName = "[sciName]",
+      conf="[conf]",date="[date]",
+      locality="[locality]", 
+      country = "[country]",
+      stateProvince = "[stateProvince]", 
+      island ="[island]") 
+    
+    ## finding new rows entered 
+    
+    # if there is one or more files that have been previously processed...
+    if(length(list.files(here::here("data", "data_digitization",
+                                    "occurrence_data", "prev_proccessed", 
+                                    "template_format",
+                                    paste0("HJ",J))))>=1){
+      
+      # read in the file with the latest date (with most observations) 
+      old_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
+                                      "prev_proccessed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
+                                        here::here("data", "data_digitization","occurrence_data",
+                                                   "prev_proccessed","template_format", paste0("HJ",J))))))))  
+      
+      # remove rows from current data table that contain old data                                              
+     raw_data <- raw_data %>% anti_join(old_data) %>% relocate(., dataEntryRemarks, .before= pageNum)
+
+    }
+  
   # most recent checked data entry
   checked_data <- read.csv(
     here::here("data","data_digitization",
@@ -40,21 +71,6 @@ rm(requiredPackages)
     as.character(unique(max(list.files(here::here("data","data_digitization",
                                 "occurrence_data",
                                  "2_data_checking", paste0("HJ",J))))))))
-  
-  # renaming columns of raw data to match
-  raw_data <- raw_data %>%dplyr::rename(
-                                pageNum = "[pageNum]", 
-                                numPage = "[numPage]", 
-                                vName = "[vName]",
-                                vSciName= "[vSciName]", 
-                                sciName = "[sciName]",
-                                conf="[conf]",date="[date]",
-                                locality="[locality]", 
-                                country = "[country]",
-                                stateProvince = "[stateProvince]", 
-                                island ="[island]") %>% 
-            # temp relocation of dataEntryRemarks to match checked data frame
-                relocate(., dataEntryRemarks, .before= pageNum)
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
   # (if no error message appears, then everything is fine)

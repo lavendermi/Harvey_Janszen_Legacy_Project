@@ -16,50 +16,66 @@ date <- "2022-11-02"
 requiredPackages <-  c("assertr","expss", "readxl","dplyr",
                        "here", "tidyverse","tidyr")
 
+
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
 
 rm(requiredPackages)
+
 ## 1. LOADING DATA ----
 
   # USER INPUT: 
-  # input file name for checked data & journal number - in "data_checking" folder
-  filename_checked <-"HJ-7_coll-data-to-check_HIGH-PRIORITY_2023-01-03.csv"
-  J <-7
+
+  J <-7 # journal number (only ONE at a time) (USER INPUT) ! 
   
-  # loading data
-  checked_data <- read.csv(here::here("data","data_digitization",
-                                      "collection_data","field_note_data",
-                                      "2_data_checking",
-                                      filename_checked)) 
-  
+  # raw data
   raw_data <- read_excel(here::here("data","data_digitization",
-                                    "collection_data", "field_note_data",
+                                    "collection_data",
                                     "1_raw_data", paste0("HJ-",J,
-                                      "-","collection-entry.xlsx"))) 
+                                      "-","coll-entry.xlsx"))) %>% 
+   dplyr::rename(
+      pageNum = "[pageNum]", 
+      numPage = "[numPage]", 
+      recordNum = "[recordNum]",
+      vName = "[vName]",
+      vSciName= "[vSciName]", 
+      sciName = "[sciName]",
+      conf="[conf]",date="[date]",
+      locality="[locality]", 
+      country = "[country]",
+      stateProvince = "[stateProvince]", 
+      island ="[island]")
   
-  # renaming columns of raw data to match
-  raw_data <- raw_data %>%dplyr::rename(
-                                pageNum = "[pageNum]", 
-                                numPage = "[numPage]",
-                                recordNum="[recordNum]",
-                                vName = "[vName]",
-                                vSciName= "[vSciName]", 
-                                sciName = "[sciName]",
-                                conf="[conf]",date="[date]",
-                                locality="[locality]", 
-                                country = "[country]",
-                                stateProvince = "[stateProvince]", 
-                                island ="[island]") %>% 
-            # temp relocation of dataEntryRemarks to match checked data frame
-                relocate(., dataEntryRemarks, .before= pageNum)
+  # if there is one or more files that have been previously processed...
+  if(length(list.files(here::here("data", "data_digitization",
+                                  "collection_data",
+                                  "prev_processed","template_format", 
+                                  paste0("HJ",J))))>=1){
+    
+    # read in the file with the latest date (with most observations) 
+    old_data <- read.csv(here::here("data", "data_digitization","collection_data",
+                                    "prev_processed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
+                                      here::here("data", "data_digitization","collection_data",
+                                                 "prev_processed","template_format", paste0("HJ",J)))))))) 
+    
+    # remove rows from current data table that contain old data                                              
+    raw_data <- raw_data %>% anti_join(old_data) %>% relocate(., dataEntryRemarks, .before= pageNum)
+    
+    
+  } 
   
-  # reading recordNumber as character: 
-  checked_data$recordNum <- as.character(checked_data$recordNum)
+  # most recent checked data entry
+    checked_data <- read.csv(
+    here::here("data","data_digitization",
+               "collection_data","2_data_checking", 
+               paste0("HJ",J), 
+               as.character(unique(max(list.files(here::here("data","data_digitization",
+                                                             "collection_data",
+                                                             "2_data_checking", paste0("HJ",J))))))))
+    # reading recordNumber as character: 
+    checked_data$recordNum <- as.character(checked_data$recordNum)
+  
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
   checked_data %>% 
@@ -110,7 +126,7 @@ rm(requiredPackages)
   # saving to data_cleaning folder to prepare for Processing step 2 (cleaning)
   write.csv(processed_data_1, 
             here::here("data", "data_digitization", 
-            "collection_data","field_note_data","3_data_cleaning",
+            "collection_data","3_data_cleaning",paste0("HJ",J),
             paste0("HJ", J, "-processed-step-1_",Sys.Date(),".csv")),
             row.names = F)
             

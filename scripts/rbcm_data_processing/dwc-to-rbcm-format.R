@@ -1,10 +1,12 @@
 ############################################################################
-###   Processing Step 4: conversion of Field Notes for from Darwin Core  ###
+###         Conversion of Field Notes for from Darwin Core               ###
 ###           Collection data from Darwin Core to the                    ###
 ###              format of the Royal BC Museum Herbarium                 ###
 ###                         Emma Menchions                               ###
 ###                         Created Jan3/23                              ###
 ############################################################################
+
+# Requirements: data has been processed with the post entry procotcol
 
 # Objective: takes dwc-formatted collections and converts them to RBCM format
 # for comparison
@@ -13,20 +15,18 @@
 # using groundhog to manage package versioning 
 
 install.packages("groundhog")
-
-set.groundhog.folder(here::here("packages"))
 library(groundhog)
 
+set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
+
 requiredPackages <-  c("assertr","dplyr","here", "lubridate","magrittr","purrr","ritis",
                        "stringi","taxize","terra","tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
 
 ## 2) READING IN DATA ----
@@ -36,7 +36,7 @@ J <- # journal number
 dwc_data <- read.csv(here::here(
              "data","digitized_data",
              "collections_data", 
-             "clean_data", 
+             "4_clean_data", 
              paste0("HJ-",J, "_dwc-collections_YYYY-MM-DD.csv"))) 
 
 ## 3) Converting columns to have similar names to RBCM ----

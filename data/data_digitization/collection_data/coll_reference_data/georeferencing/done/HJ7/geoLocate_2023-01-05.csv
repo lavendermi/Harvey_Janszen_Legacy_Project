@@ -1,0 +1,3 @@
+locality string,country,state,county,latitude,longitude,"correction 
+                 status",precision,error polygon,multiple results,uncertainty,uncertainty (circular polygon)
+Galiano Island,Canada,British Columbia,Southern Gulf Islands,48.923886,-123.440013,yes,High(89),,"48.916667,-123.416667,GALIANO ISLAND|Unavailable|5421|High(89),50.883333,-127.75,GALIANO|Unavailable|5421|Low(37)",15057,

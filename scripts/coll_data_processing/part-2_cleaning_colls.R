@@ -22,27 +22,25 @@ requiredPackages <-  c("assertr","dplyr","here", "terra","tidyverse",
                        "tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
+
 
 ## READING IN DATA ----
 
   # loading data that has passed the first processing step 
 
-  J <-7 # journal number (USER INPUT)
+  J <-7 # journal number --> USER INPUT !!
 
-  # ENTER FILE NAME (USER INPUT) - in data_cleaning folder
-  filename <- "HJ7-processed-step-1_2023-01-03.csv" 
-  
-  data <- read.csv(here::here("data","data_digitization",
-                                "collection_data",
-                              "field_note_data",
-                                "3_data_cleaning", 
-                                filename))
+  data <- read.csv(
+  here::here("data","data_digitization",
+             "collection_data","3_data_cleaning", 
+             paste0("HJ",J), unique(
+             as.character(max(list.files(here::here("data","data_digitization",
+             "collection_data",
+             "3_data_cleaning", paste0("HJ",J))))))))
   
   # loading places metadata
   places <- read.csv(here::here("data", 
@@ -112,9 +110,11 @@ rm(requiredPackages)
     assert(in_set(1:100), numPage) %>% # checking if integer from 1 - 31
     assert(not_na, numPage) %>%  # checking that all rows have number
     chain_end 
+  
 ## recordNum
   
   data %>% 
+    group_by(recordNum) %>% 
     assert(not_na, recordNum)
   
 ## vName 
@@ -294,26 +294,6 @@ rm(requiredPackages)
       chain_end
   }
   
-## occStatus 
-  # constraints: 1) either "absent" or "present
-  # not every row has to have one yet, will be assigned later
-  # 2) read as character
-  
-  occstat <- c("present","absent")
-  
-  # if there are non-Na elements...
-  if(length(data$occStatus[is.na(data$occStatus)])
-     <length(data$occStatus)){
-    # check that... 
-    data %>%
-      group_by(occStatus) %>% 
-      chain_start %>% 
-      #column is read as character 
-      verify(., has_class("occStatus", class="character")) %>% 
-      # characters are within set 
-      assert(in_set(occstat),occStatus)  %>% 
-      chain_end
-  }
     
 ## habitat 
   # constraint: 1) read as character
@@ -492,6 +472,7 @@ data_cleaned <- data %>%
 mutate("archiveID"= J,.before=pageNum)
 
 write.csv(data_cleaned, here::here("data","data_digitization",
-                                   "collection_data","field_note_data", 
-                                   "4_clean_data", paste0("HJ-",J, "_clean-collections.csv")), row.names = F)
-
+                                   "collection_data",
+                                   "4_clean_data",paste0("HJ",J),
+                                   paste0("HJ-",J, "_clean-occurrences_",
+                                          Sys.Date(),".csv")), row.names = F)

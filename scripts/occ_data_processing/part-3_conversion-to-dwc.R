@@ -33,12 +33,11 @@
                          "magrittr","mapview","purrr","ritis",
                          "stringi","taxize","terra","tidyverse","tidyr")
   
+  
   for (pkg in requiredPackages) {
-    if (pkg %in% rownames(installed.packages()) == FALSE)
-    {install.packages(pkg)}
-    if (pkg %in% rownames(.packages()) == FALSE)
-    {groundhog.library(pkg, date)}
+    groundhog.library(pkg, date)
   }
+  
   rm(requiredPackages)
 
 ## 2) READING IN DATA ----
@@ -486,8 +485,8 @@
     }
       
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
-    # Follow protocol outlined in "occurrence-data-protocol.Rmd"
-    
+    # Follow protocol outlined in "post-entry-processing.Rmd"
+      
   ## loading referenced occurrences 
    
     if(length(J)>1){

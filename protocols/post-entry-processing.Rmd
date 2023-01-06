@@ -219,7 +219,7 @@ This repository contains all of the existing data, scripts, and packages require
 7.  Run the rest of the script
 8.  The output will be a CSV file with all of the digitized occurrences in the *"darwin_core_data"* folder labelled with the date of processing.
 
-# Recommended workflows 
+# Recommended workflows
 
 ## For observation-only (occurrence) data
 
@@ -230,6 +230,8 @@ This repository contains all of the existing data, scripts, and packages require
 -   Every few weeks, once \~ 500-1000 new rows have been added in total, this protocol could be used to check, clean, and convert the data. Alternatively, this protocol could be followed only a few times with large chunks of data, but data checking, taxonomy verification and georeferencing will require larger chunks of time to carry out
 
 -   The scripts and folder structures are designed in a way where you can just continually add to the entry templates and run the scripts as outlined above and only new rows will be checked, cleaned and converted and added to the previously processed data, so you won't have to repeat these steps for everything multiple times
+
+-   Delete older large files that have been updated, to save computer space. As long as most recent iteration of each file is kept for next data processing batch
 
 ## For collection data
 
@@ -242,3 +244,7 @@ This repository contains all of the existing data, scripts, and packages require
 -   For the "part-3_conversion-to-dwc" script, enter ( J \<- single journal number), and do the processing one journal at a time. The outputs will be found in the subfolders with that journal number
 
 -   Follow the script **"dwc-to-rbcm-format.R"** located in the folder *"scripts \> rbcm_data_processing"*
+
+    -   This script will convert the collection data for a given book into
+
+FINISH.....

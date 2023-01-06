@@ -24,34 +24,56 @@ date <- "2022-11-02"
 requiredPackages <-  c("assertr","readxl","dplyr","here", "tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
 
-## 1. LOADING IN DATA ----
- 
-  # loading raw data 
-  J <-7 # USER INPUT
+## 1. LOADING IN RAW DATA ----
 
-  data <- read_excel(here::here("data","data_digitization", 
-          "collection_data","field_note_data","1_raw_data", 
-          paste0("HJ-",J,"-","collection-entry.xlsx")))
+  J <-7 # Journal number (only ONE at a time) --> USER INPUT !
 
-  # renaming column names for easier recognition 
-  data <- data %>% dplyr::rename(pageNum = "[pageNum]", 
-                                numPage = "[numPage]", 
-                                recordNum= "[recordNum]",
-                                vName = "[vName]",
-                                vSciName= "[vSciName]", 
-                                sciName = "[sciName]",
-                                conf="[conf]",date="[date]",
-                                locality="[locality]", 
-                                country = "[country]",
-                                stateProvince = "[stateProvince]", 
-                                island ="[island]")
+  total_data <- read_excel(here::here("data","data_digitization", 
+          "collection_data","1_raw_data", 
+          paste0("HJ-",J,"-","coll-entry.xlsx"))) %>% 
+  dplyr::rename(pageNum = "[pageNum]", 
+  numPage = "[numPage]", 
+  recordNum= "[recordNum]",
+  vName = "[vName]",
+  vSciName= "[vSciName]", 
+  sciName = "[sciName]",
+  conf="[conf]",date="[date]",
+  locality="[locality]", 
+  country = "[country]",
+  stateProvince = "[stateProvince]", 
+  island ="[island]")
+  
+  ## finding new rows entered 
+  
+  # if there is one or more files that have been previously processed...
+  if(length(list.files(here::here("data", "data_digitization",
+                                  "collection_data",
+                                  "prev_processed","template_format", 
+                                  paste0("HJ",J))))>=1){
+    
+    # read in the file with the latest date (with most observations) 
+    old_data <- read.csv(here::here("data", "data_digitization","collection_data",
+                                    "prev_processed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
+      here::here("data", "data_digitization","collection_data",
+                 "prev_processed","template_format", paste0("HJ",J)))))))) 
+
+    # remove rows from current data table that contain old data                                              
+    new_data <- total_data %>% anti_join(old_data)
+    
+  } else {
+    new_data <- total_data
+  }
+  
+  ## writing sheet of total columns reviewed/ processed
+  write.csv(total_data, here::here("data", "data_digitization","collection_data",
+                                 "prev_processed", "template_format",paste0("HJ",J), 
+                                 paste0("HJ-", J, "_rows-reviewed_",Sys.Date(),".csv")), row.names=F)
+  
   
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
   
@@ -71,7 +93,7 @@ rm(requiredPackages)
   
   if (Q == "hp"){
 
-    to_check <- data %>% 
+    to_check <- new_data %>% 
       dplyr::filter(is.na(vName) | is.na(vSciName) | is.na(sciName) | 
                       !is.na(dataEntryRemarks) |
                       is.na(date)| 
@@ -90,14 +112,14 @@ rm(requiredPackages)
     
       ## saving file 
       write.csv(to_check, 
-                here::here("data","data_digitization","collection_data", "field_note_data",
-                "2_data_checking", 
+                here::here("data","data_digitization","collection_data",
+                "2_data_checking", paste0("HJ",J),
                  paste0("HJ-",J,"_","coll-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
       
     } else if (Q=="all"){
       
-      to_check <- data %>% 
+      to_check <- new_data %>% 
         dplyr::filter(is.na(vName) | is.na(vSciName) |
                         is.na(sciName) | 
                         !is.na(dataEntryRemarks) |
@@ -118,8 +140,8 @@ rm(requiredPackages)
       
       ## saving file 
       write.csv(to_check, 
-                here::here("data","data_digitization","collection_data","field_note_data",
-                           "2_data_checking", 
+                here::here("data","data_digitization","collection_data",
+                           "2_data_checking", paste0("HJ",J),
                            paste0("HJ-",J,"_","coll-data-to-check_ALL_",
                            Sys.Date(),".csv")), row.names = F)
     } 
