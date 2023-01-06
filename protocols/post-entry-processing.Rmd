@@ -243,8 +243,4 @@ This repository contains all of the existing data, scripts, and packages require
 
 -   For the "part-3_conversion-to-dwc" script, enter ( J \<- single journal number), and do the processing one journal at a time. The outputs will be found in the subfolders with that journal number
 
--   Follow the script **"dwc-to-rbcm-format.R"** located in the folder *"scripts \> rbcm_data_processing"*
-
-    -   This script will convert the collection data for a given book into
-
-FINISH.....
+-   To use this data to review RBCM herbarium data, follow the protocol: "rbcm-data-review-protocol"
