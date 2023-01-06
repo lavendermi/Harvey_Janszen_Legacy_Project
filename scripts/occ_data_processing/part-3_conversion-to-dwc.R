@@ -485,8 +485,8 @@
     }
       
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
-    # Follow protocol outlined in "occurrence-data-protocol.Rmd"
-    
+    # Follow protocol outlined in "post-entry-processing.Rmd"
+      
   ## loading referenced occurrences 
    
     if(length(J)>1){

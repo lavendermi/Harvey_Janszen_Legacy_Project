@@ -30,27 +30,39 @@ for (pkg in requiredPackages) {
 
 rm(requiredPackages)
 
-## 1. LOADING IN DATA ----
+## 1. LOADING IN RAW DATA ----
  
   
-  J <- 5 # Journal number (only ONE at a time) --> USER INPUT !
+  J <- 27 # Journal number (only ONE at a time) --> USER INPUT !
   
   # loading raw data
   total_data <- read_excel(here::here("data","data_digitization", 
                            "occurrence_data","1_raw_data", 
-                            paste0("HJ-",J,"-","occ-entry.xlsx"))) 
+                            paste0("HJ-",J,"-","occ-entry.xlsx"))) %>% 
+    dplyr::rename(pageNum = "[pageNum]", 
+                  numPage = "[numPage]", 
+                  vName = "[vName]",
+                  vSciName= "[vSciName]", 
+                  sciName = "[sciName]",
+                  conf="[conf]",date="[date]",
+                  locality="[locality]", 
+                  country = "[country]",
+                  stateProvince = "[stateProvince]", 
+                  island ="[island]")
   
   ## finding new rows entered 
   
   # if there is one or more files that have been previously processed...
   if(length(list.files(here::here("data", "data_digitization",
-                                  "occurrence_data","template_format",
-                                  "prev_proccessed", paste0("HJ",J))))>=1){
+                                  "occurrence_data", "prev_proccessed", 
+                                  "template_format",
+                                paste0("HJ",J))))>=1){
     
     # read in the file with the latest date (with most observations) 
-    old_data <- read.csv(max(list.files(
+    old_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
+                                    "prev_proccessed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
       here::here("data", "data_digitization","occurrence_data",
-                 "prev_proccessed", paste0("HJ",J)))))  
+                 "prev_proccessed","template_format", paste0("HJ",J))))))))  
     
     # remove rows from current data table that contain old data                                              
     new_data <- total_data %>% anti_join(old_data)
@@ -58,24 +70,12 @@ rm(requiredPackages)
     new_data <- total_data
   }
   
-  # renaming column names for easier recognition 
-  new_data <- new_data %>% dplyr::rename(pageNum = "[pageNum]", 
-                                numPage = "[numPage]", 
-                                vName = "[vName]",
-                                vSciName= "[vSciName]", 
-                                sciName = "[sciName]",
-                                conf="[conf]",date="[date]",
-                                locality="[locality]", 
-                                country = "[country]",
-                                stateProvince = "[stateProvince]", 
-                                island ="[island]")
+## writing sheet of total columns reviewed/ processed
+  write.csv(total_data, here::here("data", "data_digitization","occurrence_data",
+                                 "prev_proccessed", "template_format",paste0("HJ",J), 
+                                 paste0("HJ-", J, "_rows-reviewed_",Sys.Date(),".csv")), row.names=F)
   
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
-  
-## writing sheet of total columns reviewed/ processed
-  write.csv(new_data, here::here("data", "data_digitization","occurrence_data",
-                             "prev_proccessed", "template_format",paste0("HJ",J), 
-                             paste0("HJ-", J, "_rows-reviewed_",Sys.Date())))
 
 # Extract rows where... 
 # a) vName, vSciName, or sciName are empty
