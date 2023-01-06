@@ -14,8 +14,6 @@ This includes:
 
 3)  Digitized herbarium label data
 
-`{r}`
+![This is an image](img/LDP-Internship-map.png)
 
-```{r}
-knitr::include_graphics("img/LDP-Internship-map.png")
-```
+
