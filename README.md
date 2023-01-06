@@ -1,6 +1,4 @@
 ---
----
----
 
 # Living Data Rescue: Harvey Janszen Legacy Project
 
