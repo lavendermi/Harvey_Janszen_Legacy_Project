@@ -544,5 +544,14 @@ write.csv(data_cleaned, here::here("data","data_digitization",
                                    "4_clean_data",paste0("HJ",J),
                                    paste0("HJ-",J, "_clean-occurrences_",
                                           Sys.Date(),".csv")), row.names = F)
-# writing duplicate to indicate that 
+# and removing old files to save storage
+if(length(list.files(here::here("data", 
+                                "data_digitization","occurrence_data",
+                                "4_clean_data", paste0("HJ",J))))>2){
+  file.remove(unique(as.character(min(list.files(here::here("data", 
+                                                            "data_digitization","occurrence_data",
+                                                            "4_clean_data", paste0("HJ",J)))))))   
+}
+
+
 

@@ -6,21 +6,7 @@
 #######################################################################
 
 ## OVERVIEW ----
-# this script will take occurrence data from the data entry 
-# template and place it in darwin core format
-
-# OCCURRENCE DATA = data in field journals including:
-  # 1) observation only occurrences (where specimen has not been collected - 
-      # no collection number and no note of collection)
-  # 2) observations of associated taxa in notes of collected specimen 
-  # 3) checklist / surveys containing groups of species names in different sites 
-      # (each species observation is a row)
-  # 4) Survey data - where abundances have been collected
-
-# what should not be entered? 
-  # checklist data from other people's observations/ collections 
-
-# complete steps 1 and 2 before running 
+# this script will take occurrence data and place it in darwin core format
 
 ## 1) LOADING & INSTALLING PACKAGES ----
   # using groundhog to manage package versioning 
@@ -967,8 +953,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                     "darwin_core_data",paste0("HJ",J))))>=1){
       
       # read in the file with the latest date (with most observations) 
-      old_dwc_data <- read.csv(max(list.files(here::here("data", "data_digitization","occurrence_data",
-                                                         "darwin_core_data", paste0("HJ",J))))) 
+      old_dwc_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
+                                          "darwin_core_data",paste0("HJ",J),
+                                          unique(as.character(max(list.files(
+                                            here::here("data", "data_digitization","occurrence_data",
+                                                         "darwin_core_data", paste0("HJ",J)))))))) 
       
       # append rows from current data table that contain old data and sort by date                                        
       new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
@@ -989,6 +978,14 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                   "all",
                                   paste0("darwin-core-occurrences_", 
                                          Sys.Date(), ".csv")), row.names = F)
+    # and removing old files to save storage
+    if(length(list.files(here::here("data", 
+                                    "data_digitization","occurrence_data",
+                                    "darwin_core_data", "all")))>2){
+      file.remove(unique(as.character(min(list.files(here::here("data", 
+                                    "data_digitization","occurrence_data",
+                                      "darwin_core_data", "all"))))))   
+    }
     
     
   }else{ # if only one journal, place it in respective folder in darwin_core_data
@@ -998,5 +995,14 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                                      paste0("HJ",J),
                                      paste0("darwin-core-occurrences_", 
                                             Sys.Date(), ".csv")), row.names = F)
+    # and removing old files to save storage
+    if(length(list.files(here::here("data", 
+                                    "data_digitization","occurrence_data",
+                                    "darwin_core_data", paste0("HJ",J))))>2){
+      file.remove(unique(as.character(min(list.files(here::here("data", 
+                                    "data_digitization","occurrence_data",
+                                    "darwin_core_data", paste0("HJ",J)))))))   
+      
+    }
   }
     
