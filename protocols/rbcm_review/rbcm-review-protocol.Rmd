@@ -2,4 +2,8 @@
 
 ## 2) Prepare field note (collection data) for comparison
 
+dwc-to-rbcm-format.R script
+
+Then matching potential rows to
+
 ## 3) Compare & review database and field notes

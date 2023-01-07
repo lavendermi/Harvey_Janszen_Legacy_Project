@@ -7,7 +7,7 @@
 
 ## OVERVIEW ----
 # this script will take collection and occurrence only data, assign associated
-# occurrences and taxa to the collection data, place this in the collected data fodler,
+# occurrences and taxa to the collection data, place this in the collected data folder,
 # and then aggregate both types of data into one large Darwin Core formatted
 # spreadsheet
 
@@ -23,23 +23,46 @@ requiredPackages <-  c("assertr","dplyr","here", "lubridate",
                        "stringi","sjmisc","taxize","terra","tidyverse","tidyr")
 
 for (pkg in requiredPackages) {
-  if (pkg %in% rownames(installed.packages()) == FALSE)
-  {install.packages(pkg)}
-  if (pkg %in% rownames(.packages()) == FALSE)
-  {groundhog.library(pkg, date)}
+  groundhog.library(pkg, date)
 }
+
 rm(requiredPackages)
 
 ## 2) READING IN DATA ----
 
-coll_data <- read.csv(here::here("data","data_digitization",
-                            "collection_data",
-                            "field_note_data",
-                            "darwin-core-collections_2023-01-03.csv"))
+J <- c(5,7,8,9,27) 
 
-occ_data <- read.csv(here::here("data","data_digitization",
-                                 "occurrence_data",
-                             "darwin-core-occurrences_2023-01-03.csv")) %>% 
+for (i in 1:length(J)){
+  if (i == 1){
+    coll_data <- read.csv(
+      here::here("data","data_digitization",
+                 "collection_data","darwin_core_data", 
+                 # reading in most recent round of cleaned collections
+                 paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                   here::here("data","data_digitization",
+                              "collection_data", 
+                              "darwin_core_data", 
+                              paste0("HJ",J[i]))))))))
+  } else{ 
+    data <- rbind(data, read.csv(
+      here::here("data","data_digitization",
+                 "collection_data","darwin_core_data", 
+                 # reading in most recent round of cleaned collections
+                 paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                   here::here("data","data_digitization",
+                              "collection_data", "darwin_core_data", 
+                              paste0("HJ",J[i])))))))))
+  }
+}
+
+
+occ_data <- read.csv(
+  here::here("data","data_digitization",
+             "occurrence_data","darwin_core_data", unique(as.character(max(list.files(  
+               here::here("data","data_digitization",
+                          "occurrence_data", 
+                          "darwin_core_data"))))))) %>% 
+
             # creating column 
             unite("canonicalName", genus, specificEpithet, intraspecificEpithet, na.rm=T, sep= " ", remove=F)
 
@@ -71,6 +94,7 @@ for (i in 1:dim(coll_data)[1]){ # for every row of the collected occurrences she
 }
 
 occ_data$associatedOccurrences[occ_data$associatedOccurrences=="none"] <- NA
+coll_data$associatedOccurrences[coll_data$associatedOccurrences=="none"] <- NA
      
 ## associatedTaxa
 # temporary adjustment
@@ -97,8 +121,23 @@ for (i in 1:dim(coll_data)[1]){ # for every row of the collected occurrences she
   }
 }
 
-occ_data$associatedOccurrences[occ_data$associatedOccurrences=="none"] <- NA
+occ_data$associatedTaxa[occ_data$associatedTaxa=="none"] <- NA
+coll_data$associatedTaxa[coll_data$associatedTaxa=="none"] <- NA
 occ_data <- occ_data %>% select(-canonicalName)
+
+
+## writing files
+  # save to darwin core formatted (with associated occurrences) for collection data
+    write.csv(coll_data, here::here("data","data_digitization",
+           "collection_data","darwin_core_data", "final-agg-and-associates",
+           paste0("final-agg-and-associates_",Sys.Date(),".csv")), row.names=F)
 
 ## 4) Combining occurrences and collection observations
 aggregated_data <- rbind(coll_data, occ_data) %>% arrange(eventDate)
+
+
+## writing files
+  write.csv(aggregated_data, here::here("data","data_digitization",
+                                "aggregated_data",
+                                paste0("HJ-occ-and-coll-data_",Sys.Date(),".csv")), row.names=F)
+

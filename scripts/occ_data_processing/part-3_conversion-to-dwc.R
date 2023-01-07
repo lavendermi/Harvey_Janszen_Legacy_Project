@@ -282,40 +282,21 @@
     filter(!is.na(sciName)) %>% 
     dplyr::rename(scientificName = sciName)
   
-    if(length(J)>1){
     write.csv(Names, here::here("data","data_digitization","occurrence_data", 
-                                "occ_reference_data", "taxonomy", "all","raw",
+                                "occ_reference_data", "taxonomy", "raw",
                                 paste0("taxa-names_",
                                 Sys.Date(), ".csv")), row.names = F)
       
       # and removing old files to save storage
       if(length(list.files(here::here("data","data_digitization","occurrence_data", 
-                                      "occ_reference_data", "taxonomy", "all","raw")))>2){
+                                      "occ_reference_data", "taxonomy","raw")))>2){
         file.remove(here::here("data","data_digitization","occurrence_data", 
-                               "occ_reference_data", "taxonomy", "all","raw",
+                               "occ_reference_data", "taxonomy","raw",
                                unique(as.character(min(list.files(
                                  here::here("data","data_digitization","occurrence_data", 
-                                            "occ_reference_data", "taxonomy", "all","raw")))))))   
+                                            "occ_reference_data", "taxonomy","raw")))))))   
       }
-    }else{
-    write.csv(Names, here::here("data","data_digitization","occurrence_data", 
-                                  "occ_reference_data", "taxonomy", 
-                                  paste0("HJ",J),"raw",
-                                  paste0("taxa-names_",
-                                         Sys.Date(), ".csv")), row.names = F)
-      # and removing old files to save storage
-      if(length(list.files(here::here("data","data_digitization","occurrence_data", 
-                                      "occ_reference_data", "taxonomy", 
-                                      paste0("HJ",J),"raw")))>2){
-        file.remove(here::here("data","data_digitization","occurrence_data", 
-                               "occ_reference_data", "taxonomy", 
-                               paste0("HJ",J),"raw",
-                               unique(as.character(min(list.files(
-                                here::here("data","data_digitization","occurrence_data", 
-                                            "occ_reference_data", "taxonomy", 
-                                            paste0("HJ",J),"raw"))))))) 
-      }
-    }
+    
     
     # Upload csv file to https://www.gbif.org/tools/species-lookup
     # select "match to backbone" button
@@ -334,10 +315,10 @@
     normalized_names <- read.csv(
       here::here("data","data_digitization","occurrence_data",
       "occ_reference_data",
-      "taxonomy","all","normalized",unique(as.character(max(list.files(
+      "taxonomy","normalized",unique(as.character(max(list.files(
       here::here("data","data_digitization","occurrence_data",
       "occ_reference_data",
-      "taxonomy","all","normalized")))))))
+      "taxonomy","normalized")))))))
     }else{
       normalized_names <- read.csv(
         here::here("data","data_digitization","occurrence_data",
@@ -406,65 +387,35 @@
     
     # writing to data folder
 
-    if(length(J)>1){
       write.csv(localities_to_georef, here::here("data","data_digitization","occurrence_data", 
-                                  "occ_reference_data", "georeferencing", "all","raw",
+                                  "occ_reference_data", "georeferencing", "raw",
                                   paste0("localities-to-georef_", 
                                          Sys.Date(), ".csv")), 
                 row.names = F)
       # and removing old files to save storage
       if(length(list.files(here::here("data","data_digitization","occurrence_data", 
-                                      "occ_reference_data", "georeferencing", "all","raw")))>2){
+                                      "occ_reference_data", "georeferencing", "raw")))>2){
         file.remove(here::here("data","data_digitization","occurrence_data", 
-                               "occ_reference_data", "georeferencing", "all","raw",
+                               "occ_reference_data", "georeferencing", "raw",
                                unique(as.character(min(list.files(
                                  here::here("data","data_digitization","occurrence_data", 
-                                  "occ_reference_data", "georeferencing", "all","raw")))))))   
+                                  "occ_reference_data", "georeferencing","raw")))))))   
       }
-    }else{
-      write.csv(localities_to_georef, here::here("data","data_digitization","occurrence_data", 
-                                  "occ_reference_data", "georeferencing", 
-                                  paste0("HJ",J),"raw",
-                                  paste0("localities-to-georef_", 
-                                         Sys.Date(), ".csv")), 
-                row.names = F)
-      # and removing old files to save storage
-      if(length(list.files(here::here("data","data_digitization","occurrence_data", 
-                                      "occ_reference_data", "georeferencing", 
-                                      paste0("HJ",J),"raw")))>2){
-        file.remove(here::here("data","data_digitization","occurrence_data", 
-                               "occ_reference_data", "georeferencing", 
-                               paste0("HJ",J),"raw",
-                               unique(as.character(min(list.files(
-                                here::here("data","data_digitization","occurrence_data", 
-                                            "occ_reference_data", "georeferencing", 
-                                            paste0("HJ",J),"raw")))))))   
-      }
-    }
-      
+
   ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
     # Follow protocol outlined in "post-entry-processing.Rmd"
       
   ## loading referenced occurrences 
    
-    if(length(J)>1){
+  
       GEOlocate <- read.csv(
         here::here("data","data_digitization","occurrence_data",
                    "occ_reference_data",
-                   "georeferencing","all","done",unique(as.character(max(list.files(
+                   "georeferencing","done",unique(as.character(max(list.files(
                      here::here("data","data_digitization","occurrence_data",
                                 "occ_reference_data",
-                                "georeferencing","all","done")))))))
-    }else{
-      GEOlocate <- read.csv(
-        here::here("data","data_digitization","occurrence_data",
-                   "occ_reference_data",
-                   "georeferencing",paste0("HJ",J),"done",unique(as.character(max(list.files(
-                     here::here("data","data_digitization","occurrence_data",
-                                "occ_reference_data",
-                                "georeferencing",paste0("HJ",J),"done")))))))
-    }
-    
+                                "georeferencing","done")))))))
+  
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
                                                latitude, geoLocLon = longitude, 
@@ -901,16 +852,16 @@ for (i in 1:dim(occ_data)[1]){ # for every row
 ## appending previously processed data 
     
   # if there are one or more files that have been previously processed...
-  if(length(J)> 1){
+
     if(length(list.files(here::here("data", "data_digitization","occurrence_data",
-                                    "darwin_core_data","all")))>=1){
+                                    "darwin_core_data")))>=1){
       
     # read in the file with the latest date (with most observations) 
       old_dwc_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
-                      "darwin_core_data","all",
+                      "darwin_core_data",
                        unique(as.character(max(list.files(here::here(
                       "data", "data_digitization","occurrence_data",
-                        "darwin_core_data","all")))))))
+                        "darwin_core_data")))))))
       
     # append rows from current data table that contain old data and sort by date                                        
       new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
@@ -918,63 +869,23 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     # renumbering occurrence ID
       new_total_dwc_data$occurrenceID <- paste0("HJO-",1:dim(new_total_dwc_data)[1])
     }
-  
-  # if only one journal considered...
-  }else {
-    if(length(list.files(here::here("data", "data_digitization","occurrence_data",
-                                    "darwin_core_data",paste0("HJ",J))))>=1){
-      
-      # read in the file with the latest date (with most observations) 
-      old_dwc_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
-                                          "darwin_core_data",paste0("HJ",J),
-                                          unique(as.character(max(list.files(
-                                            here::here("data", "data_digitization","occurrence_data",
-                                                         "darwin_core_data", paste0("HJ",J)))))))) 
-      
-      # append rows from current data table that contain old data and sort by date                                        
-      new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
-      
-      # renumbering occurrence ID
-      new_total_dwc_data$occurrenceID <- paste0("HJO-",1:dim(new_total_dwc_data)[1])
-      
-    }
-    
-  }
+
     
 ## saving csv files
   
-  if(length(J) > 1){ # if more than one journal was processed in this script...
     # write it to folder "darwin_core_data > all"
    write.csv(new_total_dwc_data, here::here("data", "data_digitization",
                                   "occurrence_data","darwin_core_data",
-                                  "all",
                                   paste0("darwin-core-occurrences_", 
                                          Sys.Date(), ".csv")), row.names = F)
     # and removing old files to save storage
     if(length(list.files(here::here("data", 
                                     "data_digitization","occurrence_data",
-                                    "darwin_core_data", "all")))>2){
+                                    "darwin_core_data")))>2){
       file.remove(unique(as.character(min(list.files(here::here("data", 
                                     "data_digitization","occurrence_data",
-                                      "darwin_core_data", "all"))))))   
+                                      "darwin_core_data"))))))   
     }
     
-    
-  }else{ # if only one journal, place it in respective folder in darwin_core_data
-   
-    write.csv(new_total_dwc_data, here::here("data", "data_digitization",
-                                     "occurrence_data","darwin_core_data",
-                                     paste0("HJ",J),
-                                     paste0("darwin-core-occurrences_", 
-                                            Sys.Date(), ".csv")), row.names = F)
-    # and removing old files to save storage
-    if(length(list.files(here::here("data", 
-                                    "data_digitization","occurrence_data",
-                                    "darwin_core_data", paste0("HJ",J))))>2){
-      file.remove(unique(as.character(min(list.files(here::here("data", 
-                                    "data_digitization","occurrence_data",
-                                    "darwin_core_data", paste0("HJ",J)))))))   
-      
-    }
-  }
+
     

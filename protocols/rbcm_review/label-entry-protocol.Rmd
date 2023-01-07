@@ -1,1 +1,3 @@
 Label entry protocol
+
+Something similar to entry protocol for occurrence data...
