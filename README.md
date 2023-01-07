@@ -124,7 +124,7 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
 # Recommended workflows
 
-## For observation-only (occurrence) data
+## [For observation-only (occurrence) data](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/protocols/occurrence_data)
 
 -   Enter data for multiple journals
 
@@ -134,7 +134,7 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
 -   The scripts and folder structures are designed in a way where you can just continually add to the entry templates and run the scripts as outlined above and only new rows will be checked, cleaned and converted and added to the previously processed data, so you won't have to repeat these steps for everything multiple times
 
-## For collection data
+## [For collection data](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/protocols/collection_data)
 
 -   Enter and process data for one journal at a time following the components listed under the "Collection data" section above
 
