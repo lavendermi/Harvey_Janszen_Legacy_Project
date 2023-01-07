@@ -50,7 +50,7 @@ RBCM_format <- dwc_data %>%
   mutate("D"= "",.before=verbatimScientificName) %>% 
   
   ## B. scientificName --> ScientificName
-  dplyr::rename(ScientificName = scientificName) %>% 
+  dplyr::rename(ScientificName = verbatimScientificName) %>% 
   
   ## C. identificationQualifier --> QualifiedScientificName + authority 
   mutate(QualifiedScientificName = 
@@ -117,7 +117,7 @@ RBCM_format <- dwc_data %>%
   dplyr::rename(Collector = recordedBy) %>% 
 
   ## U. recordNumber --> CollectorsFieldNumber
-  dplyr::rename(CollectorsFieldNumber= recordNumber) 
+  dplyr::rename(CollectorsFieldNumber= recordNumber) %>% 
 
   ## V. eventDate --> CollectionDate
   dplyr::rename(CollectionDate = eventDate) %>% 
@@ -261,7 +261,7 @@ RBCM_format$locationRemarks <- tolower(RBCM_format$locationRemarks)
 ## 5) Saving file ----
   write.csv(RBCM_format,
             here::here("data", "data_digitization","rbcm_data",
-                       "field_note_data", 
+                       "field_note_data", paste0("HJ",J),
                        paste0("HJ", J,"_rbcm-format-field-notes_",Sys.Date(),".csv")), row.names = F)
   
 
