@@ -1,0 +1,5 @@
+## 1) Compare labels and database & overwrite errors
+
+## 2) Prepare field note (collection data) for comparison
+
+## 3) Compare & review database and field notes
