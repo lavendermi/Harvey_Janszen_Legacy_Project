@@ -5,20 +5,23 @@
 ###########################################################
 
 # TO DO: 
+
+# goal --> to make sure (link via accession numbers) 
+# 1) record number on label, matches record number on sheet 
+# Species name matches 
+# date of collection matches 
+# locality matches
+
+# checking...
+# all accession numbers have species name
+# all accession numbers have record number between certain range
+
+
 # with labels ...
-# Add V to front of accession number
-
-# The goal of this script is to....
-
-# 1. identify occurrence rows flagged by individual during 
-# data entry either by:
-# a) remarking something in the dataEntryRemarks
-# b) Not entering all taxon name information
-# c) low confidence in taxon name interpretation 
-# d) uncertainty in location and and no locality entered
-
-# 2. Create a new spreadsheet of these collections so they 
-# this uncertainty can be checked one row at a time
+# Add V0 to front of accession number
+# Species name checking 
+# locality checking
+# convert date to rbcm format
 
 ## LOADING PACKAGES ----
 library(groundhog)
@@ -35,22 +38,8 @@ rm(requiredPackages)
 
 ## 1. LOADING IN RAW DATA ----
 
-  J <-7 # Journal number (only ONE at a time) --> USER INPUT !
-
-  total_data <- read_excel(here::here("data","data_digitization", 
-          "collection_data","1_raw_data", 
-          paste0("HJ-",J,"-","coll-entry.xlsx"))) %>% 
-  dplyr::rename(pageNum = "[pageNum]", 
-  numPage = "[numPage]", 
-  recordNum= "[recordNum]",
-  vName = "[vName]",
-  vSciName= "[vSciName]", 
-  sciName = "[sciName]",
-  conf="[conf]",date="[date]",
-  locality="[locality]", 
-  country = "[country]",
-  stateProvince = "[stateProvince]", 
-  island ="[island]")
+  label_data <- read_excel(here::here("data","data_digitization", 
+          "rbcm_data","label_data", "RBCM-label-entry-template.xlsx")) %>% 
   
   ## finding new rows entered 
   
