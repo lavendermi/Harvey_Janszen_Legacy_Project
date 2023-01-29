@@ -1,3 +1,18 @@
+---
+title: "label-entry-protocol"
+author: "Emma Menchions"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# 1) Image Processing
+
+-   Download the images from Google Drive to local computer
+
+# 2) Label data entry
+
+## Template
+
 Label entry protocol
 
 Something similar to entry protocol for occurrence data...
