@@ -4,6 +4,20 @@
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
+## This script takes digitized herbarium label data and 
+# compares it to that found in the rbcm database based 
+# on accession numbers
+
+# It is designed to be ITERATIVE so that you can check just new 
+# rows for digitized herbarium label data as they are 
+# entered if desired
+
+# TO DO: 
+
+# Species name matches 
+# date of collection matches 
+# locality matches
+
 ## LOADING PACKAGES ----
 library(groundhog)
 
@@ -21,56 +35,78 @@ rm(requiredPackages)
 
 ## 1. LOADING DATA ----
 
-  # USER INPUT: 
+  # read in the file with the latest date (with most observations) 
+  label_data <- read.csv(here::here("data", "data_digitization","rbcm_data","label_data",
+                                  "processed_data", unique(as.character(max(list.files(
+                                    here::here("data", "data_digitization","rbcm_data","label_data",
+                                               "processed_data"))))))) 
 
-  J <-7 # journal number (only ONE at a time) (USER INPUT) ! 
-  
-  # raw data
-  raw_data <- read_excel(here::here("data","data_digitization",
-                                    "collection_data",
-                                    "1_raw_data", paste0("HJ-",J,
-                                      "-","coll-entry.xlsx"))) %>% 
-   dplyr::rename(
-      pageNum = "[pageNum]", 
-      numPage = "[numPage]", 
-      recordNum = "[recordNum]",
-      vName = "[vName]",
-      vSciName= "[vSciName]", 
-      sciName = "[sciName]",
-      conf="[conf]",date="[date]",
-      locality="[locality]", 
-      country = "[country]",
-      stateProvince = "[stateProvince]", 
-      island ="[island]")
-  
-  # if there is one or more files that have been previously processed...
+  rbcm_data <- read.csv(here::here("data", "existing_data","rbcm_HJ-specimens.csv")) %>% 
+    rename(accessionNum=D)
+ 
+  # Removing rows already compared for faster comparison
+  # if already processed data, append new data to it 
   if(length(list.files(here::here("data", "data_digitization",
-                                  "collection_data",
-                                  "prev_processed","template_format", 
-                                  paste0("HJ",J))))>=1){
+                                "rbcm_data","label_data",
+                                "processed_data")))>=1){
+  
+  # FILL IN !!!!!*************
     
-    # read in the file with the latest date (with most observations) 
-    old_data <- read.csv(here::here("data", "data_digitization","collection_data",
-                                    "prev_processed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
-                                      here::here("data", "data_digitization","collection_data",
-                                                 "prev_processed","template_format", paste0("HJ",J)))))))) 
-    
-    # remove rows from current data table that contain old data                                              
-    raw_data <- raw_data %>% anti_join(old_data) %>% relocate(., dataEntryRemarks, .before= pageNum)
+  # remove rows from current data table that contain old data                                              
+    label_data <- label_data %>% anti_join(old_data)
     
     
   } 
   
-  # most recent checked data entry
-    checked_data <- read.csv(
-    here::here("data","data_digitization",
-               "collection_data","2_data_checking", 
-               paste0("HJ",J), 
-               as.character(unique(max(list.files(here::here("data","data_digitization",
-                                                             "collection_data",
-                                                             "2_data_checking", paste0("HJ",J))))))))
-    # reading recordNumber as character: 
-    checked_data$recordNum <- as.character(checked_data$recordNum)
+##  Accession number: is it found in the database? ---
+  
+  # for every row, if it has a match, set it on a certain pathway
+  # if it does not, make a new var to store those, and should be checked manually to see if there
+  # by writing a sheet facillitating this ? 
+  
+  no_match <- data.frame(matrix(ncol = 14, nrow = 0))
+  names(no_match) <- names(label_data)
+  
+  match <- data.frame(matrix(ncol = 14, nrow = 0))
+  names(match) <- names(label_data)
+  nums <- c()
+  for (i in 1:dim(label_data)[1]){
+    if(length(rbcm_data$accessionNum[rbcm_data$accessionNum == label_data$accessionNum[i]])>0){
+      match[i,] <- label_data[i,] %>% filter_all(any_vars(!is.na(.)))
+    }else{
+      no_match[i,] <- label_data[i,]
+      
+    }
+  }
+  
+  # removing na rows 
+  no_match <- no_match %>% filter_all(any_vars(!is.na(.)))
+  match <- match %>% filter_all(any_vars(!is.na(.)))
+  
+  # for these suspected missing matches, are there any of the same species collected on same date?
+  no_match$potential_match <- c()
+  for (i in 1:dim(no_match[i])){
+    
+    # if there is a match in genus, species, and collection date or genus, species and locality ...
+    if(length(rbcm_data$accessionNum[which(rbcm_data$CollectionDate == no_match$CollectionDate[i] & 
+                      rbcm_data$Genus == no_match$Genus[i] & 
+                      rbcm_data$Species == no_match$Species[i])])>0){
+      # 
+      no_match$potential_match[i] <- rbcm_data$accessionNum[
+        which(rbcm_data$CollectionDate== no_match$CollectionDate & 
+        rbcm_data$Genus == no_match$Genus & 
+        rbcm_data$Species == no_match$Species)]
+    }
+
+  # writing csv file for herbarium sheets suspected with no matching
+  # accession number in the rbcm database
+  if(dim(no_match)[1]>0){
+  write.csv(no_match, here::here("data","data_digitization", "rbcm_data", "label_data",
+                                 "review","suspected-not-in-database", paste0("missing_",
+                                                                      Sys.Date(), ".csv")),
+            row.names = F)
+  }
+
   
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
@@ -135,5 +171,7 @@ rm(requiredPackages)
                                                               "3_data_cleaning", paste0("HJ",J)))))))   
   }
             
-            
+## Keeping record of which rows have been compared already 
+  write.csv(comp_rows )
+  
   

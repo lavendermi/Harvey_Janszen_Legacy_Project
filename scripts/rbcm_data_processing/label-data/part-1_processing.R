@@ -3,24 +3,10 @@
 #######           Emma Menchions 2023-01-29         #######                       
 ###########################################################
 
-# TO DO: 
+# This script takes raw herbarium label data, checks for 
+# common data entry errors, and then converts columns into
+# a format suitable for comparing it with rbcm database data
 
-# goal --> to make sure (link via accession numbers) 
-# 1) record number on label, matches record number on sheet 
-# Species name matches 
-# date of collection matches 
-# locality matches
-
-# checking...
-# all accession numbers have species name
-# all accession numbers have record number between certain range
-
-
-# with labels ...
-# Add V0 to front of accession number
-# Species name checking 
-# locality checking
-# convert date to rbcm format
 
 ## LOADING PACKAGES ----
 library(groundhog)
@@ -44,21 +30,22 @@ rm(requiredPackages)
   
   # if there is one or more files that have been previously processed...
   if(length(list.files(here::here("data", "data_digitization",
-                                  "rbcm_data",
+                                  "rbcm_data","label_data",
                                   "processed_data")))>=1){
     
     # read in the file with the latest date (with most observations) 
-    old_data <- read.csv(here::here("data", "data_digitization","collection_data",
+    old_data <- read.csv(here::here("data", "data_digitization","rbcm_data","label_data",
                                     "processed_data", unique(as.character(max(list.files(
-      here::here("data", "data_digitization","rbcm_data",
+    here::here("data", "data_digitization","rbcm_data","label_data",
                  "processed_data"))))))) 
     
     # converting accession number in processed data into same format as raw data
     # to match previously processed rows
-    
-    ## fill in!!!!!!!!!!.........
-
+    old_data$accessionNum <- sub('..', '', old_data$accessionNum)
+  
     # remove rows from current data table that contain old data      ***EDIT   *****                                      
+    total_data$accessionNum <- as.character(total_data$accessionNum)
+    old_data$accessionNum <- as.character(old_data$accessionNum)
     new_data <- total_data %>% anti_join(old_data)
     
   } else {
@@ -228,8 +215,33 @@ rm(requiredPackages)
   # renaming to rbcm database name
     new_data <- new_data %>% 
     rename(CollectorsFieldNumber = collNum)
-  
-  
+    
+    
+## write csv file of processed data
+    
+    # if already processed data, append new data to it 
+    if(length(list.files(here::here("data", "data_digitization",
+                                    "rbcm_data","label_data",
+                                    "processed_data")))>=1){
+      
+      # read in the file with the latest date (with most observations) 
+      old_data <- read.csv(here::here("data", "data_digitization","rbcm_data","label_data",
+                                      "processed_data", unique(as.character(max(list.files(
+                                        here::here("data", "data_digitization","rbcm_data","label_data",
+                                                 "processed_data"))))))) 
+      # combining new and old
+      total_data <- rbind(old_data,new_data)
+      
+      # saving
+      write.csv(new_data,here::here("data","data_digitization", 
+                                  "rbcm_data","label_data","processed_data", paste0(
+                                    "label-data_", Sys.Date(), ".csv")), row.names = F)
+    } else if {
+    # if not, just write new data
+    write.csv(new_data,here::here("data","data_digitization", 
+                                  "rbcm_data","label_data","processed_data", paste0(
+                                  "label-data_", Sys.Date(), ".csv")), row.names = F)
+    }
     
   
 

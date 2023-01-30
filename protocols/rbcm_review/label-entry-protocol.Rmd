@@ -9,10 +9,118 @@ output: html_document
 
 -   Download the images from Google Drive to local computer
 
+-   Place in folder that you can access them from (e.g. "data" \> "data_digitization" \> "rbcm_data" \> "rbcm_images" \> "raw"
+
+-   Download and open Adobe Lightroom (OR FREE ALTERNATIVE? like GIMP?....)
+
+-   Import photos into Adobe Lightroom
+
+-   Rotating:
+
+    -   Select all photos (command A)
+
+    -   Select the left rotate arrow at the bottom of any image thumbnail to rotate all of the images so that the label is the right way up
+
+    -   scroll through the rest of the images to check that all photos are now in portrait mode
+
+        -   if not..
+
+            -   click on this image
+
+            -   select the rotate arrows until it is
+
+-   Cropping:
+
+    -   Select the first image
+
+    -   Click on the "Develop" tab
+
+    -   Select the crop tool from the right menu side bar (the symbol with a bunch of rulers in a square)
+
+    -   Click and drag the sliders so that the image is cropped to just show the lower, right half of the image, where the herbarium label sits. However, don't crop too close. Leave plenty of buffer space as the area that the label encompasses tends to move from sheet to sheet and you should leave some room for error
+
+    -   Select "Done"
+
+-   Batch cropping:
+
+    -   While still in the develop tab, select "Command C"
+
+    -   Deselect everything from this menu except for the "crop" options
+
+    -   Press "Copy"
+
+    -   Select all photos again using command A
+
+    -   Right click on any of these new selected photos
+
+    -   Develop settings \> Paste Settings
+
+    -   this should apply the crop edit to all of the other images
+
+-   Exporting:
+
+    -   select all images with command A
+
+    -   command + shift + E
+
+    -   Under export location: specify the output folder (e.g. "data" \> "data_digitization" \> "rbcm_data" \> "label_data" \> "rbcm_images" \> "jpegs" )
+
+    -   Under file settings: set the quality to 30
+
+    -   Under file naming: make sure the files will retain their original names (don't choose any renaming options)
+
+    -   Select "export"
+
+    -   Finished
+
 # 2) Label data entry
 
-## Template
+-   Navigate to "data" \> "data_digitization" \> "rbcm_data" \> "label_data" \> "raw_data" and open the sheet named: "RBCM-label-entry.xlsx"
 
-Label entry protocol
+-   Expand to full screen mode if not already
 
-Something similar to entry protocol for occurrence data...
+-   Navigate to the folder with the images processed in the step above
+
+-   select all of the jpegs and open in preview them by double clicking
+
+-   Create split screen view with images on one side and excel sheet on the other (or dual monitors if available)
+
+-   zoom in on the label in the image if necessary
+
+-   Enter the data
+
+    -   **Accession number**: without V0 at the beginning, just the numbers ! (big numbers in the circular stamp, also the name of the image if not found otherwise
+
+    -   **Genus:** genus name, should be capitalized
+
+    -   **Species:** specific epithet without the authority information
+
+    -   **ssp (subspecies):** name of subspecies, lower case, only if a subspecies is denoted
+
+    -   **var (variety):** name of variety, lower case, only if a variety is denoted
+
+    -   **form (forma):** name of forma, lower case, only if a forma is denoted
+
+    -   **Habitat:** will be written under the species name on the label if given. Only include brief habitat information, not anything about the appearance, abundance or location name of the specimen
+
+    -   **Locality:**
+
+        -   in order from most general to most specific
+
+        -   Capitalize names
+
+        -   Separate names with semi colons
+
+        -   spell out abbreviations like Mt., Rd. to Mount, or Road
+
+            -   e.g. Galiano Island; Mount Sutil
+
+    -   **vLat, vLon:** enter latitude and longitude in degrees if provided on sheet
+
+    -   **date:** date of collection (located below the collector's name)
+
+        -   should be in format YYYY-MM-DD
+
+    -   **collNum:** collection number, labelled as "No. " on the label
+
+    -   **notes:** include any weird observations about label or when the label has been updated to reflect improved ID
