@@ -6,4 +6,4 @@
 
 -   To use this data to review RBCM herbarium data, follow the protocol: "rbcm-data-review-protocol" and perform this review one journal at a time
 
-![General Collection data workflow](/img/LDP-collections-flow.png)
+![General Collection data workflow](/diagrams/LDP-collections-flow.png)
