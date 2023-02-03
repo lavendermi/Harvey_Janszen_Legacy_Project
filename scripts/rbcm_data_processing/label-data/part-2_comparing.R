@@ -93,10 +93,15 @@ rm(requiredPackages)
                       rbcm_data$Species == no_match$Species[i])])>0){
       # 
       no_match$potential_match[i] <- rbcm_data$accessionNum[
-        which(rbcm_data$CollectionDate== no_match$CollectionDate & 
-        rbcm_data$Genus == no_match$Genus & 
-        rbcm_data$Species == no_match$Species)]
+        which(rbcm_data$CollectionDate == no_match$CollectionDate[i] & 
+        rbcm_data$Genus == no_match$Genus[i] & 
+        rbcm_data$Species == no_match$Species[i] | 
+        rbcm_data$Species == no_match$Species[i] & 
+        rbcm_data$Genus == no_match$Genus[i] &
+        rbcm_data$LocationName == no_match$LocationName[i]
+          )]
     }
+  }
 
   # writing csv file for herbarium sheets suspected with no matching
   # accession number in the rbcm database

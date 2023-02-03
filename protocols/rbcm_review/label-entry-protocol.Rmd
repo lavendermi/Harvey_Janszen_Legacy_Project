@@ -121,6 +121,12 @@ output: html_document
 
         -   should be in format YYYY-MM-DD
 
-    -   **collNum:** collection number, labelled as "No. " on the label
+    -   **collNum:** collection number, labelled as "No." on the label
 
     -   **notes:** include any weird observations about label or when the label has been updated to reflect improved ID
+
+# 3) Data processing
+
+-   Navigate to "scripts" \> "rbcm_data_processing" \> "label-data" and open script "part-1_processing"
+
+-   
