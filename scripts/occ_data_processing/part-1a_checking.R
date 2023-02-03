@@ -60,7 +60,8 @@ rm(requiredPackages)
     
     # read in the file with the latest date (with most observations) 
     old_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
-                                    "prev_proccessed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
+                                    "prev_proccessed","template_format", 
+                                    paste0("HJ",J), unique(as.character(max(list.files(
       here::here("data", "data_digitization","occurrence_data",
                  "prev_proccessed","template_format", paste0("HJ",J))))))))  
     
@@ -73,7 +74,8 @@ rm(requiredPackages)
 ## writing sheet of total columns reviewed/ processed
   write.csv(total_data, here::here("data", "data_digitization","occurrence_data",
                                  "prev_proccessed", "template_format",paste0("HJ",J), 
-                                 paste0("HJ-", J, "_rows-reviewed_",Sys.Date(),".csv")), row.names=F)
+                                 paste0("HJ-", J, "_rows-reviewed_",
+                                        Sys.Date(),".csv")), row.names=F)
   
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
 
