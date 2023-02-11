@@ -22,7 +22,8 @@ library(groundhog)
 set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
 requiredPackages <-  c("assertr","readxl","dplyr","here", 
-                       "tidyverse","tidyr")
+                       "tidyverse","tidyr", "cowsay", "multicolor",
+                       "jsonlite")
 
 for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
@@ -67,8 +68,12 @@ rm(requiredPackages)
     
     # remove rows from current data table that contain old data                                              
     new_data <- total_data %>% anti_join(old_data)
+    
+    cowsay::say("previously proccessed rows removed :)", by="signbunny")
+    
   } else {
     new_data <- total_data
+    cowsay::say("all rows new and kept :)", by="signbunny")
   }
   
 ## writing sheet of total columns reviewed/ processed
@@ -155,7 +160,8 @@ rm(requiredPackages)
                                   "2_data_checking", paste0("HJ",J))))>4){
     file.remove(unique(as.character(min(list.files(here::here("data", 
                                                               "data_digitization","occurrence_data",
-                                                              "2_data_checking", paste0("HJ",J)))))))   
+                                                              "2_data_checking", paste0("HJ",J)))))))  
+    cowsay::say("old files removed :)", by="signbunny")
   }
   
   

@@ -10,7 +10,8 @@ library(groundhog)
 set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
 requiredPackages <-  c("assertr","expss", "readxl","dplyr",
-                       "here", "tidyverse","tidyr")
+                       "here", "tidyverse","tidyr", "cowsay", 
+                       "multicolor", "jsonlite")
 
 for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
@@ -56,7 +57,7 @@ rm(requiredPackages)
       
       # remove rows from current data table that contain old data                                              
      raw_data <- raw_data %>% anti_join(old_data) %>% relocate(., dataEntryRemarks, .before= pageNum)
-
+     cowsay::say("old data removed :)", by="signbunny")
     }
   
   # most recent checked data entry
