@@ -4,6 +4,27 @@
 #######                 Emma Menchions 22-11-20     #######                       
 ###########################################################
 
+## OVERVIEW ----
+# this script will check for inconspicuous errors in data entry
+# such as missing values, incorrect capitalization for species names
+# incorrect values for page and archive numbers
+# and many other checks
+
+# it uses the assert R package to check whether these factors are true
+
+# these code chunks using assert() or verify() will spit out an error message
+# in the console if the data does not pass the check 
+
+# these errors must be manually fixed and saved in excel:
+
+# once they are fixed, the script should be run again until the point that it last stopped
+
+# ensure that it now passes that point and continues
+
+# repeat for all error messages
+
+# if no error message appears, the test has been passed 
+
 ## LOADING PACKAGES ----
 library(groundhog)
 
@@ -20,10 +41,19 @@ rm(requiredPackages)
 
 ## READING IN DATA ----
 
-  # loading data that has passed the first processing step 
+  #### USER INPUT 
+    J <-8 # Journal number (only ONE at a time ! )
+          # either 5,7,8,9, or 27
+          # change number and re-run script to repeat for other journals 
+  ####
 
-  J <-5 # journal number --> USER INPUT !!
-  
+  # **use this code chunk to retun to the data and edit errors
+  # doesn't need to be run on first time around **
+  utils::browseURL(here::here("data", 
+                            "data_digitization","occurrence_data",
+                            "3_data_cleaning",paste0("HJ",J)))
+
+  # reading in data
   data <- read.csv(
     here::here("data","data_digitization",
     "occurrence_data","3_data_cleaning", 
@@ -37,7 +67,7 @@ rm(requiredPackages)
                                 "reference_data",
                                 "islands-and-districts_22-11-29.csv"))
   
-# TASK 1: checking for repeated taxon observations for given sampling location and time ----
+# TASK 1: removing repeated taxon observations for given sampling location and time ----
   
   data <- data %>% 
     group_by(sciName, date, locality, habitat, 
@@ -364,24 +394,27 @@ rm(requiredPackages)
     
       # converting degrees to decimal degrees
       for (i in 1:dim(data)[1]){
-        if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
-          data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
-          data$vLon[i] <- angle2dec(data$vLon[i])
+        if(!is.na(data$vLat[i]) & !is.na(data$vLon[i])){
+          if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
+            data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
+            data$vLon[i] <- angle2dec(data$vLon[i])
+          }
         }
       }
   
     data$vLat <- as.numeric(data$vLat) # converting to numeric so assert function works
-    data$vLon <- as.numeric(data$vLon) 
+    data$vLon <- as.numeric(data$vLon)*-1
     
   # check within certain range (drawn from arbitrary
   # boundary box around 
   # South BC, North Washignton Area)
   
   data %>% 
-    chain_start %>% 
-    assert(within_bounds(47,51,allow.na=T),vLat ) %>% 
-    assert(within_bounds(-129,-121,allow.na=T),vLon) %>% 
-    chain_end(error_fun = error_df_return)
+    group_by(vLat) %>% 
+    assert(within_bounds(47,51,allow.na=T),vLat)
+  data %>% 
+    group_by(vLon) %>% 
+    assert(within_bounds(-129,-121,allow.na=T),vLon)
   } 
   
 ## vUTM 
@@ -419,12 +452,15 @@ rm(requiredPackages)
     # South BC, North Washington Area)
     
     data %>% 
-      chain_start %>% 
-      assert(within_bounds(47,51, allow.na=T),lat) %>% 
-      assert(within_bounds(-129,-121,allow.na=T),lon) %>% 
-      chain_end
-    
-      # removing these columns for consistency
+      group_by(lat) %>% 
+      assert(within_bounds(47,51, allow.na=T),lat)
+      
+    data %>% 
+      group_by(lon) %>% 
+      assert(within_bounds(-129,-121,allow.na=T),lon)  
+      
+      # removing these columns - conversion will be re-done in next script (part 3)
+      # where columns are added/ altered to keep things consistent 
       data <- data %>% select(-c("lat", "lon"))
     
   }
@@ -550,7 +586,8 @@ if(length(list.files(here::here("data",
                                 "4_clean_data", paste0("HJ",J))))>2){
   file.remove(unique(as.character(min(list.files(here::here("data", 
                                                             "data_digitization","occurrence_data",
-                                                            "4_clean_data", paste0("HJ",J)))))))   
+                                                            "4_clean_data", paste0("HJ",J)))))))  
+  cowsay::say("old files removed!", by="signbunny")
 }
 
 

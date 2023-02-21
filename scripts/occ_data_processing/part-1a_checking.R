@@ -21,6 +21,7 @@
 ## LOADING PACKAGES ----
 
   # using the ground hog package for package management
+  install.packages("groundhog")
   library(groundhog)
 
   # installs pacakages to local folder in working directory "packages"

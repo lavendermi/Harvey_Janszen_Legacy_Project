@@ -4,6 +4,11 @@
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
+## OVERVIEW ----
+# will append changes and reviews made in part 1a 
+# to the raw data and write it as a new file in 
+# the folder "3_data_cleaning" for use in the next script (part-2)
+
 ## LOADING PACKAGES ----
 library(groundhog)
 
