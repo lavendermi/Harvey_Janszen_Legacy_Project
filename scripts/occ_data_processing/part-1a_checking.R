@@ -4,6 +4,7 @@
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
+## OVERVIEW ----
 # The goal of this script is to....
 
 # 1. identify occurrence rows flagged by individual during 
@@ -11,36 +12,49 @@
 # a) remarking something in the dataEntryRemarks
 # b) Not entering all taxon name information
 # c) low confidence in taxon name interpretation 
-# d) uncertainty in location and and no locality entered
+# d) uncertainty in location and and no locality string entered
 
-# 2. Create a new spreadsheet of these observations so they 
-# this uncertainty can be checked one observation at a time
+# 2. Create a new spreadsheet of these observations so that rows
+# with these uncertainties can be reviewed, infromation added
+# or can be deleted if uncertainties can't be resolved
 
 ## LOADING PACKAGES ----
-library(groundhog)
 
-set.groundhog.folder(here::here("packages"))
-date <- "2022-11-02"
-requiredPackages <-  c("assertr","readxl","dplyr","here", 
-                       "tidyverse","tidyr", "cowsay", "multicolor",
-                       "jsonlite")
+  # using the ground hog package for package management
+  library(groundhog)
 
-for (pkg in requiredPackages) {
-  groundhog.library(pkg, date)
-}
-
-rm(requiredPackages)
+  # installs pacakages to local folder in working directory "packages"
+  set.groundhog.folder(here::here("packages"))
+  
+  # installs package versions that were used when building this script
+  date <- "2022-11-02"
+  
+  # packages required
+  requiredPackages <-  c("assertr","readxl","dplyr","here", 
+                         "tidyverse","tidyr", "cowsay", "multicolor",
+                         "jsonlite")
+  
+  # loading and installing
+  for (pkg in requiredPackages) {
+    groundhog.library(pkg, date)
+  }
+  
+  # removing vars
+  rm(requiredPackages)
 
 ## 1. LOADING IN RAW DATA ----
  
+  ### USER INPUT 
+  J <- 8 # Journal number (only ONE at a time ! )
+         # either 5,7,8,9, or 27
+         # change number and re-run script to repeat for other journals 
+  ###
   
-  J <- 27 # Journal number (only ONE at a time) --> USER INPUT !
-  
-  # loading raw data
+  ## loading raw data
   total_data <- read_excel(here::here("data","data_digitization", 
                            "occurrence_data","1_raw_data", 
                             paste0("HJ-",J,"-","occ-entry.xlsx"))) %>% 
-    dplyr::rename(pageNum = "[pageNum]", 
+    dplyr::rename(pageNum = "[pageNum]", # removing brackets from column names in template
                   numPage = "[numPage]", 
                   vName = "[vName]",
                   vSciName= "[vSciName]", 
@@ -73,7 +87,7 @@ rm(requiredPackages)
     
   } else {
     new_data <- total_data
-    cowsay::say("all rows new and kept :)", by="signbunny")
+    cowsay::say("all rows are new so they were kept :)", by="signbunny")
   }
   
 ## writing sheet of total columns reviewed/ processed
@@ -161,16 +175,19 @@ rm(requiredPackages)
     file.remove(unique(as.character(min(list.files(here::here("data", 
                                                               "data_digitization","occurrence_data",
                                                               "2_data_checking", paste0("HJ",J)))))))  
-    cowsay::say("old files removed :)", by="signbunny")
+    cowsay::say("old files removed!", by="signbunny")
   }
   
   
 ## 3. ADDRESS THE ISSUES IN THESE ROWS in CSV FILE ----
-  # add data or change that data in these rows within the new
-  # .csv file created
-  # once they are all addressed... use script part1-b_checking 
-  # to consolidate and remove rows that can't be filled 
-  # in with all of the minimum required data
   
+  # run this to open file at location: 
+  utils::browseURL(here::here("data", 
+                              "data_digitization","occurrence_data",
+                              "2_data_checking",paste0("HJ",J)))
+  
+  # add data or change that data in these rows within the new .csv file created
+  # once they are all addressed... use script part1-b_checking 
+ 
 
   
