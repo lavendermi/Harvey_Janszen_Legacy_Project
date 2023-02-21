@@ -63,9 +63,13 @@ rm(requiredPackages)
       # read in the file with the second latest date
       old_data <- read.csv(here::here("data", "data_digitization","occurrence_data",
                                       "prev_proccessed", paste0("HJ",J), 
-                                      unique(as.character(dplyr::nth(list.files(
+                                        unique(as.character(dplyr::nth(sort(list.files(
                                         here::here("data", "data_digitization","occurrence_data",
-                                                   "prev_proccessed", paste0("HJ",J))), 2)))))  
+                                                   "prev_proccessed", paste0("HJ",J)))),
+                                          length(list.files(
+                                          here::here("data", "data_digitization","occurrence_data",
+                                                     "prev_proccessed", paste0("HJ",J))))-1)
+                                        ))))  
     
       # forcing columns from new and old dataframes to be read as 
       # the same classes so they can be joined
@@ -158,7 +162,10 @@ rm(requiredPackages)
                                   "data_digitization","occurrence_data",
                                   "3_data_cleaning", paste0("HJ",J))))>2){
     file.remove(unique(as.character(min(list.files(here::here("data", 
-                                                              "data_digitization","occurrence_data","3_data_cleaning", paste0("HJ",J)))))))
+                                                              "data_digitization",
+                                                              "occurrence_data",
+                                                              "3_data_cleaning", 
+                                                              paste0("HJ",J)))))))
     cowsay::say("old file removed!", by="signbunny")
   }
   
