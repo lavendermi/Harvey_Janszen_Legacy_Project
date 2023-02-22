@@ -21,8 +21,7 @@
   date <- "2022-11-02"
   requiredPackages <-  c("assertr","dplyr","here", "lubridate",
                          "magrittr","mapview","purrr","ritis",
-                         "stringi","taxize","terra","tidyverse","tidyr")
-  
+                         "stringi","taxize","terra","tidyverse","tidyr","cowsay")
   
   for (pkg in requiredPackages) {
     groundhog.library(pkg, date)
@@ -287,13 +286,14 @@
   # checker: https://www.pnwherbaria.org/florapnw/namechecker.php
     
     # selecting columns specified by the name checker, renaming
-    Names <- occ_data  %>% 
-    dplyr::select(sciName, country, stateProvince) %>% 
-    distinct(sciName, .keep_all =T) %>% 
-    filter(!is.na(sciName)) %>% 
-    dplyr::rename(ScientificName = sciName,
-                  Country = country, 
-                  StateProvince = stateProvince) 
+    Names <- occ_data %>% 
+      dplyr::select(sciName, country, stateProvince) %>% 
+      group_by(sciName) %>% 
+      sample_n(1) %>% 
+      filter(!is.na(sciName)) %>% 
+      dplyr::rename(ScientificName = sciName,
+                    Country = country, 
+                    StateProvince = stateProvince) 
     
     # writing as tab-delimted .txt
     write.table(Names, here::here("data","data_digitization","occurrence_data", 
@@ -305,6 +305,9 @@
     cowsay::say("file ready to check with FPNW2 standards", by="signbunny")
     
     # Upload .txt file to: https://www.pnwherbaria.org/florapnw/namechecker.php
+    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
+                                "occ_reference_data", "taxonomy", "raw"))
+    
     # select "choose file" button
     # find file in folder data > data_digitization > occurrence_data > occ_reference_data > taxonomy > raw
     # press the "Check Names" button
@@ -324,7 +327,8 @@
     # selecting columns specified by the name checker, renaming
     Names <- occ_data %>% 
     dplyr::select(occurrenceID, sciName) %>% 
-    distinct(sciName, .keep_all =T) %>% 
+    group_by(sciName) %>% 
+    sample_n(1) %>% 
     filter(!is.na(sciName)) %>% 
     dplyr::rename(scientificName = sciName)
   
@@ -349,7 +353,9 @@
     # repeat for all other entries with yellow or red match types
     # once all are exact or "edited" click "generate.csv" in the 
     # bottom corner
-    # place in working directory
+    # place in working directory:
+    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
+                                "occ_reference_data", "taxonomy", "normalized"))
     # add the date that this table was generated
       
   }
@@ -361,7 +367,9 @@
                                "occ_reference_data", "taxonomy","raw",
                                unique(as.character(min(list.files(
                                  here::here("data","data_digitization","occurrence_data", 
-                                            "occ_reference_data", "taxonomy","raw")))))))   
+                                            "occ_reference_data", "taxonomy","raw"))))))) 
+    cowsay::say("old files removed", by="signbunny")
+    
   }
     
 ## Reading in table of checked names, matching names and writing updated taxonomic info
@@ -369,6 +377,7 @@
   
 if(tax_ref_sys=="FPNW2"){
     if(length(J)>1){ # if the number of journals is > 1, load file with all names
+      
       normalized_names <- read.csv(
         here::here("data","data_digitization","occurrence_data",
                    "occ_reference_data",
@@ -462,10 +471,23 @@ if(tax_ref_sys=="FPNW2"){
         
       # renaming columns
       normalized_names <- normalized_names %>% 
-      dplyr::rename(family = AcceptedFamily)
+      dplyr::rename(family = AcceptedFamily, 
+                    sciName =ScientificName )
       
       # pasting and assigning a few other variables
       normalized_names$kingdom <- "Plantae"
+      
+    ## assigning names and fields in normalized names to occ_data
+    occ_data <- left_join(occ_data, select(.data=normalized_names,
+                                                  # removing these columns from join
+                                                 c(-StateProvince, -Country, -FPNW2ndEdition, 
+                                                   -FPNW1stEdition, -AcceptedScientificName, 
+                                                   -SpeciesAuthors,
+                                                   -InfraspeciesAuthors, -MisappliedTo.SeeAlso, 
+                                                   -Comments)), by="sciName") %>% 
+      select(-sciName) %>% # removing this, no longer needed 
+      relocate(scientificName, .before=vSciName)
+      
      
 } else if (tax_ref_sys=="GBIF"){
     
@@ -516,7 +538,11 @@ if(tax_ref_sys=="FPNW2"){
         # making sure that empty cells are NA
         mutate_all(na_if, "") %>% 
         # removing columns to avoid duplication 
-        select(-sciName) 
+        select(-sciName) %>% 
+        # renaming columns
+        dplyr::rename(scientificNameauthorship = authorship, 
+        taxonRank = rank, 
+        taxonomicStatus = status)
       
     }
   }
@@ -979,7 +1005,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     }
     
     
-## saving as .csv file  ----
+## 8) FINAL PROCESSING STEPS  ----
 ## remove extraneous columns  
     
     new_dwc_data <- occ_data %>% 
@@ -1002,10 +1028,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                     organismQuantityType = orgQtype, 
                     occurrenceRemarks = occRemarks, 
                     lifeStage = phenology, 
-                    identificationBy= idBy, 
-                    scientificNameauthorship = authorship, 
-                    taxonRank = rank, 
-                    taxonomicStatus = status, eventDate = fulldate) %>% 
+                    identificationBy= idBy,
+                    eventDate = fulldate) %>% 
 
       # removing columns
       select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
@@ -1047,6 +1071,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       file.remove(unique(as.character(min(list.files(here::here("data", 
                                     "data_digitization","occurrence_data",
                                       "darwin_core_data"))))))   
+      cowsay::say("old files removed", by="signbunny")
     }
     
 

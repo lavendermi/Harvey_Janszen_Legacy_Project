@@ -6,7 +6,12 @@
 #######################################################################
 
 ## OVERVIEW ----
-# this script will take collection data and place it in darwin core format
+# this script will take occurrence data and place it in approximate
+# darwin core format
+# see: https://dwc.tdwg.org/list/#dwc_fieldNotes
+
+# it is best to do parts 1a, 1b, and 2 for all journals!! before using this 
+# script
 
 ## 1) LOADING & INSTALLING PACKAGES ----
   # using groundhog to manage package versioning 
@@ -17,7 +22,7 @@
   date <- "2022-11-02"
   requiredPackages <-  c("assertr","dplyr","here", "lubridate",
                          "magrittr","mapview","purrr","ritis",
-                         "stringi","taxize","terra","tidyverse","sp","tidyr")
+                         "stringi","taxize","terra","tidyverse","sp","tidyr", "cowsay")
   
   for (pkg in requiredPackages) {
     groundhog.library(pkg, date)
@@ -27,7 +32,10 @@
   
 ## 2) READING IN DATA ----
   
-  J <- c(7) # journal(s) number --> USER INPUT !!
+  #### USER INPUT 
+  J <-c(5,7,8,9,27) # Journal number (multiple allowed ! )
+  # either 5,7,8,9,27 or all in a vector
+  ####
   
   for (i in 1:length(J)){
     if (i == 1){
@@ -49,6 +57,7 @@
                      here::here("data","data_digitization",
                                 "collection_data", "4_clean_data", 
                                 paste0("HJ",J[i])))))))))
+      cowsay::say("multiple journals appended", by="signbunny")
     }
   }
   
@@ -182,6 +191,7 @@
   # spelled correctly
   data %>% 
     chain_start %>% 
+    group_by(islandGroup) %>% 
     assert(not_na,islandGroup) %>% 
     assert(in_set(places$islandGroup),islandGroup) %>% 
     chain_end
@@ -205,11 +215,13 @@
   
     # checking that all were assinged a county
     data %>% 
+      group_by(county)
     assert(not_na,county) 
   
   # dwc:fieldNotes
   # stating where the field notes are stored and where the images are 
-  data$fieldNotes <- paste0("HJ-", data$archiveID, " page: ", data$pageNum, " num: ", data$numPage, ", Imaged notes: X,  Original notes housed at UBC herbarium")
+  data$fieldNotes <- paste0("HJ-", data$archiveID, " page: ", data$pageNum, " num: ", data$numPage, ",
+                            Imaged notes: X,  Original notes housed at UBC herbarium")
   
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals
@@ -219,36 +231,82 @@
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
   occ_data <- data %>% 
-    select(-pageNum,-numPage, -vName, -conf, -date, -dataEntryRemarks, -archiveID) %>%
+    occ_data <- data %>% 
+    select(-pageNum,-numPage, -vName, -conf, -date, -index) %>%
     arrange(recordNum)
                                        
-## 4) TAXONOMY FIELDS ----
+  ## 4) TAXONOMY FIELDS ----
   
-  # Using GBIF Species-Lookup tool to check taxon names (updated 
-  # input names, not verbatim)
-    # create and write data frame with updated species names from template 
-    Names <- occ_data %>% 
-    dplyr::select(occurrenceID, sciName) %>% 
-    distinct(sciName, .keep_all =T) %>% 
-    filter(!is.na(sciName)) %>% 
-    dplyr::rename(scientificName = sciName)
+  #### USER INPUT *********** # which taxonomic reference system should be used? 
   
-
-      write.csv(Names, here::here("data","data_digitization","collection_data", 
-                                  "coll_reference_data", "taxonomy", 
-                                  "raw", paste0("HJ",J),
-                                  paste0("taxa-names_",
-                                         Sys.Date(), ".csv")), row.names = F)
-      # and removing old files to save storage
-      if(length(list.files(here::here("data","data_digitization","collection_data", 
-                                      "coll_reference_data", "taxonomy", "raw",paste0("HJ",J))))>2){
-        file.remove(here::here("data","data_digitization","collection_data", 
-                               "coll_reference_data", "taxonomy", "raw",paste0("HJ",J),
-                               unique(as.character(min(list.files(
-                                here::here("data","data_digitization","collection_data", 
-                                "coll_reference_data", "taxonomy", "raw",paste0("HJ",J))))))))   
-      }
+  tax_ref_sys <- "FPNW2" # either "FPNW2" or "GBIF"
+  
+  ####
+  
+  ## formatting and writing file of names to check: 
+  
+  if(tax_ref_sys == "FPNW2"){
+    # Using PNW herbaria batch taxonomy name 
+    # checker: https://www.pnwherbaria.org/florapnw/namechecker.php
     
+    # selecting columns specified by the name checker, renaming
+    Names <- occ_data %>% 
+      dplyr::select(sciName, country, stateProvince) %>% 
+      group_by(sciName) %>% 
+      sample_n(1) %>% 
+      filter(!is.na(sciName)) %>% 
+      dplyr::rename(ScientificName = sciName,
+                    Country = country, 
+                    StateProvince = stateProvince) 
+    
+    # writing as tab-delimted .txt
+    write.table(Names, here::here("data","data_digitization","collection_data", 
+                                  "coll_reference_data", "taxonomy", "raw",
+                                  paste0("taxa-names_",
+                                         Sys.Date(), ".txt")),
+                row.names = F, sep =   '\t', col.names = T,quote=FALSE)
+    
+    cowsay::say("file ready to check with FPNW2 standards", by="signbunny")
+    
+    # Upload .txt file to: https://www.pnwherbaria.org/florapnw/namechecker.php
+    utils::browseURL(here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "raw"))
+    
+    # select "choose file" button
+    # find file in folder data > data_digitization > occurrence_data > occ_reference_data > taxonomy > raw
+    # press the "Check Names" button
+    # download the file produced
+    # place in...
+    utils::browseURL(here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "normalized"))
+    
+    # manually change the file name to "FPNW2_normalized_YYYY-MM-DD.txt"
+    
+    
+  } else if (tax_ref_sys == "GBIF"){
+    
+    # Using GBIF Species-Lookup tool to check taxon names (updated 
+    # input names, not verbatim)
+    
+    # selecting columns specified by the name checker, renaming
+    Names <- occ_data %>% 
+      dplyr::select(occurrenceID, sciName) %>% 
+      group_by(sciName) %>% 
+      sample_n(1) %>% 
+      filter(!is.na(sciName)) %>% 
+      dplyr::rename(scientificName = sciName)
+    
+    # writing as csv file
+    write.csv(Names, here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "raw",
+                                paste0("taxa-names_",
+                                       Sys.Date(), ".csv")), row.names = F)
+    
+    cowsay::say("file ready to check with GBIF standards", by="signbunny")
+    
+    # find csv file in folder: 
+    utils::browseURL(here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "raw"))
     
     # Upload csv file to https://www.gbif.org/tools/species-lookup
     # select "match to backbone" button
@@ -259,23 +317,162 @@
     # repeat for all other entries with yellow or red match types
     # once all are exact or "edited" click "generate.csv" in the 
     # bottom corner
-    # place in working directory
+    # place in working directory:
+    utils::browseURL(here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "normalized"))
     # add the date that this table was generated
+    
+  }
   
-  # loading in the names normalization table 
-
+  ## removing old files to save storage
+  if(length(list.files(here::here("data","data_digitization","collection_data", 
+                                  "coll_reference_data", "taxonomy","raw")))>2){
+    file.remove(here::here("data","data_digitization","collection_data", 
+                           "coll_reference_data", "taxonomy","raw",
+                           unique(as.character(min(list.files(
+                             here::here("data","data_digitization","collection_data", 
+                                        "coll_reference_data", "taxonomy","raw")))))))   
+    cowsay::say("old files removed", by="signbunny")
+  }
+  
+  ## Reading in table of checked names, matching names and writing updated taxonomic info
+  # to main data frame: 
+  
+  if(tax_ref_sys=="FPNW2"){
+    if(length(J)>1){ # if the number of journals is > 1, load file with all names
+      
       normalized_names <- read.csv(
         here::here("data","data_digitization","collection_data",
                    "coll_reference_data",
-                   "taxonomy","normalized",paste0("HJ",J),unique(as.character(max(list.files(
+                   "taxonomy","normalized",unique(as.character(max(list.files(
                      here::here("data","data_digitization","collection_data",
                                 "coll_reference_data",
-                                "taxonomy","normalized",paste0("HJ",J))))))))
-    
-    
-  # linking to occurrenceID in template table
+                                "taxonomy","normalized")))))),header=T, sep="\t", na.strings = "")
       
-    # combining gbif taxon match data with occurrence data 
+      
+    }else{ # if the number of journals = 1, load file with names just for that journal
+      normalized_names <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "taxonomy",paste0("HJ",J),"normalized")))))), header=T, sep="\t",na.strings = "")
+    }
+    
+    ## matching and assigning names to main data frame:
+    
+    # initializing vectors:
+    normalized_names$genus <- NA
+    normalized_names$specificEpithet <- NA
+    normalized_names$taxonRank <- NA
+    normalized_names$intraspecificEpithet <- NA
+    normalized_names$scientificNameAuthorship <- NA
+    normalized_names$species <- NA
+    normalized_names$scientificName <- NA
+    
+    # loop:
+    for(i in 1:dim(normalized_names)[1]){  # for each row
+      
+      # assigning genus, specific epithet, intraspecific epithet from AcceptedScientificName
+      # genus
+      if (!is.na(strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][1])){
+        normalized_names$genus[i] <- 
+          strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][1]
+        #a ssigning taxonomic rank as genus
+        normalized_names$taxonRank[i] <- "GENUS"
+      }
+      
+      # specific epithet
+      if (!is.na(strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][2])){
+        normalized_names$specificEpithet[i] <-
+          strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][2]
+        # assigning taxonomic rank as genus
+        normalized_names$taxonRank[i] <- "SPECIES"
+      }
+      
+      
+      # intraspecific epithet
+      if (!is.na(strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][4])){
+        normalized_names$intraspecificEpithet[i] <- 
+          strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][4]
+        
+        # if the intraspecific signifier is ssp. ...
+        if (strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][3] == "ssp." |
+            strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][3] == "subsp."){
+          normalized_names$taxonRank[i] <- "SUBSPECIES"
+        }else if (strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][3] == "var." ){
+          normalized_names$taxonRank[i] <- "VARIETY"
+          
+        }else if (strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]][3] == "form." |
+                  strsplit(normalized_names$AcceptedScientificName[i], " ")[[1]] == "forma"){
+          normalized_names$taxonRank[i] <- "FORMA"
+          
+        }
+      }
+      
+      # assigning species author 
+      # if intraspecific species author present, useses that over species author 
+      if (!is.na(normalized_names$InfraspeciesAuthors[i])){
+        normalized_names$scientificNameAuthorship[i] <- normalized_names$InfraspeciesAuthors[i]
+      }else if (!is.na(normalized_names$SpeciesAuthors[i])){
+        normalized_names$scientificNameAuthorship[i] <- normalized_names$SpeciesAuthors[i]
+      }
+      # assigning species (genus and specific epithet)
+      if (!is.na(normalized_names$genus[i]) & ! is.na(normalized_names$specificEpithet[i])){
+        normalized_names$species[i] <- paste(normalized_names$genus[i], normalized_names$specificEpithet[i])
+      }
+      
+      # assigning scientificName
+      if (!is.na(normalized_names$species[i]) & !is.na(normalized_names$scientificNameAuthorship[i])){
+        normalized_names$scientificName[i] <- paste(normalized_names$species[i], normalized_names$scientificNameAuthorship[i])
+      }else { # if no specific epithet, just assign genus
+        normalized_names$scientificName[i] <- normalized_names$genus[i]
+      }
+      
+    }  
+    
+    # renaming columns
+    normalized_names <- normalized_names %>% 
+      dplyr::rename(family = AcceptedFamily, 
+                    sciName =ScientificName )
+    
+    # pasting and assigning a few other variables
+    normalized_names$kingdom <- "Plantae"
+    
+    ## assigning names and fields in normalized names to occ_data
+    occ_data <- left_join(occ_data, select(.data=normalized_names,
+                                           # removing these columns from join
+                                           c(-StateProvince, -Country, -FPNW2ndEdition, 
+                                             -FPNW1stEdition, -AcceptedScientificName, 
+                                             -SpeciesAuthors,
+                                             -InfraspeciesAuthors, -MisappliedTo.SeeAlso, 
+                                             -Comments)), by="sciName") %>% 
+      select(-sciName) %>% # removing this, no longer needed 
+      relocate(scientificName, .before=vSciName)
+    
+  } else if (tax_ref_sys=="GBIF"){
+    
+    if(length(J)>1){ # if the number of journals is > 1, load file with all names
+      normalized_names <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "taxonomy","normalized",unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "taxonomy","normalized")))))))
+    }else{ # if the number of journals = 1, load file with names just for that journal
+      normalized_names <- read.csv(
+        here::here("data","data_digitization","collection_data",
+                   "coll_reference_data",
+                   "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
+                     here::here("data","data_digitization","collection_data",
+                                "coll_reference_data",
+                                "taxonomy",paste0("HJ",J),"normalized")))))))
+      
+      ## matching and assigning names to main data frame:
+      
+      # combining gbif taxon match data with occurrence data 
       cols <- names(normalized_names)[3:length(names(normalized_names))]
       
       # initializing empty columns to fill 
@@ -283,25 +480,34 @@
         occ_data[,cols[i]] <-NA
       }
       
+      # assigning matching names 
       for (i in 1:dim(occ_data)[1]){
         for (k in cols){
           occ_data[i, k] <- normalized_names[which(occ_data$sciName[i] ==
-                                  normalized_names$verbatimScientificName), k]
+                                                     normalized_names$verbatimScientificName), k]
         }
         
       }
       
-     speciesSep <- as.data.frame(str_split_fixed(occ_data$canonicalName, " ", 3)) %>% 
-       dplyr::rename(genus = V1, specificEpithet = V2, intraspecificEpithet = V3) %>% 
-       select(-genus)
-       
-     occ_data$specificEpithet <- speciesSep[,1]
-     occ_data$intraspecificEpithet <- speciesSep[,2]
+      # turning canonical Name into genus, specificEpithet and intraspecific epithet
+      speciesSep <- as.data.frame(str_split_fixed(occ_data$canonicalName, " ", 3)) %>% 
+        dplyr::rename(genus = V1, specificEpithet = V2, intraspecificEpithet = V3) %>% 
+        select(-genus) # removing duplicate row of genus
+      
+      occ_data$specificEpithet <- speciesSep[,1]
+      occ_data$intraspecificEpithet <- speciesSep[,2]
       occ_data <- occ_data %>% 
         # making sure that empty cells are NA
         mutate_all(na_if, "") %>% 
         # removing columns to avoid duplication 
-        select(-sciName) 
+        select(-sciName)
+        # renaming columns
+        dplyr::rename(scientificNameauthorship = authorship, 
+                    taxonRank = rank, 
+                    taxonomicStatus = status)
+      
+    }
+  }
 
 ## 5) GEOREFERENCING ----
     
@@ -356,8 +562,6 @@
     # Follow protocol outlined in "post-entry-processing.Rmd"
     
   ## loading referenced locations
-    
-
 
       GEOlocate <- read.csv(
         here::here("data","data_digitization","collection_data",
@@ -746,8 +950,9 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     }
     
     
-## final processing  ----
-## remove extraneous columns  
+## 8) FINAL PROCESSING STEPS  ----
+
+    ## remove extraneous columns  
     
     new_dwc_data <- occ_data %>% 
       # assigning statuses as dwc::dyamic properties
@@ -755,8 +960,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
             globalStatus, sep="; ") %>% 
     
       
-    # renaming columns to dwc terms 
-    dplyr::rename(verbatimScientificName = vSciName, 
+      # renaming columns to dwc terms 
+      dplyr::rename(verbatimScientificName = vSciName, 
                   verbatimElevation = vElevM,
                   recordNumber = recordNum,
                   identificationQualifier = idQualifier,
@@ -772,50 +977,49 @@ for (i in 1:dim(occ_data)[1]){ # for every row
                   occurrenceRemarks = occRemarks, 
                   lifeStage = phenology, 
                   identificationBy= idBy, 
-                  scientificNameauthorship = authorship, 
-                  taxonRank = rank, 
-                  taxonomicStatus = status, eventDate = fulldate) %>% 
+                  eventDate = fulldate) %>% 
       
       # removing columns 
-      select( -canonicalName, -confidence,
-              -numPlantsCode, - curationMetadata)
+      select(-archiveID, -dataEntryRemarks, -canonicalName, -confidence,
+             -numPlantsCode, - curationMetadata)
     
     
 ## appending previously processed data 
     
+    # if there are one or more files that have been previously processed...
     
-      if(length(list.files(here::here("data", "data_digitization","collection_data",
-                                      "darwin_core_data",paste0("HJ",J))))>=1){
-        
-        # read in the file with the latest date (with most observations) 
-        old_dwc_data <- read.csv(here::here("data", "data_digitization","collection_data",
-                                            "darwin_core_data",paste0("HJ",J),
-                                            unique(as.character(max(list.files(here::here("data", 
-                                                                      "data_digitization","collection_data",
-                                                           "darwin_core_data", paste0("HJ",J))))))))
-        
-        # append rows from current data table that contain old data and sort by date                                        
-        new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
+    if(length(list.files(here::here("data", "data_digitization","collection_data",
+                                    "darwin_core_data")))>=1){
       
+      # read in the file with the latest date (with most observations) 
+      old_dwc_data <- read.csv(here::here("data", "data_digitization","collection_data",
+                                          "darwin_core_data",
+                                          unique(as.character(max(list.files(here::here(
+                                            "data", "data_digitization","collection_data",
+                                            "darwin_core_data")))))))
+      
+      # append rows from current data table that contain old data and sort by date                                        
+      new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
+      
+      # renumbering occurrence ID
+      new_total_dwc_data$occurrenceID <- paste0("HJO-",1:dim(new_total_dwc_data)[1])
     }
     
+    
     ## saving csv files
-  
-      write.csv(new_total_dwc_data, here::here("data", "data_digitization",
-                                               "collection_data","darwin_core_data",
-                                               paste0("HJ",J),
-                                               paste0("darwin-core-collections_", 
-                                                      Sys.Date(), ".csv")), row.names = F)
-      # and removing old files to save storage
-      if(length(list.files(here::here("data", 
-                                      "data_digitization","collection_data",
-                                      "darwin_core_data", paste0("HJ",J))))>2){
-        file.remove(here::here("data", 
-                               "data_digitization","collection_data",
-                               "darwin_core_data", paste0("HJ",J),
-                    unique(as.character(min(list.files(here::here("data", 
-                    "data_digitization","collection_data",
-                     "darwin_core_data", paste0("HJ",J))))))))   
-      }
-      
- 
+    
+    # write it to folder "darwin_core_data > all"
+    write.csv(new_total_dwc_data, here::here("data", "data_digitization",
+                                             "collection_data","darwin_core_data",
+                                             paste0("darwin-core-occurrences_", 
+                                                    Sys.Date(), ".csv")), row.names = F)
+    # and removing old files to save storage
+    if(length(list.files(here::here("data", 
+                                    "data_digitization","collection_data",
+                                    "darwin_core_data")))>2){
+      file.remove(unique(as.character(min(list.files(here::here("data", 
+                                                                "data_digitization","collection_data",
+                                                                "darwin_core_data")))))) 
+      cowsay::say("old files removed", by="signbunny")
+    }
+    
