@@ -4,6 +4,7 @@
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
+## OVERVIEW ----
 # The goal of this script is to....
 
 # 1. identify occurrence rows flagged by individual during 
@@ -11,32 +12,49 @@
 # a) remarking something in the dataEntryRemarks
 # b) Not entering all taxon name information
 # c) low confidence in taxon name interpretation 
-# d) uncertainty in location and and no locality entered
+# d) uncertainty in location and and no locality string entered
 
-# 2. Create a new spreadsheet of these collections so they 
-# this uncertainty can be checked one row at a time
+# 2. Create a new spreadsheet of these observations so that rows
+# with these uncertainties can be reviewed, infromation added
+# or can be deleted if uncertainties can't be resolved
 
 ## LOADING PACKAGES ----
-library(groundhog)
 
-set.groundhog.folder(here::here("packages"))
-date <- "2022-11-02"
-requiredPackages <-  c("assertr","readxl","dplyr","here", "tidyverse","tidyr")
-
-for (pkg in requiredPackages) {
-  groundhog.library(pkg, date)
-}
-
-rm(requiredPackages)
+  # using the groundhog package for package management
+  install.packages("groundhog")
+  library(groundhog)
+  
+  # installs pacakages to local folder in working directory "packages"
+  set.groundhog.folder(here::here("packages"))
+  
+  # installs package versions that were used when building this script
+  date <- "2022-11-02"
+  
+  # packages required
+  requiredPackages <-  c("assertr","readxl","dplyr","here", 
+                         "tidyverse","tidyr", "cowsay", "multicolor",
+                         "jsonlite")
+  
+  # loading and installing
+  for (pkg in requiredPackages) {
+    groundhog.library(pkg, date)
+  }
+  
+  # removing vars
+  rm(requiredPackages)
 
 ## 1. LOADING IN RAW DATA ----
 
-  J <-7 # Journal number (only ONE at a time) --> USER INPUT !
+  ### USER INPUT 
+  J <- 7 # Journal number (only ONE at a time ! )
+        # either 5,7,8,9, or 27
+        # change number and re-run script to repeat for other journals 
+  ###
 
   total_data <- read_excel(here::here("data","data_digitization", 
           "collection_data","1_raw_data", 
           paste0("HJ-",J,"-","coll-entry.xlsx"))) %>% 
-  dplyr::rename(pageNum = "[pageNum]", 
+  dplyr::rename(pageNum = "[pageNum]", # removing brackets from column names in template
   numPage = "[numPage]", 
   recordNum= "[recordNum]",
   vName = "[vName]",
@@ -52,28 +70,48 @@ rm(requiredPackages)
   
   # if there is one or more files that have been previously processed...
   if(length(list.files(here::here("data", "data_digitization",
-                                  "collection_data",
-                                  "prev_processed","template_format", 
+                                  "collection_data", "prev_processed", 
                                   paste0("HJ",J))))>=1){
     
-    # read in the file with the latest date (with most observations) 
+    # read in the file with the second latest date (with most observations) 
     old_data <- read.csv(here::here("data", "data_digitization","collection_data",
-                                    "prev_processed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
-      here::here("data", "data_digitization","collection_data",
-                 "prev_processed","template_format", paste0("HJ",J)))))))) 
-
+                                    "prev_processed", paste0("HJ",J), 
+                                    unique(as.character(max(list.files(
+                                      here::here("data", "data_digitization","collection_data",
+                                                 "prev_processed", paste0("HJ",J))))))))  
+    
+    # forcing columns from new and old dataframes to be read as 
+    # the same classes so they can be joined
+    
+    # obtaining classes of raw data frame
+    classes_total_data <- lapply(total_data,class)
+    classes_total_data <- bind_rows(classes_total_data)
+    classes_total_data <- unlist(classes_total_data)
+    
+    # applying to old_data frame
+    old_data <- Map('class<-', old_data, classes_total_data) %>% bind_rows()
+    
     # remove rows from current data table that contain old data                                              
     new_data <- total_data %>% anti_join(old_data)
     
+    cowsay::say("previously proccessed rows removed :)", by="signbunny")
+    
   } else {
     new_data <- total_data
+    cowsay::say("all rows are new so they were kept :)", by="signbunny")
   }
   
   ## writing sheet of total columns reviewed/ processed
-  write.csv(total_data, here::here("data", "data_digitization","collection_data",
-                                 "prev_processed", "template_format",paste0("HJ",J), 
-                                 paste0("HJ-", J, "_rows-reviewed_",Sys.Date(),".csv")), row.names=F)
   
+  # finding the copy number - starts at 1 if no other files on same date, appended to end of file name
+  X <- length(which(grepl(Sys.Date(),list.files(here::here("data", "data_digitization",
+                                                           "collection_data", "prev_processed", 
+                                                           paste0("HJ",J))), fixed=TRUE) ==T))+1
+  
+  write.csv(total_data, here::here("data", "data_digitization","collection_data",
+                                   "prev_processed",paste0("HJ",J), 
+                                   paste0("HJ-", J, "_rows-reviewed_",
+                                          Sys.Date(),"_",X,".csv")), row.names=F)
   
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
   
@@ -152,15 +190,29 @@ rm(requiredPackages)
                                   "2_data_checking", paste0("HJ",J))))>4){
     file.remove(unique(as.character(min(list.files(here::here("data", 
                                                               "data_digitization","collection_data",
-                                                              "2_data_checking", paste0("HJ",J)))))))   
+                                                              "2_data_checking", paste0("HJ",J))))))) 
+    cowsay::say("old files removed!", by="signbunny")
   }
   
-## 3. ADDRESS THE ISSUES IN THESE ROWS in CSV FILE ----
-  # add data or change that data in these rows within the new
-  # .csv file created
-  # once they are all addressed... use script part1-b_checking 
-  # to consolidate and remove rows that can't be filled 
-  # in with all of the minimum required data
+  if(length(list.files(here::here("data", "data_digitization",
+                                  "collection_data", "prev_processed", 
+                                  paste0("HJ",J))))>4){
+    file.remove(unique(as.character(min(list.files(here::here("data", "data_digitization",
+                                                              "collection_data", "prev_processed", 
+                                                              paste0("HJ",J)))))))  
+    cowsay::say("old files removed!", by="signbunny")
+  }
   
+  
+  
+## 3. ADDRESS THE ISSUES IN THESE ROWS in CSV FILE ----
+  
+  # run this to open file at location: 
+  utils::browseURL(here::here("data", 
+                              "data_digitization","collection_data",
+                              "2_data_checking",paste0("HJ",J)))
+  
+  # add data or change that data in these rows within the new .csv file created
+  # once they are all addressed... use script part1-b_checking 
 
   

@@ -108,37 +108,67 @@ This repository contains all of the existing data, scripts, and packages require
 
 3.  Follow the instructions in Part 4 to clean taxa names
 
-    -   Locate the CSV file produced, located in *"data \> digitized_data \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> taxonomy \> journal number or ALL (if doing more than one journal) \> raw \> taxa-names_Xdate"*
+4.  Input which taxonomy reference system you would like to use
 
-    -   Upload file to <https://www.gbif.org/tools/species-lookup>
+    -   tax_ref_sys \<- "FPNW2" or "GBIF"
 
-    -   Click the **"match to backbone"** button
+        -   FPNW2 for the 2nd edition of the Flora of the Pacific Northwest
 
-    -   Click on the **"matchType"** column label to order these by match type
+        -   GBIF for global biodiversity information facility
 
-        -   If match type is **yellow or red**, click on the **neighbouring column "scientificName (editable)"**
+5.  Follow the instructions...
 
-        -   A list of taxon names will pop up
+    1.  For FPNW2:
 
-        -   **Select the name** that has "accepted" beside it in brackets unless there was a spelling mistake in the verbatim name and you know the verbatim name was refferring to something else. If so, search for that species in the search bar and select the accepted name Additionally, synonyms can be selected if the "accepted" listing is a higher rank (e.g. genus rather than species). (short story: prioritize selection of "accepted" names over "synonyms" but not at the cost of sacrificing taxon specificity)
+        -   Upload .txt file to: <https://www.pnwherbaria.org/florapnw/namechecker.php>
 
-        -   If there are multiple accepted names, select the top results (this is often if there are two different authorities accepted)
+        -   select "choose file" button
 
-        -   the match type field should now say "edited"
+        -   find file in folder data \> data_digitization \> occurrence_data \> occ_reference_data \> taxonomy \> raw
 
-        -   go back through all pages of entries to check that all rows have match type "exact" or "edited" (grey or green)
+        -   press the "Check Names" button
 
-        -   **select "GENERATE CSV"** button in bottom right hand of page
+        -   download the file produced
 
-        -   **place this downloaded** file in "*data \> data_digitization \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> taxonomy \> journal number or ALL (if doing more than one journal) \> normalized"*
+        -   place in data \> data_digitization \> occurrence_data \> occ_reference_data \> taxonomy \> normalized
 
-        -   **add the date** (YYYY-MM-DD) to the end of the file name (e.g "normalized_2023-01-01")
+        -   manually change the file name to "FPNW2_normalized_YYYY-MM-DD.txt"
 
-        -   **return to the script** in R
+    2.  For GBIF:
 
-        -   **Run the rest of the Taxonomy section**
+        -   Locate the CSV file produced, located in *"data \> digitized_data \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> taxonomy \> journal number or ALL (if doing more than one journal) \> raw \> taxa-names_Xdate"*
 
-4.  **Run the initial part of step 5 (Georeferencing)** up to an including the write.csv command . Then follow the following instructions for georeferencing in GEOlocate:
+        -   Upload file to <https://www.gbif.org/tools/species-lookup>
+
+        -   Click the **"match to backbone"** button
+
+        -   Click on the **"matchType"** column label to order these by match type
+
+            -   If match type is **yellow or red**, click on the **neighbouring column "scientificName (editable)"**
+
+            -   A list of taxon names will pop up
+
+            -   **Select the name** that has "accepted" beside it in brackets unless there was a spelling mistake in the verbatim name and you know the verbatim name was refferring to something else. If so, search for that species in the search bar and select the accepted name Additionally, synonyms can be selected if the "accepted" listing is a higher rank (e.g. genus rather than species). (short story: prioritize selection of "accepted" names over "synonyms" but not at the cost of sacrificing taxon specificity)
+
+            -   If there are multiple accepted names, select the top results (this is often if there are two different authorities accepted)
+
+            -   the match type field should now say "edited"
+
+            -   go back through all pages of entries to check that all rows have match type "exact" or "edited" (grey or green)
+
+            -   **select "GENERATE CSV"** button in bottom right hand of page
+
+            -   **place this downloaded** file in "*data \> data_digitization \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> taxonomy \> journal number or ALL (if doing more than one journal) \> normalized"*
+
+            -   **add the date** (YYYY-MM-DD) to the end of the file name (e.g "normalized_2023-01-01")
+
+            -   **return to the script** in R
+
+            -   **Run the rest of the Taxonomy section**
+
+6.  Run the rest of the taxonomy section until step 5 (Georeferencing)
+
+7.  **Run the initial part of step 5 (Georeferencing)** up to an including the write.csv command . Then follow the following instructions for georeferencing in GEOlocate:
 
     -   Go to **GEOlocate batch processor**: <https://geo-locate.org/web/WebFileGeoref.aspx>
 
@@ -204,9 +234,9 @@ This repository contains all of the existing data, scripts, and packages require
 
         -   place the exported file in *"data \> data_digitization \> occurrence_data OR collection_data \> occ_reference_data OR coll_reference_data \> georeferencing \> journal number or ALL (if doing more than one journal) \> done"*
 
-5.  Return to the script and run the rest of section 5 starting at the "loading georeferenced occurrences" step.
+8.  Return to the script and run the rest of section 5 starting at the "loading georeferenced occurrences" step.
 
-6.  A map should appear with the location of each row. If some coordinates seem off, these can be searched by referencing the coordinates indicated on the map and matching to rows by either manually searching data or using statements such as...
+9.  A map should appear with the location of each row. If some coordinates seem off, these can be searched by referencing the coordinates indicated on the map and matching to rows by either manually searching data or using statements such as...
 
     > ``` r
     >  occ_data[which(occ_data$decimalLatitude > 50 & occ_data$decimalLongitude < -124.3)]

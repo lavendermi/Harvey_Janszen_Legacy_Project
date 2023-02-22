@@ -274,10 +274,10 @@
                                        
 ## 4) TAXONOMY FIELDS ----
   
-  #### USER INPUT 
-  # which taxonomic reference system should be used? 
+  #### USER INPUT *********** # which taxonomic reference system should be used? 
   
-  tax_ref_sys <- # either "FPNW2" or "GBIF"
+  tax_ref_sys <- "FPNW2" # either "FPNW2" or "GBIF"
+  
   ####
     
 ## formatting and writing file of names to check: 
@@ -467,7 +467,6 @@ if(tax_ref_sys=="FPNW2"){
       # pasting and assigning a few other variables
       normalized_names$kingdom <- "Plantae"
      
-
 } else if (tax_ref_sys=="GBIF"){
     
     if(length(J)>1){ # if the number of journals is > 1, load file with all names
