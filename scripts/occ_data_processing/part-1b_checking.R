@@ -134,7 +134,7 @@ rm(requiredPackages)
         }
       } else { # if a given row in the checked data does not have a "Y" in the "toDelete" column...
         
-      # if its archiveID, pageNum, and numPage match that in raw data
+      # if its pageNum, and numPage match that in raw data
       raw_data[ 
       which(checked_data$pageNum[i] == raw_data$pageNum &
       checked_data$numPage[i] == raw_data$numPage),] <- 
@@ -143,7 +143,7 @@ rm(requiredPackages)
     }
   }
   
-  # setting nName which had to "toDelete" in the checked data that was assigned as "missing" 
+  # setting vName which had to "toDelete" in the checked data that was assigned as "missing" 
   # in the loop (to make the loop work), assigning them as NA now so that these whole rows can
   # be removed later
   raw_data[raw_data$vName=="missing","vName"] <- NA

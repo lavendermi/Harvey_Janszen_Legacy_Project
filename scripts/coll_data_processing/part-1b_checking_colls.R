@@ -4,13 +4,19 @@
 #######           Emma Menchions 22-11-22           #######                       
 ###########################################################
 
+## OVERVIEW ----
+# will append changes and reviews made in part 1a 
+# to the raw data and write it as a new file in 
+# the folder "3_data_cleaning" for use in the next script (part-2)
+
 ## LOADING PACKAGES ----
 library(groundhog)
 
 set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
 requiredPackages <-  c("assertr","expss", "readxl","dplyr",
-                       "here", "tidyverse","tidyr")
+                       "here", "tidyverse","tidyr", "cowsay", 
+                       "multicolor", "jsonlite", "Rfast")
 
 
 for (pkg in requiredPackages) {
@@ -21,16 +27,30 @@ rm(requiredPackages)
 
 ## 1. LOADING DATA ----
 
-  # USER INPUT: 
+  #### USER INPUT 
+  J <-8 # Journal number (only ONE at a time ! )
+        # either 5,7,8,9, or 27
+        # change number and re-run script to repeat for other journals 
+  ####
 
-  J <-7 # journal number (only ONE at a time) (USER INPUT) ! 
-  
-  # raw data
+  ## loading most recent checked data entry sheet from part 1a
+    # most recent checked data entry
+    checked_data <- read.csv(
+      here::here("data","data_digitization",
+                 "collection_data","2_data_checking", 
+                 paste0("HJ",J), 
+                 as.character(unique(max(list.files(here::here("data","data_digitization",
+                                                               "collection_data",
+                                                               "2_data_checking", paste0("HJ",J))))))))
+    # reading recordNumber as character: 
+    checked_data$recordNum <- as.character(checked_data$recordNum)
+
+  ## loading raw data
   raw_data <- read_excel(here::here("data","data_digitization",
                                     "collection_data",
                                     "1_raw_data", paste0("HJ-",J,
                                       "-","coll-entry.xlsx"))) %>% 
-   dplyr::rename(
+   dplyr::rename( # removing brackets from column names in template
       pageNum = "[pageNum]", 
       numPage = "[numPage]", 
       recordNum = "[recordNum]",
@@ -43,37 +63,47 @@ rm(requiredPackages)
       stateProvince = "[stateProvince]", 
       island ="[island]")
   
-  # if there is one or more files that have been previously processed...
+  ## finding rows previously processed and removing these from raw data 
+  
+  # if there are one or more files that have been previously processed...
   if(length(list.files(here::here("data", "data_digitization",
-                                  "collection_data",
-                                  "prev_processed","template_format", 
-                                  paste0("HJ",J))))>=1){
+                                  "collection_data", "prev_processed", 
+                                  paste0("HJ",J))))>1){
     
-    # read in the file with the latest date (with most observations) 
+    # read in the file with the second latest date
     old_data <- read.csv(here::here("data", "data_digitization","collection_data",
-                                    "prev_processed","template_format", paste0("HJ",J), unique(as.character(max(list.files(
+                                    "prev_processed", paste0("HJ",J), 
+                                    unique(as.character(dplyr::nth(sort(list.files(
                                       here::here("data", "data_digitization","collection_data",
-                                                 "prev_processed","template_format", paste0("HJ",J)))))))) 
+                                                 "prev_processed", paste0("HJ",J)))),
+                                      length(list.files(
+                                        here::here("data", "data_digitization","collection_data",
+                                                   "prev_processed", paste0("HJ",J))))-1)
+                                    ))))  
     
-    # remove rows from current data table that contain old data                                              
-    raw_data <- raw_data %>% anti_join(old_data) %>% relocate(., dataEntryRemarks, .before= pageNum)
+    # forcing columns from new and old dataframes to be read as 
+    # the same classes so they can be joined
     
+    # obtaining classes of raw data frame
+    classes_raw_data <- lapply(raw_data,class)
+    classes_raw_data <- bind_rows(classes_raw_data)
+    classes_raw_data <- unlist(classes_raw_data)
     
-  } 
-  
-  # most recent checked data entry
-    checked_data <- read.csv(
-    here::here("data","data_digitization",
-               "collection_data","2_data_checking", 
-               paste0("HJ",J), 
-               as.character(unique(max(list.files(here::here("data","data_digitization",
-                                                             "collection_data",
-                                                             "2_data_checking", paste0("HJ",J))))))))
-    # reading recordNumber as character: 
-    checked_data$recordNum <- as.character(checked_data$recordNum)
-  
+    # applying to old_data frame
+    old_data <- Map('class<-', old_data, classes_raw_data) %>% bind_rows()
+    
+    # removing rows from current data table that contain old data                                              
+    raw_data <- raw_data %>% 
+      anti_join(old_data) %>% 
+      relocate(., dataEntryRemarks, .before= pageNum)
+    
+    # message
+    cowsay::say("old data removed!", by="signbunny")
+    
+  }
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
+  # (if no error message appears, then everything is fine)
   checked_data %>% 
   assert(in_set("C", "R", "c","r"), checkStatus) 
   
@@ -93,7 +123,12 @@ rm(requiredPackages)
     dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
   
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
+    
+    # if the "toDelete" column has "Y" or "y", 
       if (checked_data$toDelete[i] == "Y" | checked_data$toDelete[i] == "y"){
+        
+        # delete that observation by defining row as NA 
+        # and defining the vName as missing
         for (j in 1:dim(raw_data)[1]){
           if(checked_data$vName[i] == raw_data$vName[j]){
               raw_data[j,] <- NA
@@ -102,8 +137,8 @@ rm(requiredPackages)
               
           }
         }
-      } else {
-      raw_data[ # if its archiveID, pageNum and numPage match that in raw data
+      } else { # if a given row in the checked data does not have a "Y" in the "toDelete" column...
+      raw_data[ # if its pageNum and numPage match that in raw data
       which(checked_data$pageNum[i] == raw_data$pageNum &
       checked_data$numPage[i] == raw_data$numPage),] <- 
         # assign raw data column to that row of checked data
@@ -111,13 +146,16 @@ rm(requiredPackages)
     }
   }
   
+  # setting vName which had to "toDelete" in the checked data that was assigned as "missing" 
+  # in the loop (to make the loop work), assigning them as NA now so that these whole rows can
+  # be removed later
   raw_data[raw_data$vName=="missing","vName"] <- NA
   
 ## 4. WRITING CHECKED FILE FOR NEXT PROCESSING STEP ----
   
-  processed_data_1 <- raw_data %>% # removing rows that contain all NA values
-                      relocate(., dataEntryRemarks, .after= idBy) %>% 
-                    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+  processed_data_1 <- raw_data %>% # removing rows that contain all NA values (toDelete entries from previous step)
+                      relocate(., dataEntryRemarks, .after= idBy) %>% # relocating dataEntryRemarks column for easier reading of csv file
+                    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) # another check to ensure no NA rows retained
   
   # saving to data_cleaning folder to prepare for Processing step 2 (cleaning)
   write.csv(processed_data_1, 
@@ -132,7 +170,8 @@ rm(requiredPackages)
                                   "3_data_cleaning", paste0("HJ",J))))>2){
     file.remove(unique(as.character(min(list.files(here::here("data", 
                                                               "data_digitization","collection_data",
-                                                              "3_data_cleaning", paste0("HJ",J)))))))   
+                                                              "3_data_cleaning", paste0("HJ",J)))))))  
+    cowsay::say("old file removed!", by="signbunny")
   }
             
             
