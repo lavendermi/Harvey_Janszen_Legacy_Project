@@ -14,17 +14,17 @@ This repository contains data entry templates, digitization protocols, processin
 
 ## Data Sources
 
-1.  **Field Journals**
+1.  [**Field Journals**](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/existing_data/field-journal-photos)
 
-    -   HJ5 = Flora of Saturna (1973-1981)
+    -   [HJ5 = Flora of Saturna (1973-1981)](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/existing_data/field-journal-photos/HJ5)
 
-    -   HJ7 = Journal ca. 1981-1996
+    -   [HJ7 = Journal ca. 1981-1996](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/existing_data/field-journal-photos/HJ7)
 
-    -   HJ8 = Journal ca. 1996-2000
+    -   [HJ8 = Journal ca. 1996-2000](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/existing_data/field-journal-photos/HJ8)
 
-    -   HJ9 = Unbound field notes ca. 1999-2003
+    -   [HJ9 = Unbound field notes ca. 1999-2003](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/existing_data/field-journal-photos/HJ9)
 
-    -   HJ27 = Field notes ca. 2003-2017
+    -   [HJ27 = Field notes ca. 2003-2017](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/existing_data/field-journal-photos/HJ27)
 
 2.  **Collected specimens**
 
@@ -48,11 +48,11 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
 ## Ultimate goals for this project
 
-1.  **Published observation-only (occurrence) data to GBIF** *(potentially via Canadensys)*
+1.  **To publish observation-only (occurrence) data to GBIF** *(potentially via Canadensys)*
 
-2.  **Cleaned/ Reviewed Herbarium records** for Harvey's collections housed at the RBCM *(ultimately published to GBIF by the RBCM Herbarium)*
+2.  **Clean/ review berbarium records** for Harvey's collections housed at the RBCM *(ultimately published to GBIF by the RBCM Herbarium)*
 
-3.  **\~ 65 new specimens accessioned at the UBC Herbarium** *(ultimately published to GBIF by the UBC Herbarium)*
+3.  **Deposit & accession \~ 65 new specimens at the UBC Herbarium** *(ultimately published to GBIF by the UBC Herbarium)*
 
 ## Grouped Components
 
