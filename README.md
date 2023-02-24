@@ -102,15 +102,15 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
     *Processing & comparing labels to database* \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    -   part-1_label-processing.R
+    -   [part-1_label-processing.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/label-data/part-1_label-processing.R)
 
-    -   part-2_label-to-database-comparison.R
+    -   [part-2_label-to-database-comparison.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/label-data/part-2_label-to-database-comparison.R)
 
     *Processing & reviewing* *field notes to database* \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    -   part-1_field-note-processing.R
+    -   [part-1_field-note-processing.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/field-note-data/part1_field-note-processing.R)
 
-    -   part-2_field-note-database-comparison.R
+    -   [part-2_field-note-database-comparison.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/field-note-data/part2-field-note-database-comparison.R)
 
 4.   **Observation-only & Collection data aggregation** \|\|\|\|\| **[under construction] \|\|\|\|**
 
