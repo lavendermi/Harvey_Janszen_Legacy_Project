@@ -39,28 +39,26 @@ for (pkg in requiredPackages) {
 
 rm(requiredPackages)
 
-## READING IN DATA ----
+## USER INPUT ----
 
-  #### USER INPUT 
-    J <-8 # Journal number (only ONE at a time ! )
-          # either 5,7,8,9, or 27
-          # change number and re-run script to repeat for other journals 
-  ####
+J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+AI <- "HJ" # AUTHOR INITIALS 
+
+## READING IN DATA ----
 
   # **use this code chunk to retun to the data and edit errors
   # doesn't need to be run on first time around **
   utils::browseURL(here::here("data", 
                             "data_digitization","occurrence_data",
-                            "3_data_cleaning",paste0("HJ",J)))
+                            "3_data_cleaning"))
 
-  # reading in data
+  # reading in most recent checked data
   data <- read.csv(
     here::here("data","data_digitization",
-    "occurrence_data","3_data_cleaning", 
-     paste0("HJ",J), unique(
+    "occurrence_data","3_data_cleaning",unique(
      as.character(max(list.files(here::here("data","data_digitization",
      "occurrence_data",
-     "3_data_cleaning", paste0("HJ",J))))))))
+     "3_data_cleaning")))))))
   
   # loading places metadata
   places <- read.csv(here::here("data", 
@@ -571,22 +569,19 @@ rm(requiredPackages)
   
 ## Writing cleaned sheet ---
   
-# adding archiveID row
-data_cleaned <- data %>% 
-mutate("archiveID"= J,.before=pageNum)
 
 write.csv(data_cleaned, here::here("data","data_digitization",
                                    "occurrence_data",
-                                   "4_clean_data",paste0("HJ",J),
-                                   paste0("HJ-",J, "_clean-occurrences_",
+                                   "4_clean_data",
+                                   paste0(AI, "_clean-occurrences_",
                                           Sys.Date(),".csv")), row.names = F)
 # and removing old files to save storage
 if(length(list.files(here::here("data", 
                                 "data_digitization","occurrence_data",
-                                "4_clean_data", paste0("HJ",J))))>2){
+                                "4_clean_data")))>2){
   file.remove(unique(as.character(min(list.files(here::here("data", 
                                                             "data_digitization","occurrence_data",
-                                                            "4_clean_data", paste0("HJ",J)))))))  
+                                                            "4_clean_data"))))))  
   cowsay::say("old files removed!", by="signbunny")
 }
 

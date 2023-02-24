@@ -10,8 +10,10 @@
 # darwin core format
 # see: https://dwc.tdwg.org/list/#dwc_fieldNotes
 
-# it is best to do parts 1a, 1b, and 2 for all journals!! before using this 
-# script
+## USER INPUT ----
+
+J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+AI <- "HJ" # AUTHOR INITIALS 
 
 ## 1) LOADING & INSTALLING PACKAGES ----
  
@@ -31,52 +33,17 @@
 
 ## 2) READING IN DATA ----
   
-  #### USER INPUT 
-  J <-c(5,7,8,9,27)  # even if you don't yet have clean data for certain journals
-                    # you can still leave journal number here and it will be ignored
-  ####
-  
-  # initializing variable for the loop
-  data <- data.frame()
-  
-  # loop to read in cleaned data
-  
-  for (i in 1:length(J)){
-    # if there is a cleaned data file for a given journal number
-    if (length(list.files(here::here(
-      "data","data_digitization",
-       "occurrence_data", 
-       "4_clean_data", 
-       paste0("HJ",J[i]))))>0){
+  # loading most recent cleaned data file  
       
-        if (dim(data)[1] == 0){ # and if it is the first journal number in the sequence
-          # read in data to a new variable from that file
-          
-          data <- read.csv(
+    data <- read.csv(
           here::here("data","data_digitization",
           "occurrence_data","4_clean_data", 
           # reading in most recent round of cleaned occurrences
-          paste0("HJ",J[i]), unique(as.character(max(list.files(  
+          unique(as.character(max(list.files(  
           here::here("data","data_digitization",
                      "occurrence_data", 
-                      "4_clean_data", 
-                      paste0("HJ",J[i]))))))))
-          
-        } else{ # if it is the second + sheet being read in, append it to data already read in
-          
-          data <- rbind(data, read.csv(
-          here::here("data","data_digitization",
-          "occurrence_data","4_clean_data", 
-          # reading in most recent round of cleaned occurrences
-          paste0("HJ",J[i]), unique(as.character(max(list.files(  
-          here::here("data","data_digitization",
-          "occurrence_data", "4_clean_data", 
-          paste0("HJ",J[i])))))))))
-        
-          cowsay::say("clean data from multiple journals appended", by="signbunny")
-      }
-    }
-  }
+                      "4_clean_data"
+                      )))))))
   
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
@@ -233,7 +200,7 @@
       assert(not_na,county) 
   
 ## assColl (associated collections)
-  # adding "HJC-" to the beginning of collection numbers entered here to indicate
+  # adding collector initials to the beginning of collection numbers entered here to indicate
   # that it is a collected specimen 
   # if string split > 1 " " 
   
@@ -248,8 +215,8 @@
         taxa <- str_split(data$assColl[i], ", ")[[1]]
         
         for (j in 1:length(taxa)){ # for each occurrence number 
-          # input "HJC-" before the number to indicate collected specimen number
-          taxa_coll[j] <- paste0("HJC-",taxa[j]) 
+          # input initials before the number to indicate collected specimen number
+          taxa_coll[j] <- paste0(AI,"C-",taxa[j]) 
         }
         # and assign this to the associated species column for that row
         
@@ -257,8 +224,8 @@
         
       } else if (length(str_split(data$assColl[i], ", "))==1) { # if there is only one 
                                                     # associated occurrence already...
-        # paste "HJC-" infront and assign to the associated species column for that row
-        data$assColl[i] <- paste0("HJC-",data$assColl[i])
+        # paste initials infront and assign to the associated species column for that row
+        data$assColl[i] <- paste0(AI,"C-",data$assColl[i])
       }
     }
   }
@@ -270,7 +237,7 @@
   ## dwc: recordNumber
   # assigning record number as a combined number of the archiveID, 
   # pageNumber and number on page
-  data$recordNumber <- paste0("HJ",data$archiveID, "-", 
+  data$recordNumber <- paste0(AI,data$archiveID, "-", 
                               data$pageNum, "-", data$numPage)
   
   # dwc:fieldNotes
@@ -280,7 +247,7 @@
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals
   # starting at 1 
-  data$occurrenceID <- paste0("HJO-",1:dim(data)[1])
+  data$occurrenceID <- paste0(AI,"O-",1:dim(data)[1])
   
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
@@ -412,7 +379,6 @@
   # to main data frame: 
   
 if(tax_ref_sys=="FPNW2"){
-    if(length(J)>1){ # if the number of journals is > 1, load file with all names
       
       normalized_names <- read.csv(
         here::here("data","data_digitization","occurrence_data",
@@ -422,17 +388,6 @@ if(tax_ref_sys=="FPNW2"){
                                 "occ_reference_data",
                                 "taxonomy","normalized")))))),header=T, sep="\t", na.strings = "")
        
-      
-    }else{ # if the number of journals = 1, load file with names just for that journal
-      normalized_names <- read.csv(
-        here::here("data","data_digitization","occurrence_data",
-                   "occ_reference_data",
-                   "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
-                     here::here("data","data_digitization","occurrence_data",
-                                "occ_reference_data",
-                                "taxonomy",paste0("HJ",J),"normalized")))))), header=T, sep="\t",na.strings = "")
-    }
-    
     ## matching and assigning names to main data frame:
     
     # initializing vectors:
@@ -527,7 +482,7 @@ if(tax_ref_sys=="FPNW2"){
      
 } else if (tax_ref_sys=="GBIF"){
     
-    if(length(J)>1){ # if the number of journals is > 1, load file with all names
+  # loading in taxonomy referenced file
     normalized_names <- read.csv(
       here::here("data","data_digitization","occurrence_data",
       "occ_reference_data",
@@ -535,14 +490,6 @@ if(tax_ref_sys=="FPNW2"){
       here::here("data","data_digitization","occurrence_data",
       "occ_reference_data",
       "taxonomy","normalized")))))))
-    }else{ # if the number of journals = 1, load file with names just for that journal
-      normalized_names <- read.csv(
-        here::here("data","data_digitization","occurrence_data",
-                   "occ_reference_data",
-                   "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
-                     here::here("data","data_digitization","occurrence_data",
-                                "occ_reference_data",
-                                "taxonomy",paste0("HJ",J),"normalized")))))))
       
     ## matching and assigning names to main data frame:
 
@@ -580,8 +527,8 @@ if(tax_ref_sys=="FPNW2"){
         taxonRank = rank, 
         taxonomicStatus = status)
       
-    }
-  }
+}
+
     
 ## 5) GEOREFERENCING ----
     
@@ -1089,7 +1036,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
       
     # renumbering occurrence ID
-      new_total_dwc_data$occurrenceID <- paste0("HJO-",1:dim(new_total_dwc_data)[1])
+      new_total_dwc_data$occurrenceID <- paste0(AI,"O-",1:dim(new_total_dwc_data)[1])
     }
 
     
