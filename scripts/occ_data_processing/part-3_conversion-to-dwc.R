@@ -12,8 +12,10 @@
 
 ## USER INPUT ----
 
-J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
-AI <- "HJ" # AUTHOR INITIALS 
+  J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+  AI <- "HJ" # AUTHOR INITIALS 
+  fieldnote_storage_facility <- " " # where are field notes stored? 
+  image_repo <- " " # repository where field note images are stored
 
 ## 1) LOADING & INSTALLING PACKAGES ----
  
@@ -242,7 +244,9 @@ AI <- "HJ" # AUTHOR INITIALS
   
   # dwc:fieldNotes
   # stating where the field notes are stored and where the images are 
-  data$fieldNotes <- "Imaged notes: X,  Original notes housed at UBC herbarium"
+  data$fieldNotes <- paste0(AI,"-", data$archiveID, " page: ", data$pageNum, " num: ", data$numPage, ",
+                            Imaged notes: ",image_repo, ", Original notes housed at: ", fieldnote_storage_facility)
+  
   
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals

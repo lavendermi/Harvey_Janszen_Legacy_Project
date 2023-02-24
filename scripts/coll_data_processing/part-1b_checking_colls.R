@@ -25,60 +25,84 @@ for (pkg in requiredPackages) {
 
 rm(requiredPackages)
 
-## 1. LOADING DATA ----
+## USER INPUT ----
 
-  #### USER INPUT 
-  J <-8 # Journal number (only ONE at a time ! )
-        # either 5,7,8,9, or 27
-        # change number and re-run script to repeat for other journals 
-  ####
+J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+AI <- "HJ" # AUTHOR INITIALS
+
+## 1. LOADING DATA ----
 
   ## loading most recent checked data entry sheet from part 1a
     # most recent checked data entry
     checked_data <- read.csv(
       here::here("data","data_digitization",
-                 "collection_data","2_data_checking", 
-                 paste0("HJ",J), 
+                 "collection_data","2_data_checking",
                  as.character(unique(max(list.files(here::here("data","data_digitization",
                                                                "collection_data",
-                                                               "2_data_checking", paste0("HJ",J))))))))
+                                                               "2_data_checking")))))))
     # reading recordNumber as character: 
     checked_data$recordNum <- as.character(checked_data$recordNum)
 
   ## loading raw data
-  raw_data <- read_excel(here::here("data","data_digitization",
-                                    "collection_data",
-                                    "1_raw_data", paste0("HJ-",J,
-                                      "-","coll-entry.xlsx"))) %>% 
-   dplyr::rename( # removing brackets from column names in template
-      pageNum = "[pageNum]", 
-      numPage = "[numPage]", 
-      recordNum = "[recordNum]",
-      vName = "[vName]",
-      vSciName= "[vSciName]", 
-      sciName = "[sciName]",
-      conf="[conf]",date="[date]",
-      locality="[locality]", 
-      country = "[country]",
-      stateProvince = "[stateProvince]", 
-      island ="[island]")
+    # initializing variable for loop
+    raw_data <- data.frame()
+    
+    for (i in 1:length(J)){
+      # if there is a raw data file for a given journal number
+      if (length(list.files(here::here(
+        "data","data_digitization",
+        "collection_data", 
+        "1_raw_data")))>0){
+        
+        if (dim(raw_data)[1] == 0){ # and if it is the first journal number in the sequence
+          # read in data to a new variable from that file
+          
+          raw_data <- read_excel(here::here("data","data_digitization", 
+                                            "collection_data","1_raw_data", 
+                                            paste0(AI,"-",J[i],"-","coll-entry.xlsx"))) %>% 
+            add_column(archiveID = J[i]) # adding journal number
+        } else{ # if it is the second + sheet being read in, append it to data already read in
+          
+          temp_var <- read_excel(here::here("data","data_digitization", 
+                                            "collection_data","1_raw_data", 
+                                            paste0(AI,"-",J[i],"-","coll-entry.xlsx"))) %>% 
+            add_column(archiveID=J[i]) # adding journal number
+          raw_data <- rbind(raw_data,temp_var ) 
+          
+          cowsay::say("raw data from multiple journals appended", by="signbunny")
+        }
+      }
+    }
+    
+    # removing brackets from column names in template
+    raw_data <- raw_data %>% 
+      dplyr::rename(pageNum = "[pageNum]", 
+                    numPage = "[numPage]", 
+                    vName = "[vName]",
+                    vSciName= "[vSciName]", 
+                    sciName = "[sciName]",
+                    conf="[conf]",date="[date]",
+                    locality="[locality]", 
+                    country = "[country]",
+                    stateProvince = "[stateProvince]", 
+                    island ="[island]")
+    
   
   ## finding rows previously processed and removing these from raw data 
   
   # if there are one or more files that have been previously processed...
   if(length(list.files(here::here("data", "data_digitization",
-                                  "collection_data", "prev_processed", 
-                                  paste0("HJ",J))))>1){
+                                  "collection_data", "prev_processed")))>1){
     
     # read in the file with the second latest date
     old_data <- read.csv(here::here("data", "data_digitization","collection_data",
-                                    "prev_processed", paste0("HJ",J), 
+                                    "prev_processed",
                                     unique(as.character(dplyr::nth(sort(list.files(
                                       here::here("data", "data_digitization","collection_data",
-                                                 "prev_processed", paste0("HJ",J)))),
+                                                 "prev_processed"))),
                                       length(list.files(
                                         here::here("data", "data_digitization","collection_data",
-                                                   "prev_processed", paste0("HJ",J))))-1)
+                                                   "prev_processed")))-1)
                                     ))))  
     
     # forcing columns from new and old dataframes to be read as 
@@ -160,17 +184,17 @@ rm(requiredPackages)
   # saving to data_cleaning folder to prepare for Processing step 2 (cleaning)
   write.csv(processed_data_1, 
             here::here("data", "data_digitization", 
-            "collection_data","3_data_cleaning",paste0("HJ",J),
-            paste0("HJ", J, "-processed-step-1_",Sys.Date(),".csv")),
+            "collection_data","3_data_cleaning",
+            paste0(AI, "-processed-step-1_",Sys.Date(),".csv")),
             row.names = F)
   
   # and removing old files to save storage
   if(length(list.files(here::here("data", 
                                   "data_digitization","collection_data",
-                                  "3_data_cleaning", paste0("HJ",J))))>2){
+                                  "3_data_cleaning")))>2){
     file.remove(unique(as.character(min(list.files(here::here("data", 
                                                               "data_digitization","collection_data",
-                                                              "3_data_cleaning", paste0("HJ",J)))))))  
+                                                              "3_data_cleaning"))))))  
     cowsay::say("old file removed!", by="signbunny")
   }
             

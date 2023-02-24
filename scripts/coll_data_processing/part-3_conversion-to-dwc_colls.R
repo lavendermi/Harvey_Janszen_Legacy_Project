@@ -10,9 +10,6 @@
 # darwin core format
 # see: https://dwc.tdwg.org/list/#dwc_fieldNotes
 
-# it is best to do parts 1a, 1b, and 2 for all journals!! before using this 
-# script
-
 ## 1) LOADING & INSTALLING PACKAGES ----
   # using groundhog to manage package versioning 
   #install.packages("groundhog")
@@ -31,54 +28,27 @@
   
   rm(requiredPackages)
   
+## USER INPUT ----
+  
+  J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+  AI <- "HJ" # AUTHOR INITIALS 
+  fieldnote_storage_facility <- " " # where are field notes stored? 
+  image_repo <- " " # repository where field note images are stored
+  
+  
 ## 2) READING IN DATA ----
   
-  #### JOURNAL NUMBERS  
-  # even if you don't yet have clean data for certain journals
-  # you can still leave journal number here and it will be ignored
+  # loading most recent cleaned data file  
   
-  J <-c(5,7,8,9,27) 
-                    
-  ####
-  
-  # initializing variable for the loop
-  data <- data.frame()
-  
-  # loop to read in cleaned data
-  
-  for (i in 1:length(J)){
-    # if there is a cleaned data file for a given journal number
-    if (length(list.files(here::here(
-      "data","data_digitization",
-      "collection_data", 
-      "4_clean_data", 
-      paste0("HJ",J[i]))))>0){
-      
-      if (dim(data)[1] == 0){ # and if it is the first journal number in the sequence
-        # read in data to a new variable from that file
-        data <- read.csv(
-          here::here("data","data_digitization",
-                     "collection_data","4_clean_data", 
-                     # reading in most recent round of cleaned collections
-                     paste0("HJ",J[i]), unique(as.character(max(list.files(  
-                       here::here("data","data_digitization",
-                                  "collection_data", 
-                                  "4_clean_data", 
-                                  paste0("HJ",J[i]))))))))
-      } else{ # if it is the second + sheet being read in, append it to data already read in
-        data <- rbind(data, read.csv(
-          here::here("data","data_digitization",
-                     "collection_data","4_clean_data", 
-                     # reading in most recent round of cleaned collections
-                     paste0("HJ",J[i]), unique(as.character(max(list.files(  
-                       here::here("data","data_digitization",
-                                  "collection_data", "4_clean_data", 
-                                  paste0("HJ",J[i])))))))))
-        
-        cowsay::say("clean data from multiple journals appended", by="signbunny")
-      }
-    }
-  }
+  data <- read.csv(
+    here::here("data","data_digitization",
+               "collection_data","4_clean_data", 
+               # reading in most recent round of cleaned occurrences
+               unique(as.character(max(list.files(  
+                 here::here("data","data_digitization",
+                            "collection_data", 
+                            "4_clean_data"
+                 )))))))
   
   
   ## removing rows already processed to dwc 
@@ -257,13 +227,13 @@
   
   # dwc:fieldNotes
   # stating where the field notes are stored and where the images are 
-  data$fieldNotes <- paste0("HJ-", data$archiveID, " page: ", data$pageNum, " num: ", data$numPage, ",
-                            Imaged notes: X,  Original notes housed at UBC herbarium")
+  data$fieldNotes <- paste0(AI,"-", data$archiveID, " page: ", data$pageNum, " num: ", data$numPage, ",
+                            Imaged notes: ",image_repo, ", Original notes housed at: ", fieldnote_storage_facility)
   
   ## dwc: occurrenceId: creating globally unique identifier in 
   # chronological order and sequence in journals
   # starting at 1 
-  data$occurrenceID <- paste0("HJC-",data$recordNum)
+  data$occurrenceID <- paste0(AI,"C-",data$recordNum)
   
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
@@ -377,7 +347,6 @@
   # to main data frame: 
   
   if(tax_ref_sys=="FPNW2"){
-    if(length(J)>1){ # if the number of journals is > 1, load file with all names
       
       normalized_names <- read.csv(
         here::here("data","data_digitization","collection_data",
@@ -387,17 +356,6 @@
                                 "coll_reference_data",
                                 "taxonomy","normalized")))))),header=T, sep="\t", na.strings = "")
       
-      
-    }else{ # if the number of journals = 1, load file with names just for that journal
-      normalized_names <- read.csv(
-        here::here("data","data_digitization","collection_data",
-                   "coll_reference_data",
-                   "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
-                     here::here("data","data_digitization","collection_data",
-                                "coll_reference_data",
-                                "taxonomy",paste0("HJ",J),"normalized")))))), header=T, sep="\t",na.strings = "")
-    }
-    
     ## matching and assigning names to main data frame:
     
     # initializing vectors:
@@ -489,9 +447,8 @@
       select(-sciName) %>% # removing this, no longer needed 
       relocate(scientificName, .before=vSciName)
     
-  } else if (tax_ref_sys=="GBIF"){
+} else if (tax_ref_sys=="GBIF"){
     
-    if(length(J)>1){ # if the number of journals is > 1, load file with all names
       normalized_names <- read.csv(
         here::here("data","data_digitization","collection_data",
                    "coll_reference_data",
@@ -499,14 +456,6 @@
                      here::here("data","data_digitization","collection_data",
                                 "coll_reference_data",
                                 "taxonomy","normalized")))))))
-    }else{ # if the number of journals = 1, load file with names just for that journal
-      normalized_names <- read.csv(
-        here::here("data","data_digitization","collection_data",
-                   "coll_reference_data",
-                   "taxonomy",paste0("HJ",J),"normalized",unique(as.character(max(list.files(
-                     here::here("data","data_digitization","collection_data",
-                                "coll_reference_data",
-                                "taxonomy",paste0("HJ",J),"normalized")))))))
       
       ## matching and assigning names to main data frame:
       
@@ -544,8 +493,8 @@
                     taxonRank = rank, 
                     taxonomicStatus = status)
       
-    }
-  }
+}
+
 
 ## 5) GEOREFERENCING ----
     
@@ -577,22 +526,18 @@
       
         write.csv(localities_to_georef, here::here("data","data_digitization","collection_data", 
                                                    "coll_reference_data", "georeferencing", "raw",
-                                                   paste0("HJ",J),
                                                    paste0("localities-to-georef_", 
                                                           Sys.Date(), ".csv")), 
                   row.names = F)
         # and removing old files to save storage
         if(length(list.files(here::here("data","data_digitization","collection_data", 
-                                        "coll_reference_data", "georeferencing", "raw",
-                                        paste0("HJ",J))))>2){
+                                        "coll_reference_data", "georeferencing", "raw")))>2){
           
           file.remove(here::here("data","data_digitization","collection_data", 
                                  "coll_reference_data", "georeferencing", "raw",
-                                 paste0("HJ",J),
                                  unique(as.character(min(list.files(here::here("data",
                                    "data_digitization","collection_data", 
-                                  "coll_reference_data", "georeferencing", "raw",
-                                  paste0("HJ",J))))))))  
+                                  "coll_reference_data", "georeferencing", "raw")))))))  
         }
       
   
@@ -604,10 +549,10 @@
       GEOlocate <- read.csv(
         here::here("data","data_digitization","collection_data",
                    "coll_reference_data",
-                   "georeferencing","done",paste0("HJ",J),unique(as.character(max(list.files(
+                   "georeferencing","done",unique(as.character(max(list.files(
                      here::here("data","data_digitization","collection_data",
                                 "coll_reference_data",
-                                "georeferencing","done",paste0("HJ",J))))))))
+                                "georeferencing","done")))))))
     
     # renaming columns so that they are unique when we combine them with occ_data 
     GEOlocate <- GEOlocate %>% dplyr::rename(geoLocLat = 
@@ -1040,7 +985,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       new_total_dwc_data <- rbind(new_dwc_data, old_dwc_data) %>% arrange(eventDate)
       
       # renumbering occurrence ID
-      new_total_dwc_data$occurrenceID <- paste0("HJO-",1:dim(new_total_dwc_data)[1])
+      new_total_dwc_data$occurrenceID <- paste0(AI,"O-",1:dim(new_total_dwc_data)[1])
     }
     
     

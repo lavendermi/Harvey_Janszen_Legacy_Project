@@ -43,18 +43,50 @@
   # removing vars
   rm(requiredPackages)
 
+## USER INPUT ----
+  
+  J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+  AI <- "HJ" # AUTHOR INITIALS
+  
 ## 1. LOADING IN RAW DATA ----
 
-  ### USER INPUT 
-  J <- 7 # Journal number (only ONE at a time ! )
-        # either 5,7,8,9, or 27
-        # change number and re-run script to repeat for other journals 
-  ###
-
-  total_data <- read_excel(here::here("data","data_digitization", 
-          "collection_data","1_raw_data", 
-          paste0("HJ-",J,"-","coll-entry.xlsx"))) %>% 
-  dplyr::rename(pageNum = "[pageNum]", # removing brackets from column names in template
+  # initializing variable for loop
+  total_data <- data.frame()
+  
+  ## loading raw data
+  for (i in 1:length(J)){
+    # if there is a raw data file for a given journal number
+    if (length(list.files(here::here(
+      "data","data_digitization",
+      "collection_data", 
+      "1_raw_data")))>0){
+      
+      if (dim(total_data)[1] == 0){ # and if it is the first journal number in the sequence
+        # read in data to a new variable from that file
+        
+        total_data <- read_excel(here::here("data","data_digitization", 
+                                            "collection_data","1_raw_data", 
+                                            paste0(AI,"-",J[i],"-","coll-entry.xlsx"))) %>% 
+          add_column(archiveID = J[i]) # adding journal number
+        
+      } else{ # if it is the second + sheet being read in, append it to data already read in
+        
+        temp_var <- read_excel(here::here("data","data_digitization", 
+                                          "collection_data","1_raw_data", 
+                                          paste0(AI,"-",J[i],"-","coll-entry.xlsx"))) %>% 
+          add_column(archiveID = J[i]) # adding journal number
+        
+        total_data <- rbind(total_data, temp_var)
+        
+        cowsay::say("raw data from multiple journals appended", by="signbunny")
+      }
+    }
+  }
+  
+  # removing brackets from column names in template
+  
+  total_data <- total_data %>% 
+  dplyr::rename(pageNum = "[pageNum]", 
   numPage = "[numPage]", 
   recordNum= "[recordNum]",
   vName = "[vName]",
@@ -70,15 +102,14 @@
   
   # if there is one or more files that have been previously processed...
   if(length(list.files(here::here("data", "data_digitization",
-                                  "collection_data", "prev_processed", 
-                                  paste0("HJ",J))))>=1){
+                                  "collection_data", "prev_processed")))>=1){
     
     # read in the file with the second latest date (with most observations) 
     old_data <- read.csv(here::here("data", "data_digitization","collection_data",
-                                    "prev_processed", paste0("HJ",J), 
+                                    "prev_processed",
                                     unique(as.character(max(list.files(
                                       here::here("data", "data_digitization","collection_data",
-                                                 "prev_processed", paste0("HJ",J))))))))  
+                                                 "prev_processed")))))))  
     
     # forcing columns from new and old dataframes to be read as 
     # the same classes so they can be joined
@@ -105,12 +136,11 @@
   
   # finding the copy number - starts at 1 if no other files on same date, appended to end of file name
   X <- length(which(grepl(Sys.Date(),list.files(here::here("data", "data_digitization",
-                                                           "collection_data", "prev_processed", 
-                                                           paste0("HJ",J))), fixed=TRUE) ==T))+1
+                                                           "collection_data", "prev_processed")), fixed=TRUE) ==T))+1
   
   write.csv(total_data, here::here("data", "data_digitization","collection_data",
-                                   "prev_processed",paste0("HJ",J), 
-                                   paste0("HJ-", J, "_rows-reviewed_",
+                                   "prev_processed",
+                                   paste0(AI,"_rows-reviewed_",
                                           Sys.Date(),"_",X,".csv")), row.names=F)
   
 ## 2. EXTRACTING ROWS & WRITING SHEET FOR CHECKING ----
@@ -151,8 +181,8 @@
       ## saving file 
       write.csv(to_check, 
                 here::here("data","data_digitization","collection_data",
-                "2_data_checking", paste0("HJ",J),
-                 paste0("HJ-",J,"_","coll-data-to-check_HIGH-PRIORITY_",
+                "2_data_checking",
+                 paste0(AI,"_","coll-data-to-check_HIGH-PRIORITY_",
                  Sys.Date(),".csv")), row.names = F)
       
     } else if (Q=="all"){
@@ -179,27 +209,27 @@
       ## saving file 
       write.csv(to_check, 
                 here::here("data","data_digitization","collection_data",
-                           "2_data_checking", paste0("HJ",J),
-                           paste0("HJ-",J,"_","coll-data-to-check_ALL_",
+                           "2_data_checking",
+                           paste0(AI,"_","coll-data-to-check_ALL_",
                            Sys.Date(),".csv")), row.names = F)
     } 
   
   # and removing old files to save storage
   if(length(list.files(here::here("data", 
                                   "data_digitization","collection_data",
-                                  "2_data_checking", paste0("HJ",J))))>4){
+                                  "2_data_checking")))>4){
     file.remove(unique(as.character(min(list.files(here::here("data", 
                                                               "data_digitization","collection_data",
-                                                              "2_data_checking", paste0("HJ",J))))))) 
+                                                              "2_data_checking")))))) 
     cowsay::say("old files removed!", by="signbunny")
   }
   
   if(length(list.files(here::here("data", "data_digitization",
-                                  "collection_data", "prev_processed", 
-                                  paste0("HJ",J))))>4){
+                                  "collection_data", "prev_processed" 
+                                 )))>4){
     file.remove(unique(as.character(min(list.files(here::here("data", "data_digitization",
-                                                              "collection_data", "prev_processed", 
-                                                              paste0("HJ",J)))))))  
+                                                              "collection_data", "prev_processed"
+                                                              ))))))  
     cowsay::say("old files removed!", by="signbunny")
   }
   
@@ -210,7 +240,7 @@
   # run this to open file at location: 
   utils::browseURL(here::here("data", 
                               "data_digitization","collection_data",
-                              "2_data_checking",paste0("HJ",J)))
+                              "2_data_checking"))
   
   # add data or change that data in these rows within the new .csv file created
   # once they are all addressed... use script part1-b_checking 

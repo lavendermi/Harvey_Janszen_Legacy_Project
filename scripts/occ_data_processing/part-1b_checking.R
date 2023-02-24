@@ -38,10 +38,12 @@ AI <- "HJ" # AUTHOR INITIALS
              as.character(unique(max(list.files(here::here("data","data_digitization",
                                                            "occurrence_data",
                                                            "2_data_checking")))))))
-# initializing variable for loop
-raw_data <- data.frame()
 
 ## loading raw data
+
+  # initializing variable for loop
+  raw_data <- data.frame()
+
 for (i in 1:length(J)){
   # if there is a raw data file for a given journal number
   if (length(list.files(here::here(
