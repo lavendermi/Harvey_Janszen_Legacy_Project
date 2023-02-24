@@ -92,29 +92,29 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
     -   [CSV files of Darwin Core formatted collection data found here](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/data/data_digitization/collection_data/darwin_core_data)
 
-3.  **RBCM data checking** *[Under construction]*
+3.  **RBCM data checking** \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    *Field Notes processing*
+    *Label data entry* \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    -   [dwc-to-rbcm-format](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/dwc-to-rbcm-format.R) (script to convert collection data from DwC to the format of the RBCM database
+    -   [RBCM-label-entry.xlsx](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/data/data_digitization/rbcm_data/label_data/raw_data/RBCM-label-entry.xlsx)
 
-    *Label data entry*
+    -   [label-data-entry-protocol](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/protocols/rbcm_review/label-entry-protocol.Rmd).Rmd
 
-    -   label-data-entry-template.xlsx
+    *Processing & comparing labels to database* \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    -   1_raw_label_data
+    -   part-1_label-processing.R
 
-    -   label-data-entry-protocol
+    -   part-2_label-to-database-comparison.R
 
-    *Label data processing*
+    *Processing & reviewing* *field notes to database* \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    -   label-processing
+    -   part-1_field-note-processing.R
 
-    *Comparing/ reviewing labels & database*
+    -   part-2_field-note-database-comparison.R
 
-    *Comparing/ reviewing field notes & database*
+4.   **Observation-only & Collection data aggregation** \|\|\|\|\| **[under construction] \|\|\|\|**
 
-4.  **Observation-only & Collection data aggregation** *[Under construction]*
+    [total-occurrence-aggregation.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/aggregation)
 
 # Recommended workflows
 
