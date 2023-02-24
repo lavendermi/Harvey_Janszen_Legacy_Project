@@ -44,7 +44,7 @@ DwC = [Darwin Core occurrence data standards](https://dwc.tdwg.org/list/#dwc_fie
 
 GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
-## ![A path diagram of this repository for the Harvey Janszen Legacy Project](diagrams/LDP-Internship-map.png)
+## ![A path diagram of this repository for the Harvey Janszen Legacy Project](diagrams/LDP-Project-map.png)
 
 ## Ultimate goals for this project
 
