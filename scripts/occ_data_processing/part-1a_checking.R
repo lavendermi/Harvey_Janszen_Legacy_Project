@@ -45,8 +45,15 @@
   
 ## USER INPUT ----
   
-  J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+  J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
   AI <- "HJ" # AUTHOR INITIALS 
+  Q <- "hp" # either "all" or "hp". "all" = will also include rows with 
+  # medium confidence in taxon name decipher
+  
+  # "hp" = high priority - will only write file 
+  # with these conditions and taxon 
+  # name with LOW confidence only
+  
 
 ## 1. LOADING IN RAW DATA ----
   
@@ -150,13 +157,6 @@
 # c) there is no date
 # d) there is no locality, country, stateProvince
 # e) rows with lower confidence in taxon name deciphering
-
-  Q <- "hp" # "all" = will also include rows with 
-            # medium confidence in taxon name decipher
-  
-             # "hp" = high priority - will only write file 
-             # with these conditions and taxon 
-             # name with LOW confidence only
   
   if (Q == "hp"){
 

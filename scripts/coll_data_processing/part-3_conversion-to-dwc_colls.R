@@ -30,11 +30,13 @@
   
 ## USER INPUT ----
   
-  J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+  J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
   AI <- "HJ" # AUTHOR INITIALS 
+  
   fieldnote_storage_facility <- " " # where are field notes stored? 
   image_repo <- " " # repository where field note images are stored
   
+  tax_ref_sys <- "FPNW2" # taxonomy reference system --> either "FPNW2" or "GBIF"
   
 ## 2) READING IN DATA ----
   
@@ -243,13 +245,7 @@
     arrange(recordNum)
   
                                        
-  ## 4) TAXONOMY FIELDS ----
-  
-  #### USER INPUT *********** # which taxonomic reference system should be used? 
-  
-  tax_ref_sys <- "FPNW2" # either "FPNW2" or "GBIF"
-  
-  ####
+## 4) TAXONOMY FIELDS ----
   
   ## formatting and writing file of names to check: 
   

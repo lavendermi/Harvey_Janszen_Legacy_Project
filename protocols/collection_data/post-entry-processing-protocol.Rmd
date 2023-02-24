@@ -19,13 +19,11 @@ Step 3 = **data conversion** (converting the data format to Darwin Core data sta
 
 The scripts are also designed so that data can be continually entered on the same entry excel sheets and only the newly added rows will be selected for cleaning, checking and conversion, and added to the previously processed data once the new data has been processed.
 
-Steps I and II are designed for the user to go through *one journal* at a time, while step III can be performed one at a time or for all journals simultaneously. However, I would recommend first performing steps I and II on all journals individually and then performing step 3 with all of the new data from ALL journals (this will be discussed further).
-
-To avoid processing large amounts of new data, it might be helpful to follow this protocol and process new data that has been entered during field note entry every few weeks when data is being actively entered.
+To avoid processing large amounts of new data, it might be helpful to follow this protocol and process new data that has been entered during field note entry every 500 - 1000 observations.
 
 ## Occurrence Data versus Collection Data
 
-This protocol can be used to process both observation-only (occurrence) data or collection occurrence data (which has a specimen associated with it). However, the scripts differ slightly depending on which type.
+This protocol can be used to process both observation-only (occurrence) data or collection occurrence data (which has a specimen associated with it). The R scripts that accompany this protocol differ and the respective ones should be used for both types of data.
 
 ## Scripts
 
@@ -41,29 +39,47 @@ There are a total of 4 scripts for all three steps which can be found in the fol
 
 # Setup
 
-Download the repository from Github: <https://github.com/emench/Harvey_Janszen_Legacy_Project>
+1) Download the repository from Github: <https://github.com/emench/Harvey_Janszen_Legacy_Project>
 
-This repository contains all of the existing data, scripts, and packages required to perform data processing
+This repository contains all of the existing data, scripts, and packages required to perform data processing'
+
+2) Set up data entry sheets for every separate collector journal using the template templates in data \> data_digitization \> occurrence_data OR collection_data \> 1_raw_data
+
+-   label these as "[collector_Initials]-[journal_number]-coll OR occ-entry-template.xlsx"
+
+3) Enter data in these templates following the occ-data-entry and coll-data-entry protocols found in the protocols section of the repository
+
+-   make sure there is a template for every journal you intend to enter data for - these don't have to be filled out, their names just have to be present for the code to work later
+
+4) Follow the following steps to repeatedly process newly entered data
 
 # Processing step I: data checking
 
 1.  Open script **"part-1a_checking.R"**
 
-2.  **Input the journal number** for the data entered that you would like to review
+2.  **Run the "LOADING PACKAGES" section**.
 
-3.  Input whether you want to only check high-priority cases (Q \<- "hp") or include "medium" confidence taxon name deciphering flags (Q \<- "all") **(in section 2).**
+    -   These scripts use the groundhog package to manage packages and versions. The packages from the date specified will be downloaded to a local folder in your working directory.
 
-    -   high priority (hp) includes any observation with dataEntryRemarks, and taxon names where there is low certainty in what the name is either from the inability to decipher the handwriting, or taxonomic changes that seem suspicious.
+3.  **Input the "USER INPUTS"**
 
-    -   selecting "all" will also include those with "medium" confidence in taxon name deciphering
+    1.  **A vector of the journal numbers** (each should correspond to the number on a sheet in "1_raw_data" (e.g. c(5,7,8,9,27))
 
-    -   Pick "hp" when time for data checking is limited.
+    2.  Character vector of the field note author initials (e.g. AI \<- "HJ" )
+
+    3.  Whether you want to only check high-priority cases in taxon name deciphering (Q \<- "hp") or (Q \<- "all") - this includes entries
+
+        -   high priority (hp) includes any observation with dataEntryRemarks, and taxon names where there is low certainty in what the name is either from the inability to decipher the handwriting, or taxonomic changes that seem suspicious.
+
+        -   selecting "all" will also include those with "medium" confidence in taxon name deciphering
+
+        -   Pick "hp" when time for data checking is limited.
 
 4.  **Run the script**
 
 5.  **Find the .csv file** in the folder: *data \> data_digitization \> occurrence_data \> 2_data_checking*
 
-6.  Take the csv file and have it **reviewed by Andrew & Emma to check these flagged observations**
+6.  Review this csv file of flagged observations.
 
     -   In checking these observations:
 
@@ -79,40 +95,41 @@ This repository contains all of the existing data, scripts, and packages require
 
 7.  Open script **"part1-b_checking.R"**
 
-8.  Under the "LOADING DATA" tab, **input** **the journal number ( J \<- ... )**
+8.  Again, fill out the "USER INPUT" section
 
 9.  Run the script section by section
 
-10. If there is an error generated from section 2, then a row has been missed in the review and should be returned to. Once this is fixed, the data be saved and the script should be re-started.
+10. If there is an error generated from section 2, then a row has been missed in the review and should be returned to. Once this is fixed, the data be saved and the script should be re-run from the beginning.
 
 11. The end result of this step will be a CSV file in the "data_cleaning" folder that has been checked for obvious errors. The next step will take care of catching less obvious ones.
 
 ## Processing step II: data cleaning
 
 1.  Open script **"part-2_data-cleaning.R"**
-2.  Under the "LOADING DATA" tab, **input** **the journal number ( J \<- ... )**
-3.  Open the CSV file in another window in a spread sheet editor like Excel
+2.  Again, fill out the "USER INPUT" section
+3.  The first line of code will open the data that needs to be cleaned at the source file. Open this file.
 4.  Run the script part by part
 5.  If an error message pops up after running a particular section, stop, return to the CSV sheet in the other window, look for the error using the row index value generated with the error message and correct it.
 6.  Once corrected, save the sheet, and re-load the data by re-running the script up to an including the section that had previously produced the error message.
 7.  Ensure that this error message no longer appears
 8.  Repeat these measures until the whole script has been completed
 9.  The end result of this script will be a CSV file of checked and cleaned new data entries in the folder "4_clean data" that will be converted to Darwin Core standards in the next script
-10. *Recommended:* Repeat processing steps I and II for the rest of the journals before continuing on to step 3
 
 ## Processing step III: conversion to Darwin Core fields
 
 1.  Open script **"part-3_conversion-to-dwc.R"**
 
-2.  Run the script to up until step 4 ("Taxonomy Fields").
+2.  Fill in the "USER INPUTS"
 
-3.  Input which taxonomy reference system you would like to use
+    1.  Journal number and author initials as specified previously
 
-    -   tax_ref_sys \<- "FPNW2" or "GBIF"
+    2.  fieldnote_storage_facility \<- " " \# where are field notes stored? (optional)
 
-        -   FPNW2 for the 2nd edition of the Flora of the Pacific Northwest
+    3.  image_repo \<- " " \# repository where field note images are stored (optional)
 
-        -   GBIF for global biodiversity information facility
+    4.  tax_ref_sys \<- " " \# taxonomy reference system \--\> either "FPNW2" (Flora of the Pacific Northwest Edition 2) or "GBIF"
+
+3.  Run the script to up until step 4 ("Taxonomy Fields").
 
 4.  Follow the instructions...
 
@@ -246,27 +263,3 @@ This repository contains all of the existing data, scripts, and packages require
 
 7.  Run the rest of the script
 8.  The output will be a CSV file with all of the digitized occurrences in the *"darwin_core_data"* folder labelled with the date of processing.
-
-# Recommended workflows
-
-## For observation-only (occurrence) data
-
--   Follow the **"occ-data-entry-protocol.Rmd"**
-
--   Continue to digitize the journals by adding to the data entry templates in the *"data \> digitized_data \> occurrence_data \> 1_raw_data"* folder
-
--   Every few weeks, once \~ 500-1000 new rows have been added in total, this protocol could be used to check, clean, and convert the data. Alternatively, this protocol could be followed only a few times with large chunks of data, but data checking, taxonomy verification and georeferencing will require larger chunks of time to carry out
-
--   The scripts and folder structures are designed in a way where you can just continually add to the entry templates and run the scripts as outlined above and only new rows will be checked, cleaned and converted and added to the previously processed data, so you won't have to repeat these steps for everything multiple times
-
-## For collection data
-
--   Follow the **"coll-data-entry-protocol.Rmd"** protocol
-
--   Start by digitizing one journal in particular
-
--   Once it is finished, follow the processing protocol outlined here
-
--   For the "part-3_conversion-to-dwc" script, enter ( J \<- single journal number), and do the processing one journal at a time. The outputs will be found in the subfolders with that journal number
-
--   To use this data to review RBCM herbarium data, follow the protocol: "rbcm-data-review-protocol"

@@ -41,7 +41,7 @@ rm(requiredPackages)
 
 ## USER INPUT ----
 
-J <- c(5,7,8,9,27) # JOURNAL NUMBERS (only ONE at a time ! )
+J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
 AI <- "HJ" # AUTHOR INITIALS 
 
 ## READING IN DATA ----
