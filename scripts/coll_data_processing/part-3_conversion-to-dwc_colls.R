@@ -22,7 +22,8 @@
   date <- "2022-11-02"
   requiredPackages <-  c("assertr","dplyr","here", "lubridate",
                          "magrittr","mapview","purrr","ritis",
-                         "stringi","taxize","terra","tidyverse","sp","tidyr", "cowsay")
+                         "stringi","taxize","terra","tidyverse",
+                         "sp","tidyr", "cowsay")
   
   for (pkg in requiredPackages) {
     groundhog.library(pkg, date)
@@ -32,35 +33,71 @@
   
 ## 2) READING IN DATA ----
   
-  #### USER INPUT 
-  J <-c(5,7,8,9,27) # Journal number (multiple allowed ! )
-  # either 5,7,8,9,27 or all in a vector
+  #### JOURNAL NUMBERS  
+  # even if you don't yet have clean data for certain journals
+  # you can still leave journal number here and it will be ignored
+  
+  J <-c(5,7,8,9,27) 
+                    
   ####
   
+  # initializing variable for the loop
+  data <- data.frame()
+  
+  # loop to read in cleaned data
+  
   for (i in 1:length(J)){
-    if (i == 1){
-      data <- read.csv(
-        here::here("data","data_digitization",
-                   "collection_data","4_clean_data", 
-                   # reading in most recent round of cleaned collections
-                   paste0("HJ",J[i]), unique(as.character(max(list.files(  
-                     here::here("data","data_digitization",
-                                "collection_data", 
-                                "4_clean_data", 
-                                paste0("HJ",J[i]))))))))
-    } else{ 
-      data <- rbind(data, read.csv(
-        here::here("data","data_digitization",
-                   "collection_data","4_clean_data", 
-                   # reading in most recent round of cleaned collections
-                   paste0("HJ",J[i]), unique(as.character(max(list.files(  
-                     here::here("data","data_digitization",
-                                "collection_data", "4_clean_data", 
-                                paste0("HJ",J[i])))))))))
-      cowsay::say("multiple journals appended", by="signbunny")
+    # if there is a cleaned data file for a given journal number
+    if (length(list.files(here::here(
+      "data","data_digitization",
+      "collection_data", 
+      "4_clean_data", 
+      paste0("HJ",J[i]))))>0){
+      
+      if (dim(data)[1] == 0){ # and if it is the first journal number in the sequence
+        # read in data to a new variable from that file
+        data <- read.csv(
+          here::here("data","data_digitization",
+                     "collection_data","4_clean_data", 
+                     # reading in most recent round of cleaned collections
+                     paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                       here::here("data","data_digitization",
+                                  "collection_data", 
+                                  "4_clean_data", 
+                                  paste0("HJ",J[i]))))))))
+      } else{ # if it is the second + sheet being read in, append it to data already read in
+        data <- rbind(data, read.csv(
+          here::here("data","data_digitization",
+                     "collection_data","4_clean_data", 
+                     # reading in most recent round of cleaned collections
+                     paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                       here::here("data","data_digitization",
+                                  "collection_data", "4_clean_data", 
+                                  paste0("HJ",J[i])))))))))
+        
+        cowsay::say("clean data from multiple journals appended", by="signbunny")
+      }
     }
   }
   
+  
+  ## removing rows already processed to dwc 
+  # to avoid extra work in the following steps
+  
+  if(length(list.files(here::here("data", "data_digitization","collection_data",
+                                  "darwin_core_data")))>=1){
+    
+    # read in the file with the latest date (with most observations) 
+    old_dwc_data <- read.csv(here::here("data", "data_digitization","collection_data",
+                                        "darwin_core_data",
+                                        unique(as.character(max(list.files(here::here(
+                                          "data", "data_digitization","collection_data",
+                                          "darwin_core_data"))))))) %>% select(recordNumber)
+    
+    # remove rows from current data table that contain previously dwc processed data                              
+    occ_data <- anti_join(occ_data, old_dwc_data)
+    
+  }
   
 ## 3) ADDING/ AUTOMATICALLY FILLING IN SIMPLE DARWIN CORE FIELDS ----
 
@@ -234,6 +271,7 @@
     occ_data <- data %>% 
     select(-pageNum,-numPage, -vName, -conf, -date, -index) %>%
     arrange(recordNum)
+  
                                        
   ## 4) TAXONOMY FIELDS ----
   

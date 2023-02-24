@@ -20,7 +20,8 @@ set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
 requiredPackages <-  c("assertr","dplyr","here", "lubridate",
                        "magrittr","mapview","purrr","ritis",
-                       "stringi","sjmisc","taxize","terra","tidyverse","tidyr")
+                       "stringi","sjmisc","taxize","terra",
+                       "tidyverse","tidyr", "cowsay")
 
 for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
