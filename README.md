@@ -114,7 +114,7 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
 4.   **Observation-only & Collection data aggregation** \|\|\|\|\| **[under construction] \|\|\|\|**
 
-    [total-occurrence-aggregation.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/aggregation)
+    -   [total-occurrence-aggregation.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/aggregation)
 
 # Recommended workflows
 
