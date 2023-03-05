@@ -21,7 +21,6 @@
   tax_ref_sys <- "FPNW2" # taxonomy reference system --> either "FPNW2" or "GBIF"
   
 
-
 ## 1) LOADING & INSTALLING PACKAGES ----
  
   library(groundhog)
