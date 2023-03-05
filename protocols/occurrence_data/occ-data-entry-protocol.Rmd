@@ -350,4 +350,150 @@ Begin with the **first page in a journal.**
 
 -   Codes like Cw, Fd, Md all refer to forest type codes which can be found here: <https://www2.gov.bc.ca/gov/content/industry/forestry/managing-our-forest-resources/tree-seed/tree-seed-centre/seed-testing/codes>
 
+-   List of common abbreviations:
+
+    -   Aira car = Aira caryophyllea
+
+    -   Alli acu = Allium acuminatum
+
+    -   Alli amp = Allium amplectens
+
+    -   Atri pat = Atriplex patula
+
+    -   Anth odo = Anthoxanthum odoratum
+
+    -   Apha arv = Aphanes arvensis
+
+    -   Arct col = Arctostaphylos columbiana
+
+    -   Bra arv = Sinapis arvensis (formerly Brassica)
+
+    -   Brom ste = Bromus sterilis
+
+    -   Brom hor = Bromus hordeaceus
+
+    -   Brom sit = Bromus sitchensis
+
+    -   Card oli = Cardamine oligosperma
+
+    -   Care ino = Carex inops
+
+    -   Cerast arv = Cerastium arvense
+
+    -   Clar amo = Clarkia amoena
+
+    -   Clay par = Claytonia perfoliata
+
+    -   Cyno cri = Cynosurus cristatus
+
+    -   Cyno ech = Cynosurus echinatus
+
+    -   Dact glo = Dactylis glomerata
+
+    -   Dauc pus = Daucus pusillis
+
+    -   Delp men = Delphinium menziesii
+
+    -   Distich spi = Distichlis spicata
+
+    -   Dant cal = Danthonia californica
+
+    -   Eleo pal = Eleocharis palustris
+
+    -   Elym gla = Elymus glaucus
+
+    -   Epil ade = Epilobium adenocaulon?
+
+    -   Epil pau = Epilobium parviflorum?
+
+    -   Erod cic = Erodium cicutarium
+
+    -   Erio lam = Eriophyllum lanatum
+
+    -   Eryt ore = Erythronium oregonum
+
+    -   Gali apa = Galium aparine
+
+    -   Gara can = Rosa canina
+
+    -   Gera mol = Geranium molle
+
+    -   holo disc = Holodiscus discolor
+
+    -   Holc lan = Holcus lanatus
+
+    -   Hypo rad = Hypochaeris radicata
+
+    -   Koel cri = Koelaria macrantha
+
+    -   Lact mur = Lactuca muralis
+
+    -   Lepi vir = Lepidium virginicum
+
+    -   Loni his = Lonicera hispidula
+
+    -   Loma utr = Lomatium utriculatum
+
+    -   Litho par = Lithophragma parviflorum
+
+    -   Lych cor = Silene coronaria (formerly Lychnis)
+
+    -   Meli sub = Melica subulata
+
+    -   Mimu gut = Erythranthe gutatta (formerly Mimulus)
+
+    -   Madi gra = Madia gracilis
+
+    -   Mont fon = Montia fontana
+
+    -   Mont par = Montia parvifolia
+
+    -   Nemo par = Nemophila parviflora
+
+    -   Osmo chi = Osmorhiza berteroi (formerly chilensis)
+
+    -   Plan mar = Plantago maritima
+
+    -   Plect con = Plectritis congesta
+
+    -   Pter aqu = Pteridium aquilinum
+
+    -   Poa pra = Poa pratensis
+
+    -   Raco can = Racomitrium canescens
+
+    -   Rosa gym = Rosa gymnocarpa
+
+    -   Sani cra = Sanicula crassicaulis
+
+    -   Sedu lan = Sedum lanceolatum
+
+    -   Sedu spa = Sedum spathulifolium
+
+    -   Sela wal = Selaginella wallacei
+
+    -   Stel med = Stellaria media
+
+    -   Symp alb = Symphoricarpos albus
+
+    -   Tori jap = Torilis japonica
+
+    -   Trif dub = Trifolium dubium
+
+    -   Trif micro = Trifolium microdon
+
+    -   Trif miceph = Trifolium microcephalum
+
+    -   Trif tri = Trifolium willdenovii
+
+    -   Trit hya = Triteleia hyacinthina
+
+    -   Vero arv = Veronica arvensis
+
+    -   Vici hir = Vicia hirsuta
+
+    -   Vici sat = Vicia sativa
+
+    -   Vulp bro = Festuca bromoides
+
 # 

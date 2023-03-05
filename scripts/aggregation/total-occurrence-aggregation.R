@@ -29,35 +29,24 @@ for (pkg in requiredPackages) {
 
 rm(requiredPackages)
 
+## USER INPUT ----
+
+AI <- "HJ" # AUTHOR INITIALS 
+
 ## 2) READING IN DATA ----
 
-J <- c(5,7,8,9,27) 
-
-for (i in 1:length(J)){
-  if (i == 1){
-    coll_data <- read.csv(
+# reading in most recent round of DwC data
+  # for collection records
+  coll_data <- read.csv(
       here::here("data","data_digitization",
                  "collection_data","darwin_core_data", 
-                 # reading in most recent round of cleaned collections
-                 paste0("HJ",J[i]), unique(as.character(max(list.files(  
+                 unique(as.character(max(list.files(  
                    here::here("data","data_digitization",
                               "collection_data", 
-                              "darwin_core_data", 
-                              paste0("HJ",J[i]))))))))
-  } else{ 
-    data <- rbind(data, read.csv(
-      here::here("data","data_digitization",
-                 "collection_data","darwin_core_data", 
-                 # reading in most recent round of cleaned collections
-                 paste0("HJ",J[i]), unique(as.character(max(list.files(  
-                   here::here("data","data_digitization",
-                              "collection_data", "darwin_core_data", 
-                              paste0("HJ",J[i])))))))))
-  }
-}
+                              "darwin_core_data")))))))
 
-
-occ_data <- read.csv(
+  # for occurrence records
+  occ_data <- read.csv(
   here::here("data","data_digitization",
              "occurrence_data","darwin_core_data", unique(as.character(max(list.files(  
                here::here("data","data_digitization",
