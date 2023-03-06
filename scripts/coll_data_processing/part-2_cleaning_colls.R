@@ -37,7 +37,9 @@ for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
 }
 
-rm(requiredPackages)
+  # removing all objects from workspace to avoid errors by carrying 
+  # over similar variable names
+  rm(list = ls())
 
 ## USER INPUT ----
 
@@ -76,6 +78,7 @@ journalPages <- c(116,159,209,206,28) # vector of number of pages in each journa
   
 ## pageNum
   # constraints: must be within range of journalPages for given journal
+  # if the loop runs without errors, then continue to next step 
 
   for(i in 1:length(J)){
     data %>% 
@@ -331,6 +334,8 @@ journalPages <- c(116,159,209,206,28) # vector of number of pages in each journa
 ## vLat & vLon 
   # constraint: 1) within rough bounding box
   # of where HJ collected from 
+  data$vLat <- as.character(data$vLat)
+  data$vLon <- as.character(data$vLon)
   
   # if there are non-Na elements...
   if(length(data$vLat[is.na(data$vLat)])<length(data$vLat)){
@@ -340,7 +345,7 @@ journalPages <- c(116,159,209,206,28) # vector of number of pages in each journa
     
       # converting degrees to decimal degrees
       for (i in 1:dim(data)[1]){
-        if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
+        if(length(strsplit(data$vLat[i], " ")[[1]]) > 1){ # if data in dms degrees
           data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
           data$vLon[i] <- angle2dec(data$vLon[i])
         }

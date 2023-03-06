@@ -25,7 +25,7 @@
 
 # if no error message appears, the test has been passed 
 
-## LOADING PACKAGES ----
+## LOADING PACKAGES & PREPPING WORKSPACe ----
 library(groundhog)
 
 set.groundhog.folder(here::here("packages"))
@@ -37,12 +37,15 @@ for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
 }
 
-rm(requiredPackages)
+  ## removing all objects from workspace to avoid errors by carrying 
+  # over similar variable names
+  rm(list = ls())
 
 ## USER INPUT ----
 
 J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
 AI <- "HJ" # AUTHOR INITIALS 
+journalPages <- c(116,159,209,206,28) # vector of number of pages in each journal in same order as J 
 
 ## READING IN DATA ----
 
@@ -52,6 +55,7 @@ AI <- "HJ" # AUTHOR INITIALS
                             "data_digitization","occurrence_data",
                             "3_data_cleaning"))
 
+  # RESTART HERE *****
   # reading in most recent checked data
   data <- read.csv(
     here::here("data","data_digitization",
@@ -75,52 +79,15 @@ AI <- "HJ" # AUTHOR INITIALS
 ## TASK 2: checking individual columns for constraints ----
   
 ## pageNum
-  # constraints: 1) for HJ-8 journal = numeric between 1 and 208
-  # for HJ-27 = numeric between 1 and 28 
-  # for HJ-7 = numeric between 1 and 159
-  # for HJ-9 = numeric between 1 and 206
-  # for HJ-5 = numeric between 1 and 116
-  # 2) read as an integer
-  # 3) all rows must have entry
-
-  if(J==7){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>% 
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(., in_set(1:159), pageNum) %>% 
-    chain_end 
-    
-  }else if(J==8){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>% 
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:208),pageNum) %>% 
-    chain_end 
-    
-  }else if(J==9){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>%
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:206),pageNum)  %>% 
-    chain_end 
-    
-  }else if(J==27){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>% 
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:28),pageNum) %>% 
-    chain_end 
-    
-  }else if(J==5){
+  # constraints: must be within range of journalPages for given journal
+  # if the loop runs without errors, then continue to next step 
+  
+  for(i in 1:length(J)){
     data %>% 
       group_by(pageNum) %>% 
       chain_start %>% 
       verify(., has_class("pageNum", class="integer")) %>% 
-      assert(in_set(1:116),pageNum) %>% 
+      assert(., in_set(1:journalPages[i]), pageNum) %>% 
       chain_end 
   }
 
@@ -383,6 +350,8 @@ AI <- "HJ" # AUTHOR INITIALS
 ## vLat & vLon 
   # constraint: 1) within rough bounding box
   # of where HJ collected from 
+  data$vLat <- as.character(data$vLat)
+  data$vLon <- as.character(data$vLon)
   
   # if there are non-Na elements...
   if(length(data$vLat[is.na(data$vLat)])<length(data$vLat)){
@@ -393,7 +362,7 @@ AI <- "HJ" # AUTHOR INITIALS
       # converting degrees to decimal degrees
       for (i in 1:dim(data)[1]){
         if(!is.na(data$vLat[i]) & !is.na(data$vLon[i])){
-          if(length(strsplit(data$vLat[i], " ")[[1]])>1){ # if data in dms degrees
+          if(length(strsplit(data$vLat[i], " ")[[1]]) > 1){ # if data in dms degrees
             data$vLat[i] <- angle2dec(data$vLat[i]) # convert to decimal degrees
             data$vLon[i] <- angle2dec(data$vLon[i])
           }
@@ -568,9 +537,8 @@ AI <- "HJ" # AUTHOR INITIALS
   }
   
 ## Writing cleaned sheet ---
-  
 
-write.csv(data_cleaned, here::here("data","data_digitization",
+write.csv(data, here::here("data","data_digitization",
                                    "occurrence_data",
                                    "4_clean_data",
                                    paste0(AI, "_clean-occurrences_",
@@ -585,5 +553,6 @@ if(length(list.files(here::here("data",
   cowsay::say("old files removed!", by="signbunny")
 }
 
+## continue to part-3_conversion-to-dwc_colls.R
 
 

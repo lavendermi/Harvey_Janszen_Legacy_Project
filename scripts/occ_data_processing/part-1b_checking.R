@@ -22,7 +22,9 @@ for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
 }
 
-rm(requiredPackages)
+  ## removing all objects from workspace to avoid errors by carrying 
+  # over similar variable names
+  rm(list = ls())
 
 ## USER INPUT ----
 

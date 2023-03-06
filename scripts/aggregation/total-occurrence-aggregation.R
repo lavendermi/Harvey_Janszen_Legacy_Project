@@ -1,8 +1,7 @@
 #######################################################################
-###       Processing Step 3: conversion from Data Entry Template    ###
-###                      to Darwin Core Collections                 ###
+###   Collection & Observation-Only Occurrence Data Aggregation     ###
 ###                         Emma Menchions                          ###
-###                         Created Nov. 7/22                       ###
+###                         March 4/23                              ###
 #######################################################################
 
 ## OVERVIEW ----
@@ -11,31 +10,39 @@
 # and then aggregate both types of data into one large Darwin Core formatted
 # spreadsheet
 
-## 1) LOADING & INSTALLING PACKAGES ----
-# using groundhog to manage package versioning 
-#install.packages("groundhog")
-library(groundhog)
+# NOTE: to combine two sheets (collection data and occurrence data), the taxonomy
+# reference system used in part 3 (darwin core conversion) on both types of data 
+# must have been the SAME! 
 
-set.groundhog.folder(here::here("packages"))
-date <- "2022-11-02"
-requiredPackages <-  c("assertr","dplyr","here", "lubridate",
-                       "magrittr","mapview","purrr","ritis",
-                       "stringi","sjmisc","taxize","terra",
-                       "tidyverse","tidyr", "cowsay")
+## LOADING & INSTALLING PACKAGES ----
 
-for (pkg in requiredPackages) {
-  groundhog.library(pkg, date)
-}
+  # using groundhog to manage package versioning 
+  #install.packages("groundhog")
+  library(groundhog)
+  
+  set.groundhog.folder(here::here("packages"))
+  date <- "2022-11-02"
+  requiredPackages <-  c("assertr","dplyr","here", "lubridate",
+                         "magrittr","mapview","purrr","ritis","stringr",
+                         "stringi","sjmisc","taxize","terra",
+                         "tidyverse","tidyr", "cowsay")
+  
+  for (pkg in requiredPackages) {
+    groundhog.library(pkg, date)
+  }
 
-rm(requiredPackages)
+  ## removing all objects from workspace to avoid errors by carrying 
+  # over similar variable names
+  rm(list = ls())
 
-## USER INPUT ----
+## 1) USER INPUT ----
 
-AI <- "HJ" # AUTHOR INITIALS 
+  AI <- "HJ" # AUTHOR INITIALS 
 
 ## 2) READING IN DATA ----
 
-# reading in most recent round of DwC data
+# reading in most recent round of DwC data...
+  
   # for collection records
   coll_data <- read.csv(
       here::here("data","data_digitization",
@@ -53,7 +60,8 @@ AI <- "HJ" # AUTHOR INITIALS
                           "occurrence_data", 
                           "darwin_core_data"))))))) %>% 
 
-            # creating column 
+            # creating column of names which will be assigned as associate species names for collected occurrences
+            # at same location
             unite("canonicalName", genus, specificEpithet, intraspecificEpithet, na.rm=T, sep= " ", remove=F)
 
 ## 3) Assigning associate observation-only rows to collected observations
@@ -71,11 +79,12 @@ for (i in 1:dim(coll_data)[1]){ # for every row of the collected occurrences she
       
       # if collection data row already has associated occurrences...
       if(!is.na(coll_data$associatedOccurrences[i])){
+        # append it to other ID's there
         coll_data$associatedOccurrences[i] <- paste0(coll_data$associatedOccurrences[i], "; ", occ_data$occurrenceID[j])
       
       # if not...
       } else {
-        
+      # place new ID there
       coll_data$associatedOccurrences[i] <- occ_data$occurrenceID[j]
 
       }
@@ -83,8 +92,9 @@ for (i in 1:dim(coll_data)[1]){ # for every row of the collected occurrences she
   }
 }
 
-occ_data$associatedOccurrences[occ_data$associatedOccurrences=="none"] <- NA
-coll_data$associatedOccurrences[coll_data$associatedOccurrences=="none"] <- NA
+  # converting NA values back into true NA values 
+  occ_data$associatedOccurrences[occ_data$associatedOccurrences=="none"] <- NA
+  coll_data$associatedOccurrences[coll_data$associatedOccurrences=="none"] <- NA
      
 ## associatedTaxa
 # temporary adjustment
@@ -99,11 +109,12 @@ for (i in 1:dim(coll_data)[1]){ # for every row of the collected occurrences she
       
       # if collection data row already has associated occurrences...
       if(!is.na(coll_data$associatedTaxa[i])){
+        # append name to names already there
         coll_data$associatedTaxa[i] <- paste0(coll_data$associatedTaxa[i], "; ", occ_data$canonicalName[j])
         
       # if not...
       } else {
-        
+        # write new name there
         coll_data$associatedTaxa[i] <- occ_data$canonicalName[j]
         
       }
@@ -111,23 +122,25 @@ for (i in 1:dim(coll_data)[1]){ # for every row of the collected occurrences she
   }
 }
 
-occ_data$associatedTaxa[occ_data$associatedTaxa=="none"] <- NA
-coll_data$associatedTaxa[coll_data$associatedTaxa=="none"] <- NA
-occ_data <- occ_data %>% select(-canonicalName)
-
+  # converting NA values back into true NA values 
+  occ_data$associatedTaxa[occ_data$associatedTaxa=="none"] <- NA
+  coll_data$associatedTaxa[coll_data$associatedTaxa=="none"] <- NA
+  
+  # removing the temporary variable canonicalName to adhere to DwC format
+  occ_data <- occ_data %>% select(-canonicalName)
 
 ## writing files
   # save to darwin core formatted (with associated occurrences) for collection data
     write.csv(coll_data, here::here("data","data_digitization",
-           "collection_data","darwin_core_data", "final-agg-and-associates",
-           paste0("final-agg-and-associates_",Sys.Date(),".csv")), row.names=F)
+           "collection_data","darwin_core_data",
+           paste0(AI,"-Final-DwC-coll-data_",Sys.Date(),".csv")), row.names=F)
 
 ## 4) Combining occurrences and collection observations
-aggregated_data <- rbind(coll_data, occ_data) %>% arrange(eventDate)
+  aggregated_data <- rbind(coll_data, occ_data) %>% arrange(eventDate)
 
 
 ## writing files
   write.csv(aggregated_data, here::here("data","data_digitization",
                                 "aggregated_data",
-                                paste0("HJ-occ-and-coll-data_",Sys.Date(),".csv")), row.names=F)
+                                paste0(AI,"-DwC-occ-and-coll-data_",Sys.Date(),".csv")), row.names=F)
 

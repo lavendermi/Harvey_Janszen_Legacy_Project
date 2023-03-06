@@ -9,34 +9,35 @@
 # this script will take occurrence data and place it in approximate
 # darwin core format
 # see: https://dwc.tdwg.org/list/#dwc_fieldNotes
-
-## USER INPUT ----
-
-  J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
-  AI <- "HJ" # AUTHOR INITIALS 
   
-  fieldnote_storage_facility <- " " # where are field notes stored? 
-  image_repo <- " " # repository where field note images are stored
-  
-  tax_ref_sys <- "FPNW2" # taxonomy reference system --> either "FPNW2" or "GBIF"
-  
-
-## 1) LOADING & INSTALLING PACKAGES ----
+## LOADING & INSTALLING PACKAGES ----
  
   library(groundhog)
   
   set.groundhog.folder(here::here("packages"))
   date <- "2022-11-02"
   requiredPackages <-  c("assertr","dplyr","here", "lubridate",
-                         "magrittr","mapview","purrr","ritis",
+                         "magrittr","mapview","purrr","ritis","sp",
                          "stringi","taxize","terra","tidyverse","tidyr","cowsay")
   
   for (pkg in requiredPackages) {
     groundhog.library(pkg, date)
   }
   
-  rm(requiredPackages)
-
+  ## removing all objects from workspace to avoid errors by carrying 
+  # over similar variable names
+  rm(list = ls())
+  
+## 1) USER INPUT ----
+  
+  J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
+  AI <- "HJ" # AUTHOR INITIALS 
+  
+  fieldnote_storage_facility <- " " # where are field notes stored? 
+  image_repo <- " " # repository where field note images are stored
+  
+  tax_ref_sys <- "GBIF" # taxonomy reference system --> either "FPNW2" or "GBIF"
+  
 ## 2) READING IN DATA ----
   
   # loading most recent cleaned data file  
@@ -309,21 +310,6 @@
     
     cowsay::say("file ready to check with FPNW2 standards", by="signbunny")
     
-    # Upload .txt file to: https://www.pnwherbaria.org/florapnw/namechecker.php
-    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
-                                "occ_reference_data", "taxonomy", "raw"))
-    
-    # select "choose file" button
-    # find file in folder data > data_digitization > occurrence_data > occ_reference_data > taxonomy > raw
-    # press the "Check Names" button
-    # download the file produced
-    # place in...
-    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
-                                  "occ_reference_data", "taxonomy", "normalized"))
-    
-    # manually change the file name to "FPNW2_normalized_YYYY-MM-DD.txt"
-    
-    
   } else if (tax_ref_sys == "GBIF"){
     
   # Using GBIF Species-Lookup tool to check taxon names (updated 
@@ -344,24 +330,6 @@
                                 Sys.Date(), ".csv")), row.names = F)
     
     cowsay::say("file ready to check with GBIF standards", by="signbunny")
-    
-    # find csv file in folder: 
-    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
-                                "occ_reference_data", "taxonomy", "raw"))
-    
-    # Upload csv file to https://www.gbif.org/tools/species-lookup
-    # select "match to backbone" button
-    # Review the outputs - paying attention to the "matchType" column
-    # if yellow or red, click edit field in the scienfificName column
-    # select the desired accepted taxon - often the first one, 
-    # often with authority L. 
-    # repeat for all other entries with yellow or red match types
-    # once all are exact or "edited" click "generate.csv" in the 
-    # bottom corner
-    # place in working directory:
-    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
-                                "occ_reference_data", "taxonomy", "normalized"))
-    # add the date that this table was generated
       
   }
   
@@ -377,10 +345,50 @@
     
   }
     
+## Visit...
+  if(tax_ref_sys=="FPNW2"){
+    
+    utils::browseURL("https://www.pnwherbaria.org/florapnw/namechecker.php", browser = getOption("browser"))
+    # Upload .txt file to: https://www.pnwherbaria.org/florapnw/namechecker.php
+    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
+                                "occ_reference_data", "taxonomy", "raw"))
+    
+    # select "choose file" button
+    # find file in folder data > data_digitization > occurrence_data > occ_reference_data > taxonomy > raw
+    # press the "Check Names" button
+    # download the file produced
+    # place in...
+    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
+                                "occ_reference_data", "taxonomy", "normalized"))
+    
+    # manually change the file name to "FPNW2_normalized_YYYY-MM-DD.txt"
+    
+  }else if(tax_ref_sys == "GBIF"){
+    
+    # find csv file in folder: 
+    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
+                                "occ_reference_data", "taxonomy", "raw"))
+    utils::browseURL("https://www.gbif.org/tools/species-lookup", browser = getOption("browser"))
+    # Upload csv file to https://www.gbif.org/tools/species-lookup
+    # select "match to backbone" button
+    # Review the outputs - paying attention to the "matchType" column
+    # if yellow or red, click edit field in the scienfificName column
+    # select the desired accepted taxon - often the first one, 
+    # often with authority L. 
+    # repeat for all other entries with yellow or red match types
+    # once all are exact or "edited" click "generate.csv" in the 
+    # bottom corner
+    # place in working directory:
+    utils::browseURL(here::here("data","data_digitization","occurrence_data", 
+                                "occ_reference_data", "taxonomy", "normalized"))
+    
+    # add the date that this table was generated: normalized_YYYY_MM_DD.csv
+  }
+    
 ## Reading in table of checked names, matching names and writing updated taxonomic info
   # to main data frame: 
   
-if(tax_ref_sys=="FPNW2"){
+  if(tax_ref_sys=="FPNW2"){
       
       normalized_names <- read.csv(
         here::here("data","data_digitization","occurrence_data",
@@ -482,7 +490,7 @@ if(tax_ref_sys=="FPNW2"){
       relocate(scientificName, .before=vSciName)
       
      
-} else if (tax_ref_sys=="GBIF"){
+  } else if (tax_ref_sys=="GBIF"){
     
   # loading in taxonomy referenced file
     normalized_names <- read.csv(
@@ -575,8 +583,14 @@ if(tax_ref_sys=="FPNW2"){
                                   "occ_reference_data", "georeferencing","raw")))))))   
       }
 
-  ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
-    # Follow protocol outlined in "post-entry-processing.Rmd"
+  ## visit GEOLocate batch processor: 
+      utils::browseURL("https://www.geo-locate.org/web/WebFileGeoref.aspx", browser = getOption("browser"))
+      # upload this file: 
+      utils::browseURL(here::here("data","data_digitization","occurrence_data","occ_reference_data","georeferencing","raw"))
+      # Follow protocol outlined in "post-entry-processing.Rmd"
+      # place the completed sheet in this folder: 
+      utils::browseURL(here::here("data","data_digitization","occurrence_data","occ_reference_data","georeferencing","done"))
+      
       
   ## loading referenced occurrences 
    
@@ -890,33 +904,33 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       if (!is.na(occ_data$intraspecificEpithet[k])){ 
         
         # does the genus, species and intraspeicific epithet match one in the CDC?... 
-        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, 
+        if(length(CDC_cleaned[which(occ_data$canonicalName[k]==CDC_cleaned$fullName), 
                               "Provincial"])==1){
           
           occ_data$provincialStatus[k]<- paste0("provincial status: ", CDC_cleaned[
-          occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"])
+          which(occ_data$canonicalName[k]==CDC_cleaned$fullName), "Provincial"])
         }
         
       } else { # if there is no intraspecific epithet listed... 
         
         # if there is match for genus and species name in CDC...
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == 
-                              occ_data$canonicalName[k], "Provincial"]) > 1){ 
+        if(length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k]), "Provincial"]) > 1){ 
           
           # for how ever many number of subspecies there are ...
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == 
-                                         occ_data$canonicalName[k], 
+          for (j in 1:length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                                         occ_data$canonicalName[k]), 
                                          "Provincial"])){ 
             
             # do all of possible subspecies have same list code? 
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == 
+            if (length(unique(CDC_cleaned[which(CDC_cleaned$scientificName == 
                                            occ_data$canonicalName[k]),
                                           "Provincial"])) == 1){ 
               
               # if so, then apply that list category to that row
               occ_data[k, "provincialStatus"] <- paste0("provincial status: ",
-                CDC_cleaned[CDC_cleaned$scientificName == 
-                              occ_data$canonicalName[k], "Provincial"][1])
+                CDC_cleaned[which(CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k]), "Provincial"][1])
               
             } else { # if multiple subspecies with different list categories 
               # and we don't know what subspecies...
@@ -927,13 +941,13 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           }
           
         # if only one name that matches
-        } else if (length(CDC_cleaned[CDC_cleaned$fullName == 
-                                      occ_data$canonicalName[k], 
+        } else if (length(CDC_cleaned[which(CDC_cleaned$fullName == 
+                                      occ_data$canonicalName[k]), 
                                       "Provincial"]) == 1){ 
           
           occ_data[k, "provincialStatus"] <- paste0("provincial status: ",
-            CDC_cleaned[CDC_cleaned$fullName == 
-                          occ_data$canonicalName[k], "Provincial"])
+            CDC_cleaned[which(CDC_cleaned$fullName == 
+                          occ_data$canonicalName[k]), "Provincial"])
           
         }
       }
@@ -948,34 +962,34 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       # for observations that have species with intraspecific epithet (subspecies)...
       if (!is.na(occ_data$intraspecificEpithet[k])){ 
         # does the genus, species and intraspeicific epithet match one in the CDC? 
-        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, 
+        if(length(CDC_cleaned[which(occ_data$canonicalName[k]==CDC_cleaned$fullName), 
                               "Global"])==1){
           
           occ_data$globalStatus[k]<- paste0("global status: ",
-            CDC_cleaned[occ_data$canonicalName[k]==
-                          CDC_cleaned$fullName, "Global"])
+            CDC_cleaned[which(occ_data$canonicalName[k]==
+                          CDC_cleaned$fullName), "Global"])
           
         }
         
       } else { # if there is no intraspecific epithet listed... 
         
         # if there is match for genus and species name in CDC...
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == 
-                              occ_data$canonicalName[k], "Global"]) > 1){ 
+        if(length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k]), "Global"]) > 1){ 
           
           # for how ever many number of subspecies there are ...
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == 
-                                         occ_data$canonicalName[k], "Global"])){ 
+          for (j in 1:length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                                         occ_data$canonicalName[k]), "Global"])){ 
             
             # do all of possible subspecies have same list code? 
             if (length(unique(
-              CDC_cleaned[(CDC_cleaned$scientificName == 
+              CDC_cleaned[which(CDC_cleaned$scientificName == 
               occ_data$canonicalName[k]),"Global"])) == 1){ 
               
               # if so, then apply that list category to that row
               occ_data[k, "globalStatus"] <- paste0("global status: ",
-                CDC_cleaned[CDC_cleaned$scientificName ==
-                              occ_data$canonicalName[k], "Global"][1])
+                CDC_cleaned[which(CDC_cleaned$scientificName ==
+                              occ_data$canonicalName[k]), "Global"][1])
               
             } else { # if multiple subspecies with different 
               #list categories and we don't know what subspecies...
@@ -986,12 +1000,12 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           }
           
           # if only one name that matches
-        } else if (length(CDC_cleaned[CDC_cleaned$fullName ==
-                                      occ_data$canonicalName[k], "Global"]) == 1){ 
+        } else if (length(CDC_cleaned[which(CDC_cleaned$fullName ==
+                                      occ_data$canonicalName[k]), "Global"]) == 1){ 
           
           occ_data[k, "globalStatus"] <- paste0("global status: ",
-            CDC_cleaned[CDC_cleaned$fullName == 
-                          occ_data$canonicalName[k], "Global"])
+            CDC_cleaned[which(CDC_cleaned$fullName == 
+                          occ_data$canonicalName[k]), "Global"])
           
         }
       }
@@ -1004,7 +1018,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     new_dwc_data <- occ_data %>% 
       # assigning statuses as dwc::dyamic properties
       unite("dynamicProperties", provincialStatus, 
-            globalStatus, sep="; ") %>% 
+            globalStatus, sep="; ", na.rm=T) %>% 
     
       # renaming columns to dwc terms 
       dplyr::rename(verbatimScientificName = vSciName, 
@@ -1047,8 +1061,9 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       
     # renumbering occurrence ID
       new_total_dwc_data$occurrenceID <- paste0(AI,"O-",1:dim(new_total_dwc_data)[1])
-    }
-
+    }else{
+      new_total_dwc_data <-  new_dwc_data
+  }
     
 ## saving csv files
   

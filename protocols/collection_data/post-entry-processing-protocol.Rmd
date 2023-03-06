@@ -39,19 +39,19 @@ There are a total of 4 scripts for all three steps which can be found in the fol
 
 # Setup
 
-1) Download the repository from Github: <https://github.com/emench/Harvey_Janszen_Legacy_Project>
+1)  Download the repository from Github: <https://github.com/emench/Harvey_Janszen_Legacy_Project>
 
 This repository contains all of the existing data, scripts, and packages required to perform data processing'
 
-2) Set up data entry sheets for every separate collector journal using the template templates in data \> data_digitization \> occurrence_data OR collection_data \> 1_raw_data
+2)  Set up data entry sheets for every separate collector journal using the template templates in data \> data_digitization \> occurrence_data OR collection_data \> 1_raw_data
 
 -   label these as "[collector_Initials]-[journal_number]-coll OR occ-entry-template.xlsx"
 
-3) Enter data in these templates following the occ-data-entry and coll-data-entry protocols found in the protocols section of the repository
+3)  Enter data in these templates following the occ-data-entry and coll-data-entry protocols found in the protocols section of the repository
 
 -   make sure there is a template for every journal you intend to enter data for - these don't have to be filled out, their names just have to be present for the code to work later
 
-4) Follow the following steps to repeatedly process newly entered data
+4)  Follow the following steps to repeatedly process newly entered data
 
 # Processing step I: data checking
 
@@ -263,3 +263,9 @@ This repository contains all of the existing data, scripts, and packages require
 
 7.  Run the rest of the script
 8.  The output will be a CSV file with all of the digitized occurrences in the *"darwin_core_data"* folder labelled with the date of processing.
+
+## **Processing Step IV: Assigning Associate observation-only occurrences listed as associates in notes**
+
+-   In order to obtain associate species for the observation-only associates noted collection notes, observation-only data must be entered for these pages
+
+-   Then, the script:
