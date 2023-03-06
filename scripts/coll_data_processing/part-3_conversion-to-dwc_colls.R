@@ -342,7 +342,7 @@
     # add the date that this table was generated: normalized_YYYY_MM_DD.csv
   }
     
-  ## Reading in table of checked names, matching names and writing updated taxonomic info
+## Reading in table of checked names, matching names and writing updated taxonomic info
   # to main data frame: 
   
   if(tax_ref_sys=="FPNW2"){
@@ -837,33 +837,33 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       if (!is.na(occ_data$intraspecificEpithet[k])){ 
         
         # does the genus, species and intraspeicific epithet match one in the CDC?... 
-        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, 
+        if(length(CDC_cleaned[which(occ_data$canonicalName[k]==CDC_cleaned$fullName), 
                               "Provincial"])==1){
           
-          occ_data$provincialStatus[k]<- paste0("provincial status: ", CDC_cleaned[
-          occ_data$canonicalName[k]==CDC_cleaned$fullName, "Provincial"])
+          occ_data$provincialStatus[k]<- paste0("provincial status: ", CDC_cleaned[which(
+          occ_data$canonicalName[k]==CDC_cleaned$fullName), "Provincial"])
         }
         
       } else { # if there is no intraspecific epithet listed... 
         
         # if there is match for genus and species name in CDC...
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == 
-                              occ_data$canonicalName[k], "Provincial"]) > 1){ 
+        if(length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k]), "Provincial"]) > 1){ 
           
           # for how ever many number of subspecies there are ...
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == 
-                                         occ_data$canonicalName[k], 
+          for (j in 1:length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                                         occ_data$canonicalName[k]), 
                                          "Provincial"])){ 
             
             # do all of possible subspecies have same list code? 
-            if (length(unique(CDC_cleaned[(CDC_cleaned$scientificName == 
+            if (length(unique(CDC_cleaned[which(CDC_cleaned$scientificName == 
                                            occ_data$canonicalName[k]),
                                           "Provincial"])) == 1){ 
               
               # if so, then apply that list category to that row
               occ_data[k, "provincialStatus"] <- paste0("provincial status: ",
-                CDC_cleaned[CDC_cleaned$scientificName == 
-                              occ_data$canonicalName[k], "Provincial"][1])
+                CDC_cleaned[which(CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k]), "Provincial"][1])
               
             } else { # if multiple subspecies with different list categories 
               # and we don't know what subspecies...
@@ -874,13 +874,13 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           }
           
         # if only one name that matches
-        } else if (length(CDC_cleaned[CDC_cleaned$fullName == 
-                                      occ_data$canonicalName[k], 
+        } else if (length(CDC_cleaned[which(CDC_cleaned$fullName == 
+                                      occ_data$canonicalName[k]), 
                                       "Provincial"]) == 1){ 
           
           occ_data[k, "provincialStatus"] <- paste0("provincial status: ",
-            CDC_cleaned[CDC_cleaned$fullName == 
-                          occ_data$canonicalName[k], "Provincial"])
+            CDC_cleaned[which(CDC_cleaned$fullName == 
+                          occ_data$canonicalName[k]), "Provincial"])
           
         }
       }
@@ -895,34 +895,34 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       # for observations that have species with intraspecific epithet (subspecies)...
       if (!is.na(occ_data$intraspecificEpithet[k])){ 
         # does the genus, species and intraspeicific epithet match one in the CDC? 
-        if(length(CDC_cleaned[occ_data$canonicalName[k]==CDC_cleaned$fullName, 
+        if(length(CDC_cleaned[which(occ_data$canonicalName[k]==CDC_cleaned$fullName), 
                               "Global"])==1){
           
           occ_data$globalStatus[k]<- paste0("global status: ",
-            CDC_cleaned[occ_data$canonicalName[k]==
-                          CDC_cleaned$fullName, "Global"])
+            CDC_cleaned[which(occ_data$canonicalName[k]==
+                          CDC_cleaned$fullName), "Global"])
           
         }
         
       } else { # if there is no intraspecific epithet listed... 
         
         # if there is match for genus and species name in CDC...
-        if(length(CDC_cleaned[CDC_cleaned$scientificName == 
-                              occ_data$canonicalName[k], "Global"]) > 1){ 
+        if(length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                              occ_data$canonicalName[k]), "Global"]) > 1){ 
           
           # for how ever many number of subspecies there are ...
-          for (j in 1:length(CDC_cleaned[CDC_cleaned$scientificName == 
-                                         occ_data$canonicalName[k], "Global"])){ 
+          for (j in 1:length(CDC_cleaned[which(CDC_cleaned$scientificName == 
+                                         occ_data$canonicalName[k]), "Global"])){ 
             
             # do all of possible subspecies have same list code? 
             if (length(unique(
-              CDC_cleaned[(CDC_cleaned$scientificName == 
+              CDC_cleaned[which(CDC_cleaned$scientificName == 
               occ_data$canonicalName[k]),"Global"])) == 1){ 
               
               # if so, then apply that list category to that row
               occ_data[k, "globalStatus"] <- paste0("global status: ",
-                CDC_cleaned[CDC_cleaned$scientificName ==
-                              occ_data$canonicalName[k], "Global"][1])
+                CDC_cleaned[which(CDC_cleaned$scientificName ==
+                              occ_data$canonicalName[k]), "Global"][1])
               
             } else { # if multiple subspecies with different 
               #list categories and we don't know what subspecies...
@@ -933,12 +933,12 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           }
           
           # if only one name that matches
-        } else if (length(CDC_cleaned[CDC_cleaned$fullName ==
-                                      occ_data$canonicalName[k], "Global"]) == 1){ 
+        } else if (length(CDC_cleaned[which(CDC_cleaned$fullName ==
+                                      occ_data$canonicalName[k]), "Global"]) == 1){ 
           
           occ_data[k, "globalStatus"] <- paste0("global status: ",
-            CDC_cleaned[CDC_cleaned$fullName == 
-                          occ_data$canonicalName[k], "Global"])
+            CDC_cleaned[which(CDC_cleaned$fullName == 
+                          occ_data$canonicalName[k]), "Global"])
           
         }
       }
@@ -952,7 +952,7 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     new_dwc_data <- occ_data %>% 
       # assigning statuses as dwc::dyamic properties
       unite("dynamicProperties", provincialStatus, 
-            globalStatus, sep="; ") %>% 
+            globalStatus, sep="; ", na.rm=T) %>% 
     
       
       # renaming columns to dwc terms 
@@ -998,6 +998,8 @@ for (i in 1:dim(occ_data)[1]){ # for every row
       
       # renumbering occurrence ID
       new_total_dwc_data$occurrenceID <- paste0(AI,"O-",1:dim(new_total_dwc_data)[1])
+    } else {
+      new_total_dwc_data <- new_dwc_data
     }
     
     
