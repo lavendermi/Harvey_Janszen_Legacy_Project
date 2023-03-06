@@ -20,3 +20,5 @@ spreadsheet.
 **NOTE:** to combine two sheets (collection data and occurrence data), the taxonomy
 reference system used in part 3 (darwin core conversion) on both types of data
 must have been the SAME!
+
+## ![Workflow diagram for aggregation](diagrams/LDP-data_aggregation-flow.png)
