@@ -268,4 +268,6 @@ This repository contains all of the existing data, scripts, and packages require
 
 -   In order to obtain associate species for the observation-only associates noted collection notes, observation-only data must be entered for these pages
 
--   Then, the script:
+-   Then, the script: <https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/aggregation/total-occurrence-aggregation.R>
+
+-   The final output will be a file in the "darwin_core_data" folder that is named "Final-DwC"
