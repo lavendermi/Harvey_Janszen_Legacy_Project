@@ -21,4 +21,4 @@ spreadsheet.
 reference system used in part 3 (darwin core conversion) on both types of data
 must have been the SAME!
 
-![A path diagram of this repository for the Harvey Janszen Legacy Project](diagrams/LDP-data_aggregation-flow.png)
+![A path diagram of this repository for the Harvey Janszen Legacy Project](/diagrams/LDP-data_aggregation-flow.png)
