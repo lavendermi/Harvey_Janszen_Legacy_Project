@@ -718,10 +718,10 @@ if(tax_ref_sys=="FPNW2"){
       }
     }
   
-points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),
+  points_to_map <- SpatialPoints(cbind((occ_data$decimalLongitude),
                                      occ_data$decimalLatitude), 
                                proj4string = CRS("+proj=longlat +datum=WGS84"))
-mapview(points_to_map)          
+  mapview(points_to_map)          
               
 ## 6) ASSIGNING ASSOCIATE ROWS and TAXA----
   
@@ -744,7 +744,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
           occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
           occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
           occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
-          occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
+          occ_data$vUTM[i] == occ_data$vUTM &
+          # and they have habitat and locality information
+          !is.na(occ_data$habitat[i]) &
+          !is.na(occ_data$locality[i])
+          )]) > 1){
     
     nameVec <- 
       as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
@@ -801,7 +805,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
               occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
               occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
               occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
-              occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
+              occ_data$vUTM[i] == occ_data$vUTM&
+              # and they have habitat and locality information
+              !is.na(occ_data$habitat[i]) &
+              !is.na(occ_data$locality[i])
+              )]) > 1){
         
         numVec <- 
           as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 

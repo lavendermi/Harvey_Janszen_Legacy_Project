@@ -14,8 +14,8 @@ library(groundhog)
 
 set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
-requiredPackages <-  c("assertr","expss", "readxl","dplyr",
-                       "here", "tidyverse","tidyr", "cowsay", 
+requiredPackages <-  c("assertr","expss", "readxl",
+                       "here", "tidyverse","dplyr","tidyr", "cowsay", 
                        "multicolor", "jsonlite", "Rfast")
 
 
@@ -40,9 +40,15 @@ AI <- "HJ" # AUTHOR INITIALS
                  as.character(unique(max(list.files(here::here("data","data_digitization",
                                                                "collection_data",
                                                                "2_data_checking")))))))
-    # reading recordNumber as character: 
+    # making sure everything is read in in the right class 
     checked_data$recordNum <- as.character(checked_data$recordNum)
-
+    
+    # applying to old_data frame
+    checked_data <- Map('class<-', checked_data, c(rep("character",3),rep("double",3),
+                                               rep("character",4), "double", rep("character",9),
+                                               rep("numeric",6),
+                                               rep("character",6), "numeric")) %>% bind_rows()
+    
   ## loading raw data
     # initializing variable for loop
     raw_data <- data.frame()
@@ -66,7 +72,7 @@ AI <- "HJ" # AUTHOR INITIALS
           temp_var <- read_excel(here::here("data","data_digitization", 
                                             "collection_data","1_raw_data", 
                                             paste0(AI,"-",J[i],"-","coll-entry.xlsx"))) %>% 
-            add_column(archiveID=J[i]) # adding journal number
+          add_column(archiveID=J[i]) # adding journal number
           raw_data <- rbind(raw_data,temp_var ) 
           
           cowsay::say("raw data from multiple journals appended", by="signbunny")
@@ -77,6 +83,7 @@ AI <- "HJ" # AUTHOR INITIALS
     # removing brackets from column names in template
     raw_data <- raw_data %>% 
       dplyr::rename(pageNum = "[pageNum]", 
+                    recordNum = "[recordNum]",
                     numPage = "[numPage]", 
                     vName = "[vName]",
                     vSciName= "[vSciName]", 
@@ -86,7 +93,8 @@ AI <- "HJ" # AUTHOR INITIALS
                     country = "[country]",
                     stateProvince = "[stateProvince]", 
                     island ="[island]")
-    
+    # ensuring class of recordNum is double 
+    raw_data$recordNum <- as.double(raw_data$recordNum)
   
   ## finding rows previously processed and removing these from raw data 
   
@@ -125,6 +133,7 @@ AI <- "HJ" # AUTHOR INITIALS
     cowsay::say("old data removed!", by="signbunny")
     
   }
+    
   
 ## 2. HAVE ALL ROWS IN CHECK DATA BEEN REVIEWED? ----
   # (if no error message appears, then everything is fine)
@@ -144,7 +153,8 @@ AI <- "HJ" # AUTHOR INITIALS
     dplyr::filter(!is.na(vName) & 
                     !is.na(vSciName) &
                     !is.na(sciName)) %>% 
-    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) 
+    dplyr::filter(., rowSums(is.na(.)) != ncol(.)) %>% 
+    relocate(dataEntryRemarks, .before = archiveID)
   
   for (i in 1:dim(checked_data)[1]){  # for each row in the checked frame
     
@@ -197,6 +207,7 @@ AI <- "HJ" # AUTHOR INITIALS
                                                               "3_data_cleaning"))))))  
     cowsay::say("old file removed!", by="signbunny")
   }
-            
+
+## run part-2_cleaning_colls.R            
             
   

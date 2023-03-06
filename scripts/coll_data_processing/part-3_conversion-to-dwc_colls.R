@@ -17,10 +17,10 @@
   
   set.groundhog.folder(here::here("packages"))
   date <- "2022-11-02"
-  requiredPackages <-  c("assertr","dplyr","here", "lubridate",
+  requiredPackages <-  c("assertr","here", "lubridate",
                          "magrittr","mapview","purrr","ritis",
                          "stringi","taxize","terra","tidyverse",
-                         "sp","tidyr", "cowsay")
+                         "sp","tidyr","dplyr", "cowsay")
   
   for (pkg in requiredPackages) {
     groundhog.library(pkg, date)
@@ -36,7 +36,7 @@
   fieldnote_storage_facility <- " " # where are field notes stored? 
   image_repo <- " " # repository where field note images are stored
   
-  tax_ref_sys <- "FPNW2" # taxonomy reference system --> either "FPNW2" or "GBIF"
+  tax_ref_sys <- "GBIF" # taxonomy reference system --> either "FPNW2" or "GBIF"
   
 ## 2) READING IN DATA ----
   
@@ -191,8 +191,8 @@
   
   for(i in 1:dim(data)[1]){ # for each observation
     if(!is.na(data$island[i])){ # if there was no remark
-      data$islandGroup[i] <- places[places$island==data$island[i], 
-                                    "islandGroup"]
+      data$islandGroup[i] <- unique(places[places$island==data$island[i], 
+                                    "islandGroup"])
     }
   } 
   
@@ -224,7 +224,7 @@
   
     # checking that all were assinged a county
     data %>% 
-      group_by(county)
+    group_by(county) %>% 
     assert(not_na,county) 
   
   # dwc:fieldNotes
@@ -239,9 +239,8 @@
   
   ## removing fields we don't need anymore for darwin core archive
   # (tidying data)
-  occ_data <- data %>% 
     occ_data <- data %>% 
-    select(-pageNum,-numPage, -vName, -conf, -date, -index) %>%
+    select(-pageNum,-numPage, -vName, -conf, -date) %>%
     arrange(recordNum)
   
                                        
@@ -272,21 +271,6 @@
     
     cowsay::say("file ready to check with FPNW2 standards", by="signbunny")
     
-    # Upload .txt file to: https://www.pnwherbaria.org/florapnw/namechecker.php
-    utils::browseURL(here::here("data","data_digitization","collection_data", 
-                                "coll_reference_data", "taxonomy", "raw"))
-    
-    # select "choose file" button
-    # find file in folder data > data_digitization > occurrence_data > occ_reference_data > taxonomy > raw
-    # press the "Check Names" button
-    # download the file produced
-    # place in...
-    utils::browseURL(here::here("data","data_digitization","collection_data", 
-                                "coll_reference_data", "taxonomy", "normalized"))
-    
-    # manually change the file name to "FPNW2_normalized_YYYY-MM-DD.txt"
-    
-    
   } else if (tax_ref_sys == "GBIF"){
     
     # Using GBIF Species-Lookup tool to check taxon names (updated 
@@ -307,11 +291,41 @@
                                        Sys.Date(), ".csv")), row.names = F)
     
     cowsay::say("file ready to check with GBIF standards", by="signbunny")
+  
+  }
+  
+## removing old files to save storage
+  if(length(list.files(here::here("data","data_digitization","collection_data", 
+                                  "coll_reference_data", "taxonomy","raw")))>2){
+    file.remove(here::here("data","data_digitization","collection_data", 
+                           "coll_reference_data", "taxonomy","raw",
+                           unique(as.character(min(list.files(
+                             here::here("data","data_digitization","collection_data", 
+                                        "coll_reference_data", "taxonomy","raw")))))))   
+    cowsay::say("old files removed", by="signbunny")
+  }
+  
+## Visit...
     
+  if (tax_ref_sys=="FPNW2"){
+   
+    utils::browseURL("https://www.pnwherbaria.org/florapnw/namechecker.php", browser = getOption("browser"))
+    # Upload .txt file to: https://www.pnwherbaria.org/florapnw/namechecker.php
+    # select "choose file" button
+    # find file in folder data > data_digitization > occurrence_data > occ_reference_data > taxonomy > raw
+    # press the "Check Names" button
+    # download the file produced
+    # place in...
+    utils::browseURL(here::here("data","data_digitization","collection_data", 
+                                "coll_reference_data", "taxonomy", "normalized"))
+    
+    # manually change the file name to "FPNW2_normalized_YYYY-MM-DD.txt"
+    
+  } else if (tax_ref_sys=="GBIF"){
     # find csv file in folder: 
     utils::browseURL(here::here("data","data_digitization","collection_data", 
                                 "coll_reference_data", "taxonomy", "raw"))
-    
+    utils::browseURL("https://www.gbif.org/tools/species-lookup", browser = getOption("browser"))
     # Upload csv file to https://www.gbif.org/tools/species-lookup
     # select "match to backbone" button
     # Review the outputs - paying attention to the "matchType" column
@@ -324,21 +338,10 @@
     # place in working directory:
     utils::browseURL(here::here("data","data_digitization","collection_data", 
                                 "coll_reference_data", "taxonomy", "normalized"))
-    # add the date that this table was generated
     
+    # add the date that this table was generated: normalized_YYYY_MM_DD.csv
   }
-  
-  ## removing old files to save storage
-  if(length(list.files(here::here("data","data_digitization","collection_data", 
-                                  "coll_reference_data", "taxonomy","raw")))>2){
-    file.remove(here::here("data","data_digitization","collection_data", 
-                           "coll_reference_data", "taxonomy","raw",
-                           unique(as.character(min(list.files(
-                             here::here("data","data_digitization","collection_data", 
-                                        "coll_reference_data", "taxonomy","raw")))))))   
-    cowsay::say("old files removed", by="signbunny")
-  }
-  
+    
   ## Reading in table of checked names, matching names and writing updated taxonomic info
   # to main data frame: 
   
@@ -483,7 +486,7 @@
         # making sure that empty cells are NA
         mutate_all(na_if, "") %>% 
         # removing columns to avoid duplication 
-        select(-sciName)
+        select(-sciName) %>% 
         # renaming columns
         dplyr::rename(scientificNameauthorship = authorship, 
                     taxonRank = rank, 
@@ -537,9 +540,14 @@
         }
       
   
-  ## visit GEOLocate batch processor: https://www.geo-locate.org/web/WebFileGeoref.aspx
+  ## visit GEOLocate batch processor: 
+      utils::browseURL("https://www.geo-locate.org/web/WebFileGeoref.aspx", browser = getOption("browser"))
+    # upload this file: 
+      utils::browseURL(here::here("data","data_digitization","collection_data","coll_reference_data","georeferencing","raw"))
     # Follow protocol outlined in "post-entry-processing.Rmd"
-    
+    # place the completed sheet in this folder: 
+      utils::browseURL(here::here("data","data_digitization","collection_data","coll_reference_data","georeferencing","done"))
+      
   ## loading referenced locations
 
       GEOlocate <- read.csv(
@@ -710,7 +718,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
     occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
     occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
     occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
-    occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
+    occ_data$vUTM[i] == occ_data$vUTM &
+    # and they have habitat and locality information
+    !is.na(occ_data$habitat[i]) &
+    !is.na(occ_data$locality[i])
+    )]) > 1){
     
     nameVec <- 
       as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 
@@ -753,7 +765,11 @@ for (i in 1:dim(occ_data)[1]){ # for every row
               occ_data$decimalLatitude[i]==occ_data$decimalLatitude &
               occ_data$decimalLongitude[i]==occ_data$decimalLongitude | 
               occ_data$vLat[i]==occ_data$vLat & occ_data$vLon[i] ==occ_data$vLon |
-              occ_data$vUTM[i] == occ_data$vUTM)]) > 1){
+              occ_data$vUTM[i] == occ_data$vUTM &
+              # and they have habitat and locality information
+              !is.na(occ_data$habitat[i]) &
+              !is.na(occ_data$locality[i])
+              )]) > 1){
         
         numVec <- 
           as.vector(occ_data[occ_data$fulldate[i] == occ_data$fulldate & 

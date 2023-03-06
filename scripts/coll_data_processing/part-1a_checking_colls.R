@@ -31,8 +31,8 @@
   date <- "2022-11-02"
   
   # packages required
-  requiredPackages <-  c("assertr","readxl","dplyr","here", 
-                         "tidyverse","tidyr", "cowsay", "multicolor",
+  requiredPackages <-  c("assertr","readxl","here", 
+                         "tidyverse","dplyr","tidyr", "cowsay", "multicolor",
                          "jsonlite")
   
   # loading and installing

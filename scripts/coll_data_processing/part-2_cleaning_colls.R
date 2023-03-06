@@ -30,8 +30,8 @@ library(groundhog)
 
 set.groundhog.folder(here::here("packages"))
 date <- "2022-11-02"
-requiredPackages <-  c("assertr","dplyr","here", "terra","tidyverse",
-                       "tidyr", "cowsay")
+requiredPackages <-  c("assertr","here", "terra","tidyverse",
+                       "tidyr", "dplyr","cowsay")
 
 for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
@@ -43,6 +43,7 @@ rm(requiredPackages)
 
 J <- c(5,7,8,9,27) # JOURNAL NUMBERS 
 AI <- "HJ" # AUTHOR INITIALS 
+journalPages <- c(116,159,209,206,28) # vector of number of pages in each journal in same order as J 
 
 ## READING IN DATA ----
 
@@ -74,53 +75,15 @@ AI <- "HJ" # AUTHOR INITIALS
 ## TASK 2: checking individual columns for constraints ----
   
 ## pageNum
-  # constraints: 1) for HJ-8 journal = numeric between 1 and 208
-  # for HJ-27 = numeric between 1 and 28 
-  # for HJ-7 = numeric between 1 and 159
-  # for HJ-9 = numeric between 1 and 206
-  # for HJ-5 = numeric between 1 and 116
-  # 2) read as an integer
-  # 3) all rows must have entry
+  # constraints: must be within range of journalPages for given journal
 
-  if(J==7){
+  for(i in 1:length(J)){
     data %>% 
     group_by(pageNum) %>% 
     chain_start %>% 
     verify(., has_class("pageNum", class="integer")) %>% 
-    assert(., in_set(1:159), pageNum) %>% 
+    assert(., in_set(1:journalPages[i]), pageNum) %>% 
     chain_end 
-    
-  }else if(J==8){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>% 
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:208),pageNum) %>% 
-    chain_end 
-    
-  }else if(J==9){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>%
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:206),pageNum)  %>% 
-    chain_end 
-    
-  }else if(J==27){
-    data %>% 
-    group_by(pageNum) %>% 
-    chain_start %>% 
-    verify(., has_class("pageNum", class="integer")) %>% 
-    assert(in_set(1:28),pageNum) %>% 
-    chain_end
-    
-  }else if(J==5){
-    data %>% 
-      group_by(pageNum) %>% 
-      chain_start %>% 
-      verify(., has_class("pageNum", class="integer")) %>% 
-      assert(in_set(1:116),pageNum) %>% 
-      chain_end 
   }
 
 ## numPage 
@@ -497,7 +460,7 @@ AI <- "HJ" # AUTHOR INITIALS
   
 ## Writing cleaned sheet ---
 
-write.csv(data_cleaned, here::here("data","data_digitization",
+write.csv(data, here::here("data","data_digitization",
                                    "collection_data",
                                    "4_clean_data",
                                    paste0(AI, "_clean-occurrences_",
@@ -512,4 +475,8 @@ if(length(list.files(here::here("data",
                                                             "4_clean_data"))))))   
   cowsay::say("old files removed!", by="signbunny")
 }
+
+## continue to part-3_conversion-to-dwc_colls.R
+
+
 
