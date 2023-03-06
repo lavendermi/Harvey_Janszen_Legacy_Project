@@ -112,7 +112,7 @@ GBIF = [Global Biodiversity Information Facility](https://www.gbif.org/)
 
     -   [part-2_field-note-database-comparison.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/blob/main/scripts/rbcm_data_processing/field-note-data/part2-field-note-database-comparison.R)
 
-4.  **Observation-only & Collection data aggregation** \|\|\|\|\| **[under construction] \|\|\|\|**
+4.  **Observation-only & Collection data aggregation**
 
     -   [total-occurrence-aggregation.R](https://github.com/emench/Harvey_Janszen_Legacy_Project/tree/main/scripts/aggregation)
 
