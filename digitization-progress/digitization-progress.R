@@ -22,7 +22,7 @@ date <- "2022-11-02"
 
 requiredPackages <-  c("tidyverse", "dplyr", "readxl", "stringr")
 
-for (i in requiredPackages) {
+for (pkg in requiredPackages) {
   groundhog.library(pkg, date)
 }
 
@@ -126,13 +126,6 @@ rm(requiredPackages)
       coll_proc[i] <- length(unique(as.numeric(coll_proc_pages[[i]][which(as.numeric(coll_proc_pages[[i]])>0)])))
     }
     
-    
-    
-    ## calculating total progress as % of total pages of each journal
-      coll_proc_progress <- round((coll_proc/journalPages)*100, 1)
-      occ_proc_progress<- round((occ_proc/journalPages)*100, 1)
-    
-    
   ## occurrence data
     
     # loading data
@@ -175,15 +168,16 @@ rm(requiredPackages)
     ## calculating total progress as % of total pages of each journal
     coll_proc_progress <- round((coll_proc/journalPages)*100, 1)
     occ_proc_progress<- round((occ_proc/journalPages)*100, 1)
-    
+
 ## Constructing a data table to store digitization progress summary ----
     
-    summary <- data.frame(J, journalPages, coll_pages, coll_progress, occ_progress, occ_pages, 
+    summary <- data.frame(J, journalPages, coll_pages, coll_dig_progress, occ_dig_progress, occ_pages, 
                           coll_proc, coll_proc_progress, occ_proc, occ_proc_progress) %>% 
-      dplyr::rename(journalNumber = J, coll_digitization_perc = coll_progress,
-                    occ_digitization_perc= occ_progress,
+      dplyr::rename(journalNumber = J, coll_digitization_perc = coll_dig_progress,
+                    occ_digitization_perc= occ_dig_progress,
                     coll_processed_pages=coll_proc, coll_processed_perc = coll_proc_progress, 
                     occ_processed_pages=occ_proc, occ_processed_perc=occ_proc_progress)
       
-    
+    ## witing csv file 
+    write.csv(summary,here::here("digitization-progress", paste0("digitization-progress_",Sys.Date(),".csv")))
   

@@ -36,7 +36,7 @@
   fieldnote_storage_facility <- " " # where are field notes stored? 
   image_repo <- " " # repository where field note images are stored
   
-  tax_ref_sys <- "GBIF" # taxonomy reference system --> either "FPNW2" or "GBIF"
+  tax_ref_sys <- "FPNW2" # taxonomy reference system --> either "FPNW2" or "GBIF"
   
 ## 2) READING IN DATA ----
   
