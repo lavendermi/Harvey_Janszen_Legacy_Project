@@ -7,7 +7,7 @@ output: html_document
 
 ## Laundry list (things to do / explore with this project)
 
-1) Version control of data checking sheets / taking out loops removing old rows and appending after processing so that data can be checked over multiple times (even if more time consuming)
+1)  Version control of data checking sheets / taking out loops removing old rows and appending after processing so that data can be checked over multiple times (even if more time consuming)
 
 -   maybe only run the processing scripts up to part 3 - wait to run part 3 when everything is digitized and reviewed
 
@@ -15,9 +15,9 @@ output: html_document
 
 -   Or allow everything to go through the scripts multiple times but connect old georeferencing and taxonomy reference information to rows that have already been reviewed through the record number as an identifier
 
-2) Prevent a bottleneck at the checking stage by deciding what type of uncertainties must be reviewed, which ones should just go with the best guess of the data enterer, and which ones should be discarded
+2)  Prevent a bottleneck at the checking stage by deciding what type of uncertainties must be reviewed, which ones should just go with the best guess of the data enterer, and which ones should be discarded
 
-3) RBCM checking process for labels and field data
+3)  RBCM checking process for labels and field data
 
 -   how to compare field notes formatted to the RBCM format to the RBCM data base?
 

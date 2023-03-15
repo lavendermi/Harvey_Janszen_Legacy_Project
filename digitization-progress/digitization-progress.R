@@ -168,15 +168,47 @@ rm(requiredPackages)
     ## calculating total progress as % of total pages of each journal
     coll_proc_progress <- round((coll_proc/journalPages)*100, 1)
     occ_proc_progress<- round((occ_proc/journalPages)*100, 1)
+    
+    
+##  calculating total between collection and occurrence data ----
+    
+    ## digitization progress
+    #initalizing vectors 
+    total_dig_pages <- c()
+    total_dig_progress <- c()
+    
+    for (i in 1:length(J)){
+    total_dig_pages[i] <- occ_pages[i] + coll_pages[i]
+    total_dig_progress[i] <-  (occ_pages[i] + coll_pages[i])/(2*journalPages[i])*100
+    
+    }
+    
+    ## digitization progress
+    #initalizing vectors 
+    total_proc_pages <- c()
+    total_proc_progress <- c()
+    
+    for (i in 1:length(J)){
+      total_proc_pages[i] <- occ_proc[i] + coll_proc[i]
+      total_proc_progress[i] <-  (occ_proc[i] + coll_proc[i])/(2*journalPages[i])*100
+      
+    }
+    
+    
 
 ## Constructing a data table to store digitization progress summary ----
     
     summary <- data.frame(J, journalPages, coll_pages, coll_dig_progress, occ_dig_progress, occ_pages, 
-                          coll_proc, coll_proc_progress, occ_proc, occ_proc_progress) %>% 
-      dplyr::rename(journalNumber = J, coll_digitization_perc = coll_dig_progress,
-                    occ_digitization_perc= occ_dig_progress,
+                          coll_proc, coll_proc_progress, occ_proc, occ_proc_progress, total_dig_pages,
+                          total_dig_progress, total_proc_pages, total_proc_progress) %>% 
+      dplyr::rename(journalNumber = J, coll_digitized_pages = coll_pages, coll_digitization_perc = coll_dig_progress,
+                    occ_digitization_perc= occ_dig_progress, occ_digitized_pages = occ_pages, 
                     coll_processed_pages=coll_proc, coll_processed_perc = coll_proc_progress, 
-                    occ_processed_pages=occ_proc, occ_processed_perc=occ_proc_progress)
+                    occ_processed_pages=occ_proc, occ_processed_perc=occ_proc_progress, 
+                    total_digitized_pages = total_dig_pages,
+                    total_digitization_perc = total_dig_progress,
+                    total_processed_pages = total_proc_pages,
+                    total_processed_perc = total_proc_progress)
       
     ## witing csv file 
     write.csv(summary,here::here("digitization-progress", paste0("digitization-progress_",Sys.Date(),".csv")))
